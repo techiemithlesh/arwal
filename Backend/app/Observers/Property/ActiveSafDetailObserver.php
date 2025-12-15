@@ -43,26 +43,12 @@ class ActiveSafDetailObserver
             $count = $count+1;
             $countStr = str_pad($count, 5, "0", STR_PAD_LEFT)."";
             $saf_no = $prifix."/".$assessmentId."/".str_pad($wardNo, 3, 0, STR_PAD_LEFT)."/".$countStr;
-            $testSql="select count(id)
-                      from(
-                        (
-                        select id 
-                        from active_saf_details
-                        where saf_no = '$saf_no'
-                      )
-                      union all(
-                        select id from rejected_saf_details
-                        where saf_no = '$saf_no'
-                      )
-                      union all(
-                        select id from saf_details
-                        where saf_no = '$saf_no'
-                      )
-                    )";
+            $testSql=$this->makeTestSql($saf_no);
             while($test = DB::connection($activeSafDetail->getConnectionName())->select($testSql)[0]->count){
                 $count = $count+$test;
                 $countStr = str_pad($count, 5, "0", STR_PAD_LEFT)."";
                 $saf_no = $prifix."/".$assessmentId."/".str_pad($wardNo, 3, 0, STR_PAD_LEFT)."/".$countStr;
+                $testSql=$this->makeTestSql($saf_no);
             }
             if ( $assessmentId==2) {
                 $WardCount->re_assessment = $count;
@@ -108,5 +94,25 @@ class ActiveSafDetailObserver
     public function forceDeleted(ActiveSafDetail $activeSafDetail): void
     {
         //
+    }
+
+
+    private function makeTestSql($saf_no){
+        return $testSql="select count(id)
+                      from(
+                        (
+                        select id 
+                        from active_saf_details
+                        where saf_no = '$saf_no'
+                      )
+                      union all(
+                        select id from rejected_saf_details
+                        where saf_no = '$saf_no'
+                      )
+                      union all(
+                        select id from saf_details
+                        where saf_no = '$saf_no'
+                      )
+                    )";
     }
 }
