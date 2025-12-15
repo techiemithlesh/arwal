@@ -16,7 +16,7 @@ class OwnershipTypeMaster extends ParamModel
     ];
 
     private function cashingData(){
-        $list = self::where("lock_status",false)->get();
+        $list = self::where("lock_status",false)->orderBy("id","ASC")->get();
         Redis::set($this->_cashKey,$list);
         Redis::expire($this->_cashKey, 18000);  
         return json_encode($list);
