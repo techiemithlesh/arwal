@@ -106,10 +106,10 @@ class SafDemandBll
         $before90Days = $this->_tranDate->copy()->subDays("90")->format("Y-m-d");
         if($this->_isVacantLand && $this->_SAF->land_occupation_date < $before90Days){
             if($this->_SAF->is_mobile_tower || $this->_SAF->is_hoarding_board){
-                $this->_lateAssessmentPenalty = 5000;
+                $this->_lateAssessmentPenalty = 0;
             }
             else{
-                $this->_lateAssessmentPenalty = 2000;
+                $this->_lateAssessmentPenalty = 0;
             }
         }
         else{
@@ -117,9 +117,9 @@ class SafDemandBll
             $newFloors = collect($floor)->whereNull("prop_floor_detail_id")->where("date_from","<",$before90Days);
             $commercialFloor = collect($newFloors)->whereNotIn("usage_type_master_id",[1,11]);
             if($newFloors->isNotEmpty()){
-                $this->_lateAssessmentPenalty = 2000;
+                $this->_lateAssessmentPenalty = 0;
                 if($commercialFloor->isNotEmpty()){
-                    $this->_lateAssessmentPenalty = 5000;
+                    $this->_lateAssessmentPenalty = 0;
                 }
             }
         }
@@ -141,13 +141,13 @@ class SafDemandBll
         $firstQuarterStartDate = calculateQuarterStartDate($firstQuarterLastDate);
         # 5% online Rebate
         if(!$user || $user->getTable()!="users"){ 
-            $this->_onlineRebate = ($this->_currentDemandAmount * 0.05);
+            $this->_onlineRebate = ($this->_currentDemandAmount * 0.0);
         }# 2.5% JSK Rebate
         elseif($user->getTable()=="users"){
             $role = $user->getRoleDetailsByUserId()->first();
             $roleId = $role->id??0;
             if(in_array($roleId,[1,8])){
-                $this->_jskRebate = ($this->_currentDemandAmount * 0.025);
+                $this->_jskRebate = ($this->_currentDemandAmount * 0.0);
             }
             
         }
@@ -168,19 +168,19 @@ class SafDemandBll
                 $owners = $owners->first();
                 #5% when female Or transgender
                 if(in_array($owners->gender, ['Female','Other'])){
-                    $this->_specialRebate = $this->_demandAmount * 0.05;
+                    $this->_specialRebate = $this->_demandAmount * 0.0;
                 }
                 #5% when armed force
                 if($owners->is_armed_force){
-                    $this->_specialRebate = $this->_demandAmount * 0.05;
+                    $this->_specialRebate = $this->_demandAmount * 0.0;
                 }
                 #5% when specially able
                 if($owners->is_specially_abled){
-                    $this->_specialRebate = $this->_demandAmount * 0.05;
+                    $this->_specialRebate = $this->_demandAmount * 0.0;
                 }
                 #5% when Senior Citizen
                 if($owners->dob && Carbon::parse($owners->dob)->diffInYears($firstQuarterLastDate)>=60){
-                    $this->_specialRebate = $this->_demandAmount * 0.05;
+                    $this->_specialRebate = $this->_demandAmount * 0.0;
                 }
             }
             $this->_specialRebate = roundFigure($this->_specialRebate);
@@ -195,10 +195,16 @@ class SafDemandBll
     public function getOnePercentPenalty($demandList){
         $penalty = 0 ;
         $monthDiff = 0;
-        # one percent penalty applicable
-        if($demandList->due_date >='2017-06-30' && $demandList->due_date < $this->_tranDate->copy()->format("Y-m-d")){
+        # 1.5 percent penalty applicable
+        // if($demandList->due_date && $demandList->due_date < $this->_tranDate->copy()->format("Y-m-d") && getFY($demandList->due_date)<getFY())
+        if(getFY($demandList->due_date)<getFY())
+        {
             $monthDiff = floor(Carbon::parse($demandList->due_date)->diffInMonths($this->_tranDate));
-            $penalty = roundFigure(($demandList->balance_tax * $monthDiff)/100);
+            $penalty = roundFigure(($demandList->balance_tax * $monthDiff * 1.5)/100);
+        }
+        if(getFY($demandList->due_date)==getFY()  && $this->_tranDate->copy()->format("Y-m-d")>=FyearQutFromDate(getFY(),3) ){
+            $monthDiff = floor(Carbon::parse(FyearQutUptoDate(getFY(),2))->diffInMonths($this->_tranDate));
+            $penalty = roundFigure(($demandList->balance_tax * $monthDiff * 1.5)/100);
         }
         $demandList->monthDiff = $monthDiff;
         $demandList->monthlyPenalty = $penalty;
