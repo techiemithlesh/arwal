@@ -18,6 +18,7 @@ use App\Models\Property\PropertyTypeMaster;
 use App\Models\Property\RoadTypeMaster;
 use App\Models\Property\TransferModeMaster;
 use App\Models\Property\UsageTypeMaster;
+use App\Models\Property\ZoneMaster;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -33,6 +34,7 @@ class RequestAddSaf extends ParentRequest
     protected $_RoadTypeMaster;
     protected $_TransferModeMaster;
     protected $_UsageTypeMaster;
+    protected $_ZoneMaster;
     protected $_UlbWardMaster;
     protected $_OldWardNewWardMap;
     protected $_UlbMaster;
@@ -52,6 +54,7 @@ class RequestAddSaf extends ParentRequest
         $this->_RoadTypeMaster = new RoadTypeMaster();
         $this->_TransferModeMaster = new TransferModeMaster();
         $this->_UsageTypeMaster = new UsageTypeMaster();
+        $this->_ZoneMaster = new ZoneMaster();
         $this->_UlbWardMaster = new UlbWardMaster();
         $this->_OldWardNewWardMap = new OldWardNewWardMap();
         $this->_UlbMaster = new UlbMaster();
@@ -76,18 +79,18 @@ class RequestAddSaf extends ParentRequest
         $rules=[
             "ulbId"=>"required|int|regex:/^[0-9]+$/|exists:".$this->_UlbMaster->getConnectionName().".".$this->_UlbMaster->getTable().",id",                
             "wardMstrId"=>"required|int|regex:/^[0-9]+$/|exists:".$this->_UlbWardMaster->getConnectionName().".".$this->_UlbWardMaster->getTable().",id".($this->ulbId ? ",ulb_id,".$this->ulbId : ""),
-            "newWardMstrId"=>"required|int|regex:/^[0-9]+$/|exists:".$this->_OldWardNewWardMap->getConnectionName().".".$this->_OldWardNewWardMap->getTable().",new_ward_id".($this->wardMstrId ? ",old_ward_id,".$this->wardMstrId : ""),
+            "newWardMstrId"=>"nullable|int|regex:/^[0-9]+$/|exists:".$this->_OldWardNewWardMap->getConnectionName().".".$this->_OldWardNewWardMap->getTable().",new_ward_id".($this->wardMstrId ? ",old_ward_id,".$this->wardMstrId : ""),
             "ownershipTypeMstrId"=>"required|int|regex:/^[0-9]+$/|exists:".$this->_OwnershipTypeMaster->getConnectionName().".".$this->_OwnershipTypeMaster->getTable().",id",
             "propTypeMstrId"=>"required|int|regex:/^[0-9]+$/|exists:".$this->_PropertyTypeMaster->getConnectionName().".".$this->_PropertyTypeMaster->getTable().",id",
             "assessmentType"=>"required|in:New Assessment,Reassessment,Mutation",
             "previousHoldingId"=>"nullable|required_unless:assessmentType,New Assessment",
             "transferModeMstrId"=>"nullable|required_if:assessmentType,Mutation|int",
             "percentageOfPropertyTransfer"=>"nullable|required_if:assessmentType,Mutation|numeric|min:0.1|max:100",
-            "zoneMstrId"=>"required|int|regex:/^[0-9]+$/|in:1,2",
+            "zoneMstrId"=>"required|int|regex:/^[0-9]+$/|exists:".$this->_ZoneMaster->getConnectionName().".".$this->_ZoneMaster->getTable().",id",
             "roadWidth"=>"required|numeric|".($this->propTypeMstrId==4 ? "min:0":"min:0.5")."|max:499",
             "appartmentDetailsId"=>[
                 "nullable",
-                "required_if:propTypeMstrId,3",
+                "required_if:propTypeMstrId,1",
                 "int",
                 "regex:/^[0-9]+$/",
                 Rule::exists($this->_ApartmentDetail->getConnectionName().".".$this->_ApartmentDetail->getTable(), 'id')
@@ -95,7 +98,7 @@ class RequestAddSaf extends ParentRequest
                     return $query->where('ulb_id', $this->ulbId);
                 }),
             ],
-            "flatRegistryDate"=>"nullable|required_if:propTypeMstrId,3|date|date_format:Y-m-d|before_or_equal:".Carbon::now()->format("Y-m-d"),
+            "flatRegistryDate"=>"nullable|required_if:propTypeMstrId,1|date|date_format:Y-m-d|before_or_equal:".Carbon::now()->format("Y-m-d"),
             "khataNo"=>"required",
             "plotNo"=>"required",
             "villageMaujaName"=>"required",
@@ -111,7 +114,7 @@ class RequestAddSaf extends ParentRequest
             "isHoardingBoard"=>"required|bool",
             "hoardingArea"=>"nullable|required_if:isHoardingBoard,true,1|numeric|min:0.1",
             "hoardingInstallationDate"=>"nullable|required_if:isHoardingBoard,true,1|date|date_format:Y-m-d|before_or_equal:".Carbon::now()->format("Y-m-d"),
-            "isPetrolPump"=>"nullable|required_if:propTypeMstrId,1,2,5|bool",
+            "isPetrolPump"=>"nullable|required_if:propTypeMstrId,1,2,3|bool",
             "underGroundArea"=>"nullable|required_if:isPetrolPump,true,1|numeric|min:0.1",
             "petrolPumpCompletionDate"=>"nullable|required_if:isPetrolPump,true,1|date|date_format:Y-m-d|before_or_equal:".Carbon::now()->format("Y-m-d"),
             "isWaterHarvesting"=>"nullable|required_if:propTypeMstrId,1,2,3,5|bool",
@@ -133,7 +136,7 @@ class RequestAddSaf extends ParentRequest
 
             "floorDtl"=>"nullable|required_unless:propTypeMstrId,4|array",
             "floorDtl.*.builtupArea"=>"nullable|required_unless:propTypeMstrId,4|min:0.1",
-            "floorDtl.*.dateFrom"=>"nullable|required_unless:propTypeMstrId,4required|date|date_format:Y-m|before_or_equal:".Carbon::now()->format("Y-m"),
+            "floorDtl.*.dateFrom"=>"nullable|required_unless:propTypeMstrId,4|date|date_format:Y-m|before_or_equal:".Carbon::now()->format("Y-m"),
             "floorDtl.*.dateUpto"=>[
                 "nullable",
                 "date",

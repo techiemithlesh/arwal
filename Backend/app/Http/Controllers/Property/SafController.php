@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Property;
 
 use App\Bll\Common;
+use App\Bll\Property\BiharTaxCalculator;
 use App\Bll\Property\GenerateMemoBll;
 use App\Bll\Property\MemoReceiptBll;
 use App\Bll\Property\PaymentReceiptBll;
@@ -50,6 +51,7 @@ use App\Models\Property\SafOwnerDetail;
 use App\Models\Property\SafTax;
 use App\Models\Property\TransferModeMaster;
 use App\Models\Property\UsageTypeMaster;
+use App\Models\Property\ZoneMaster;
 use App\Models\User;
 use App\Trait\Property\PropertyTrait;
 use Carbon\Carbon;
@@ -79,6 +81,7 @@ class SafController extends Controller
     private $_TransferModeMaster;
     private $_UsageTypeMaster;
     private $_UlbWardMaster;
+    private $_ZoneMaster;
     private $_OldWardNewWardMap;
     private $_UlbMaster;
     private $_MODULE_ID;
@@ -116,6 +119,7 @@ class SafController extends Controller
         $this->_RoadTypeMaster = new RoadTypeMaster();
         $this->_TransferModeMaster = new TransferModeMaster();
         $this->_UsageTypeMaster = new UsageTypeMaster();
+        $this->_ZoneMaster = new ZoneMaster();
         $this->_UlbWardMaster = new UlbWardMaster();
         $this->_OldWardNewWardMap = new OldWardNewWardMap();
         $this->_UlbMaster = new UlbMaster();
@@ -166,7 +170,7 @@ class SafController extends Controller
             $usageTypeMaster  = $this->_UsageTypeMaster->getUsageTypeList();
             $ulbWardMaster = $this->_UlbWardMaster->getNumericWardList($ulbId);
             $electricityType = Config::get('PropertyConstant.ELECTRIC_CATEGORY');
-            $zoneType = Config::get("PropertyConstant.ZONE_TYPE");
+            $zoneType = $this->_ZoneMaster->getZoneList(); Config::get("PropertyConstant.ZONE_TYPE");
 
             $data=[
                 "wardList"=>$ulbWardMaster,
@@ -232,7 +236,7 @@ class SafController extends Controller
 
     public function reviewTax(RequestTaxReview $request){
         try{
-            $calCulator = new TaxCalculator($request);
+            $calCulator = new BiharTaxCalculator($request);
             $calCulator->calculateTax();
             return responseMsg(true,"Tax Review",camelCase(remove_null($calCulator->_GRID)));
         }catch(CustomException $e){
