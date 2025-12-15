@@ -68,7 +68,6 @@ use Illuminate\Validation\Rule;
 class SafController extends Controller
 {
     use PropertyTrait;
-    //
 
     private $_SystemConstant;
     private $_OccupancyTypeMaster;
