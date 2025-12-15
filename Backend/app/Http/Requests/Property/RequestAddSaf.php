@@ -103,6 +103,7 @@ class RequestAddSaf extends ParentRequest
             "plotNo"=>"required",
             "villageMaujaName"=>"required",
             "areaOfPlot"=>"required|numeric|min:0.1",
+            "builtupArea"=>"required|numeric|min:0",
             "propAddress"=>"required",
             "propCity"=>"required",
             "propDist"=>"required",
@@ -135,7 +136,7 @@ class RequestAddSaf extends ParentRequest
             "ownerDtl.*.isSpeciallyAbled"=>"required|bool",
 
             "floorDtl"=>"nullable|required_unless:propTypeMstrId,4|array",
-            "floorDtl.*.builtupArea"=>"nullable|required_unless:propTypeMstrId,4|min:0.1",
+            "floorDtl.*.builtupArea"=>"nullable|required_unless:propTypeMstrId,4|min:0.1|max:".($this->builtupArea?$this->builtupArea:"0.2"),
             "floorDtl.*.dateFrom"=>"nullable|required_unless:propTypeMstrId,4|date|date_format:Y-m|before_or_equal:".Carbon::now()->format("Y-m"),
             "floorDtl.*.dateUpto"=>[
                 "nullable",

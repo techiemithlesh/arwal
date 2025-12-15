@@ -197,7 +197,7 @@ class BiharTaxCalculator
             $this->_FloorWiseTax[] = $floor;
         }
         else{
-            $remainArea = decimalToSqFt($this->_REQUEST["areaOfPlot"]) - ($this->_REQUEST["builtupArea"]*1.43);dd($remainArea,decimalToSqFt($this->_REQUEST["areaOfPlot"]));
+            $remainArea = decimalToSqFt($this->_REQUEST["areaOfPlot"]) - ($this->_REQUEST["builtupArea"]*1.43);
             $floor = [
                 "floorName"=>"VacantLand",
                 "areaOfPlot"=>$this->_REQUEST["areaOfPlot"],
