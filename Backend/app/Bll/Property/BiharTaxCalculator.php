@@ -404,7 +404,7 @@ class BiharTaxCalculator
         $WaterTaxPercent = 0;
         $HealthCessTaxPercent = 0;            
         $EducationCessTaxPercent = 0;
-        $rwhTaxPercent = 0.5;
+        $rwhTaxPercent = 0.05;
 
         $HoldingTax = round(($propertyTax * $HoldingTaxPercent),2);
         $LatrineTax = round(($propertyTax * $LatrineTaxPercent),2);
