@@ -197,20 +197,25 @@ class BiharTaxCalculator
             $this->_FloorWiseTax[] = $floor;
         }
         else{
-            $remainArea = decimalToSqFt($this->_REQUEST["areaOfPlot"]) - ($this->_REQUEST["builtupArea"]*1.43);dd($remainArea,decimalToSqFt($this->_REQUEST["areaOfPlot"]));
-            $floor = [
-                "floorName"=>"VacantLand",
-                "areaOfPlot"=>$this->_REQUEST["areaOfPlot"],
-                "builtupArea"=>$remainArea,
-                "dateFrom"=>isset($this->_REQUEST["landOccupationDate"]) ? $this->_REQUEST["landOccupationDate"] : (explode("-",$this->_acctOfLimitation)[0]."-04-01"),
-                "floorMasterId"=>"0",
-                "usageTypeMasterId"=>"1",
-                "constructionTypeMasterId"=>0,
-                "occupancyTypeMasterId"=>1,
-                "tax"=>collect(),
-            ];
-            $floor["ruleSets"]=collect($this->setRuleSet($floor["dateFrom"],($floor["dateUpto"]??null),false));
-            $this->_FloorWiseTax[] = $floor;
+            //Land + Building
+            if($this->_PropertyType==3){
+                $remainArea = decimalToSqFt($this->_REQUEST["areaOfPlot"]) - ($this->_REQUEST["builtupArea"]*1.43);
+                if($remainArea>0){
+                    $floor = [
+                        "floorName"=>"VacantLand",
+                        "areaOfPlot"=>$this->_REQUEST["areaOfPlot"],
+                        "builtupArea"=>$remainArea,
+                        "dateFrom"=>isset($this->_REQUEST["landOccupationDate"]) ? $this->_REQUEST["landOccupationDate"] : (explode("-",$this->_acctOfLimitation)[0]."-04-01"),
+                        "floorMasterId"=>"0",
+                        "usageTypeMasterId"=>"1",
+                        "constructionTypeMasterId"=>0,
+                        "occupancyTypeMasterId"=>1,
+                        "tax"=>collect(),
+                    ];
+                    $floor["ruleSets"]=collect($this->setRuleSet($floor["dateFrom"],($floor["dateUpto"]??null),false));
+                    $this->_FloorWiseTax[] = $floor;
+                }
+            }
 
             foreach($this->_REQUEST["floorDtl"] as $key=>$val){
                 $val["tax"]=collect();                
@@ -404,7 +409,7 @@ class BiharTaxCalculator
         $WaterTaxPercent = 0;
         $HealthCessTaxPercent = 0;            
         $EducationCessTaxPercent = 0;
-        $rwhTaxPercent = 0.5;
+        $rwhTaxPercent = 0.05;
 
         $HoldingTax = round(($propertyTax * $HoldingTaxPercent),2);
         $LatrineTax = round(($propertyTax * $LatrineTaxPercent),2);

@@ -106,7 +106,7 @@ class SafApprovalBll
         $saf["floorDtl"] = camelCase($this->_ReplicateFloor);
         $request = camelCase($saf)->toArray();
         $this->_REQUEST->merge($request);
-        $calCulator = new TaxCalculator($this->_REQUEST);
+        $calCulator = new BiharTaxCalculator($this->_REQUEST);
         $calCulator->calculateTax();
         $this->_TAX = $calCulator->_GRID;
     }
