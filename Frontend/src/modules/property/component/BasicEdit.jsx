@@ -13,12 +13,12 @@ export default function BasicEdit({ propDetails, onClose, token }) {
   const dispatch = useDispatch();
   const [propertyDetails, setPropertyDetails] = useState({
     id: "",
-    newWardMstrId: "",
     wardMstrId: "",
     khataNo: "",
     plotNo: "",
     villageMaujaName: "",
     areaOfPlot: "",
+    builtupArea: "",
     propAddress: "",
     propCity: "",
     propDist: "",
@@ -32,6 +32,7 @@ export default function BasicEdit({ propDetails, onClose, token }) {
     remarks: "",
     document: "",
   });
+  const [validationError,setValidationError] = useState([]);
 
   const [isCorrespondenceDifferent, setIsCorrespondenceDifferent] =
     useState(false);
@@ -40,56 +41,44 @@ export default function BasicEdit({ propDetails, onClose, token }) {
   const fields = {
     propertyDetails: [
       {
-        label: "New Ward No",
-        type: "wardSelect",
-        name: "newWardMstrId",
-        options: wardList,
-      },
-      {
-        label: "Old Ward No",
+        label: "Ward No",
         type: "wardSelect",
         name: "wardMstrId",
         options: wardList,
+        error:validationError?.wardMstrId||"",
       },
-      { label: "Khata No", type: "input", name: "khataNo" },
-      { label: "Plot No", type: "input", name: "plotNo" },
-      { label: "Village Mauja Name", type: "input", name: "villageMaujaName" },
-      { label: "Area Of Plot", type: "input", name: "areaOfPlot" },
+      { label: "Khata No", type: "input", name: "khataNo",error:validationError?.khataNo||"", },
+      { label: "Plot No", type: "input", name: "plotNo",error:validationError?.plotNo||"", },
+      { label: "Village Mauja Name", type: "input", name: "villageMaujaName" ,error:validationError?.villageMaujaName||"", },
+      { label: "Area Of Plot (In Dismil)", type: "input", name: "areaOfPlot" ,error:validationError?.areaOfPlot||"",},
+      { label: "Built Up Area (In Sqft)", type: "input", name: "builtupArea" ,error:validationError?.builtupArea||"",},
     ],
     propertyAddress: [
-      { label: "Property Address", type: "textarea", name: "propAddress" },
-      { label: "City", type: "input", name: "propCity" },
-      { label: "District", type: "input", name: "propDist" },
-      { label: "State", type: "input", name: "propState" },
-      { label: "Pincode", type: "input", name: "propPinCode" },
+      { label: "Property Address", type: "textarea", name: "propAddress" ,error:validationError?.propAddress||"",},
+      { label: "City", type: "input", name: "propCity" ,error:validationError?.propCity||"",},
+      { label: "District", type: "input", name: "propDist" ,error:validationError?.propDist||"",},
+      { label: "State", type: "input", name: "propState" ,error:validationError?.propState||"",},
+      { label: "Pincode", type: "input", name: "propPinCode" ,error:validationError?.propPinCode||"", },
     ],
     correspondenceAddress: [
-      { label: "Property Address", type: "textarea", name: "corrAddress" },
-      { label: "City", type: "input", name: "corrCity" },
-      { label: "District", type: "input", name: "corrDist" },
-      { label: "State", type: "input", name: "corrState" },
-      { label: "Pincode", type: "input", name: "corrPinCode" },
+      { label: "Property Address", type: "textarea", name: "corrAddress" ,error:validationError?.corrAddress||"", },
+      { label: "City", type: "input", name: "corrCity" ,error:validationError?.corrCity||"",},
+      { label: "District", type: "input", name: "corrDist" ,error:validationError?.corrDist||"",},
+      { label: "State", type: "input", name: "corrState" ,error:validationError?.corrState||"",},
+      { label: "Pincode", type: "input", name: "corrPinCode" ,error:validationError?.corrPinCode||"",},
+      
+    ],
+    supporgingDoc:[
       {
         label: "Reason For Update",
         type: "textarea",
         name: "remarks",
+        error:validationError?.remarks||"",
       },
-      { label: "Document", type: "upload", name: "document" },
-    ],
-    ownerDetails: [
-      { label: "Owner Name", type: "input", name: "ownerName" },
-      { label: "Guardian Name", type: "input", name: "guardianName" },
       {
-        label: "Relation",
-        type: "select",
-        name: "relationType",
-        options: ["S/O", "D/O", "W/O", "C/O"],
-      },
-      { label: "Mobile", type: "input", name: "mobileNo" },
-      { label: "Aadhaar No", type: "input", name: "aadharNo" },
-      { label: "Email", type: "input", name: "email" },
-      { label: "PAN No", type: "input", name: "panNo" },
-      { label: "Supportive Document", type: "upload", name: "document" },
+      label: "Document", type: "upload", name: "document" ,
+        error:validationError?.document||"",
+      }
     ],
   };
 
@@ -110,10 +99,9 @@ export default function BasicEdit({ propDetails, onClose, token }) {
   }, [propDetails]);
 
   const handlePropertyDetailsSubmit = async () => {
-    // Use FormData to send file(s)
     const formData = new FormData();
     Object.entries(propertyDetails).forEach(([key, value]) => {
-      // Only append if value is not undefined or null
+     
       if (value !== undefined && value !== null) {
         formData.append(key, value);
       }
@@ -129,7 +117,9 @@ export default function BasicEdit({ propDetails, onClose, token }) {
       if (response && response.data && response.data.status) {
         toast.success("Property details updated successfully!");
         onClose && onClose();
-      } else {
+      }
+      else {
+        setValidationError(response?.data?.errors||[]);
         toast.error("Failed to update property details.");
       }
     } catch (error) {
@@ -147,6 +137,14 @@ export default function BasicEdit({ propDetails, onClose, token }) {
       ...prevData,
       [name]: value,
     }));
+
+    if (validationError && validationError[name]) {
+      setValidationError((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
   };
 
   return (
@@ -203,10 +201,17 @@ export default function BasicEdit({ propDetails, onClose, token }) {
               <InputCard
                 fields={fields.correspondenceAddress}
                 title={"Correspondence Address"}
+                isSubTitle={true}
                 values={propertyDetails}
                 onChange={handlePropDetails}
               />
             )}
+            <InputCard
+              fields={fields.supporgingDoc}
+              title={"Supporting Document"}
+              values={propertyDetails}
+              onChange={handlePropDetails}
+            />
             <div className="flex justify-end mb-4 px-5">
               <button
                 className="flex justify-center items-center bg-blue-600 hover:bg-blue-700 px-4 rounded-full h-7 font-semibold text-white"

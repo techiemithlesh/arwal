@@ -10,9 +10,11 @@ const PropertyDetails = ({ data }) => {
     roadWidth,
     plotNo,
     areaOfPlot,
+    builtupArea,
     rainWaterHarvesting,
     propAddress,
     zone,
+    entryType,
     newHoldingNo,
     holdingNo,
     holdingType,
@@ -21,12 +23,12 @@ const PropertyDetails = ({ data }) => {
   const fields = [
     { label: "Ward No", value: wardNo },
     { label: "New Holding No", value: newHoldingNo },
-    { label: "New Ward No", value: newWardNo },
     { label: "Old Holding No", value: holdingNo },
     { label: "Assessment Type", value: assessmentType },
     { label: "Plot No", value: plotNo },
     { label: "Property Type", value: propertyType },
-    { label: "Area of Plot", value: areaOfPlot },
+    { label: "Area of Plot (In Dismil)", value: areaOfPlot },
+    { label: "Built Up Area (In Sqft)", value: builtupArea },
     { label: "Ownership Type", value: ownershipType },
     {
       label: "Rain Water Harvesting",
@@ -35,8 +37,8 @@ const PropertyDetails = ({ data }) => {
     { label: "Holding Type", value: holdingType },
     { label: "Address", value: propAddress },
     { label: "Road Type", value: roadWidth },
-    { label: "Zone", value: zone },
-    { label: "Entry Type", value: zone },
+    { label: "Circle", value: zone },
+    { label: "Entry Type", value: entryType },
   ];
 
   const isMutation = assessmentType?.toLowerCase() === "mutation";

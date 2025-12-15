@@ -127,6 +127,37 @@ const PropDtl = ({
             )}
           </div>
 
+          <div>
+            <label className="block font-medium text-sm">
+              Built Up Area (In Sqft) <span className="text-red-500">*</span>
+            </label>
+
+            <input
+              type="text"
+              inputMode="decimal"
+              name="builtupArea"
+              value={formData.builtupArea}
+              placeholder="Enter built-up area"
+              onChange={(e) => {
+                const val = e.target.value
+                  .replace(/[^0-9.]/g, "")
+                  .replace(/(\..*)\./g, "$1")
+                  .replace(/^(\d*\.\d{0,2}).*$/, "$1");
+
+                handleInputChange({
+                  target: { name: "builtupArea", value: val },
+                });
+              }}
+              className="block bg-white shadow-sm px-3 py-2 border border-gray-300 rounded-md w-full sm:text-xs"
+              disabled={isDisabled && disabledFields?.builtupArea}
+              required={!isDisabled || !disabledFields?.builtupArea}
+            />
+
+            {error?.builtupArea && (
+              <span className="text-red-400">{error.builtupArea}</span>
+            )}
+          </div>
+
           <div className="">
             <label htmlFor="roadWidth" className="block font-medium text-sm">
               Road Width (in ft) <span className="text-red-500">*</span>

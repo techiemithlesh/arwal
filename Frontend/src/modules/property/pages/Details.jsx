@@ -38,7 +38,6 @@ import GenerateNoticeModal from "../component/GenerateNoticeModal";
 const Details = () => {
   const { propId } = useParams();
   const [propDetails, setPropDetails] = useState(null);
-  const [headerData, setHeaderData] = useState([]);
   const [remarks, setRemarks] = useState([]);
   const [wfPermissions, setWfPermissions] = useState(true);
   const [wfId, setWfId] = useState(null);
@@ -99,12 +98,6 @@ const Details = () => {
       icon: <FaEye />,
       show: true,
     },
-    // {
-    //   label: "Adjust Demand",
-    //   onClick: () => setModal((m) => ({ ...m, demandView: true })),
-    //   icon: <FaEye />,
-    //   show: true,
-    // },
     {
       label: "View Saf",
       onClick: () =>
@@ -172,6 +165,7 @@ const Details = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const data = response.data?.data;
+      console.log("data", data);
       setPropDetails(data);
       setWfId(data.workflowId);
       setHeaderData({

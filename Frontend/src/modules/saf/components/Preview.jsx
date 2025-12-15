@@ -116,17 +116,14 @@ export default function Preview() {
             />
             <DetailCard label="Zone" value={formData?.zoneMstrId} />
             <DetailCard
-              label="Old Ward"
+              label="Ward No"
               value={findName(
                 mstrData.wardList,
                 formData?.wardMstrId,
                 "wardNo"
               )}
             />
-            <DetailCard
-              label="New Ward"
-              value={findName(newWardList, formData?.wardMstrId, "wardNo")}
-            />
+           
             <DetailCard
               label="Ownership Type"
               value={findName(
