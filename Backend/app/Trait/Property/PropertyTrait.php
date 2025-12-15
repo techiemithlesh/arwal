@@ -22,6 +22,7 @@ use App\Models\Property\RejectedSafDetail;
 use App\Models\Property\SafDetail;
 use App\Models\Property\TransferModeMaster;
 use App\Models\Property\UsageTypeMaster;
+use App\Models\Property\ZoneMaster;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
@@ -70,6 +71,8 @@ trait PropertyTrait{
     }
 
     public function getZone($zoneId){
+        $zone = ZoneMaster::find($zoneId);
+        return $zone?->zone_name;
         if($zoneId==1){
             return "Zone 1";
         }
@@ -349,6 +352,7 @@ trait PropertyTrait{
         $saf->road_type_mstr_id = $verification->road_type_mstr_id;
         $saf->road_width = $verification->road_width;
         $saf->area_of_plot = $verification->area_of_plot;
+        $saf->builtup_area = $verification->builtup_area;
         $saf->hasAttribute("percentage_of_property_transfer") ? $saf->percentage_of_property_transfer = $verification->percentage_of_property_transfer : "";
         $saf->is_mobile_tower = $verification->is_mobile_tower;
         $saf->tower_area = $verification->tower_area;

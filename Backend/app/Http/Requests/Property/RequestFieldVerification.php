@@ -29,13 +29,14 @@ class RequestFieldVerification extends RequestAddSaf
         $rules=[ 
             "safDetailId"=>"required|exists:".$this->_ActiveSafDetail->getConnectionName().".".$this->_ActiveSafDetail->getTable().",id",           
             "wardMstrId"=>"required|int|exists:".$this->_UlbWardMaster->getConnectionName().".".$this->_UlbWardMaster->getTable().",id".($this->ulbId ? ",ulb_id,".$this->ulbId : ""),
-            "newWardMstrId"=>"required|int|exists:".$this->_OldWardNewWardMap->getConnectionName().".".$this->_OldWardNewWardMap->getTable().",new_ward_id".($this->wardMstrId ? ",old_ward_id,".$this->wardMstrId : ""),
+            "newWardMstrId"=>"nullable|int|exists:".$this->_OldWardNewWardMap->getConnectionName().".".$this->_OldWardNewWardMap->getTable().",new_ward_id".($this->wardMstrId ? ",old_ward_id,".$this->wardMstrId : ""),
             "propTypeMstrId"=>"required|int|exists:".$this->_PropertyTypeMaster->getConnectionName().".".$this->_PropertyTypeMaster->getTable().",id",
             "percentageOfPropertyTransfer"=>$saf && in_array($saf->assessment_type,["Mutation"]) ? "required|numeric|min:0.1|max:100":"nullable",
-            "zoneMstrId"=>"required|int|in:1,2",
+            "zoneMstrId"=>"required|int|exists:".$this->_ZoneMaster->getConnectionName().".".$this->_ZoneMaster->getTable().",id",
             "roadWidth"=>"required|numeric|min:0",
             
             "areaOfPlot"=>"required|numeric|min:0.1",
+            "builtupArea"=>"required|numeric|min:0".($this->areaOfPlot ? "|max:".decimalToSqFt($this->areaOfPlot) : ""),
             
             "isMobileTower"=>"required|bool",
             "towerArea"=>"nullable|required_if:isMobileTower,true,1|numeric|min:0.1",
@@ -43,10 +44,10 @@ class RequestFieldVerification extends RequestAddSaf
             "isHoardingBoard"=>"required|bool",
             "hoardingArea"=>"nullable|required_if:isHoardingBoard,true,1|numeric|min:0.1",
             "hoardingInstallationDate"=>"nullable|required_if:isHoardingBoard,true,1|date|date_format:Y-m-d|before_or_equal:".Carbon::now()->format("Y-m-d"),
-            "isPetrolPump"=>"nullable|required_if:propTypeMstrId,1,2,5|bool",
+            "isPetrolPump"=>"nullable|required_if:propTypeMstrId,1,2,3|bool",
             "underGroundArea"=>"nullable|required_if:isPetrolPump,true,1|numeric|min:0.1",
             "petrolPumpCompletionDate"=>"nullable|required_if:isPetrolPump,true,1|date|date_format:Y-m-d|before_or_equal:".Carbon::now()->format("Y-m-d"),
-            "isWaterHarvesting"=>"nullable|required_if:propTypeMstrId,1,2,3,5|bool",
+            "isWaterHarvesting"=>"nullable|required_if:propTypeMstrId,1,2,3|bool",
             "waterHarvestingDate"=>"nullable|required_if:isWaterHarvesting,true,1|date|date_format:Y-m-d|before_or_equal:".Carbon::now()->format("Y-m-d"),
             "landOccupationDate"=>"nullable|required_if:propTypeMstrId,4|date|date_format:Y-m-d|before_or_equal:".Carbon::now()->format("Y-m-d"),
             
@@ -65,7 +66,7 @@ class RequestFieldVerification extends RequestAddSaf
 
                 },
             ],
-            "floorDtl.*.builtupArea"=>"nullable|required_unless:propTypeMstrId,4|min:0.1",
+            "floorDtl.*.builtupArea"=>"nullable|required_unless:propTypeMstrId,4|min:0.1|max:".($this->builtupArea?$this->builtupArea:"0.2"),
             "floorDtl.*.dateFrom"=>"nullable|required_unless:propTypeMstrId,4|date|date_format:Y-m|before_or_equal:".Carbon::now()->format("Y-m"),
             "floorDtl.*.dateUpto"=>[
                 "nullable",

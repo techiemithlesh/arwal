@@ -292,7 +292,7 @@ class SafController extends Controller
             } 
             $holdingType = $this->getHoldingType($request);
             $additionData["holdingType"]=$holdingType;
-            $calCulator = new TaxCalculator($request);
+            $calCulator = new BiharTaxCalculator($request);
             $calCulator->calculateTax();
             $tax = collect($calCulator->_GRID);
             $propertyTypeMaster = $this->_PropertyTypeMaster->getPropertyTypeList();
@@ -370,7 +370,7 @@ class SafController extends Controller
             return responseMsg(false,$e->getMessage(),"");
         }
         catch(Exception $e){ 
-            $this->rollBack();
+            $this->rollBack();dd($e);
             return responseMsg(false,"Internal Server Error","");
         }
     }
@@ -393,6 +393,7 @@ class SafController extends Controller
                 "plotNo"=>"required",
                 "villageMaujaName"=>"required",
                 "areaOfPlot"=>"required|numeric|min:0.1",
+                "builtupArea"=>"required|numeric|min:0".($request->areaOfPlot ? "|max:".decimalToSqFt($request->areaOfPlot) : ""),
                 "propAddress"=>"required",
                 "propCity"=>"required",
                 "propDist"=>"required",
@@ -445,6 +446,7 @@ class SafController extends Controller
             $saf->plot_no = $request->plotNo;
             $saf->village_mauja_name = $request->villageMaujaName;
             $saf->area_of_plot = $request->areaOfPlot;
+            $saf->builtup_area = $request->builtupArea;
             $saf->prop_address = $request->propAddress;
             $saf->prop_city = $request->propCity;
             $saf->prop_dist = $request->propDist;

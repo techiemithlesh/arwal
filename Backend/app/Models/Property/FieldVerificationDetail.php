@@ -20,6 +20,7 @@ class FieldVerificationDetail extends ActiveSafDetail
         "road_type_mstr_id",
         "road_width",
         "area_of_plot",
+        "builtup_area",
         "percentage_of_property_transfer",
         "is_mobile_tower",
         "tower_area",
