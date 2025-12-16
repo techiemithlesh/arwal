@@ -252,7 +252,7 @@ function EditApplication({ mstrData, fetchApi }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const payload = { ...formData };
+      const payload = { ...formData, newWardMstrId: "" };
       const response = await axios.post(waterAppEditApi, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -393,19 +393,6 @@ function EditApplication({ mstrData, fetchApi }) {
       required: true,
       subOnChange: fetchNewWard,
       options: wardList.map((item) => ({ label: item.wardNo, value: item.id })),
-    },
-    {
-      name: "newWardMstrId",
-      label: "New Ward No.",
-      type: "select",
-      error: validationError?.newWardMstrId || "",
-      value: formData?.newWardMstrId || "",
-      loading: newWardLoading,
-      required: true,
-      options: newWardList.map((item) => ({
-        label: item.wardNo,
-        value: item.id,
-      })),
     },
     {
       name: "areaSqft",

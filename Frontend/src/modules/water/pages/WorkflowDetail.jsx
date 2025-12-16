@@ -244,7 +244,6 @@ function WorkflowDetail() {
     { label: "Application No", value: appData?.applicationNo },
     { label: "Apply Date", value: appData?.applyDate },
     { label: "Ward No", value: appData?.wardNo },
-    { label: "New Ward No", value: appData?.newWardNo },
     // Conditionally add SAF No.
     ...(appData?.safNo
       ? [

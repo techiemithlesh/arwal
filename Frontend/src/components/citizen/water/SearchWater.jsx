@@ -94,7 +94,6 @@ export default function SearchWater() {
       tableHeaders={[
         "#",
         "Ward No.",
-        "New Ward No.",
         "Consumer No.",
         "Holding No.",
         "SAF No.",
@@ -110,7 +109,6 @@ export default function SearchWater() {
         <tr key={row.id}>
           <td className="px-3 py-2 border">{index + 1}</td>
           <td className="px-3 py-2 border">{row.wardNo ?? ""}</td>
-          <td className="px-3 py-2 border">{row.newWardNo ?? ""}</td>
           <td className="px-3 py-2 border">{row.consumerNo}</td>
           <td className="px-3 py-2 border">{row.newHoldingNo}</td>
           <td className="px-3 py-2 border">{row.safNo}</td>

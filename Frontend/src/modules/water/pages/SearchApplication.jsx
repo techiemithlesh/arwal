@@ -111,7 +111,6 @@ function SearchApplication() {
       tableHeaders={[
         "#",
         "Ward No.",
-        "New Ward No.",
         "Application.",
         "Holding No.",
         "SAF No.",
@@ -128,7 +127,6 @@ function SearchApplication() {
         <tr key={row.id}>
           <td className="px-3 py-2 border">{index + 1}</td>
           <td className="px-3 py-2 border">{row.wardNo ?? ""}</td>
-          <td className="px-3 py-2 border">{row.newWardNo ?? ""}</td>
           <td className="px-3 py-2 border">{row.applicationNo}</td>
           <td className="px-3 py-2 border">{row.newHoldingNo}</td>
           <td className="px-3 py-2 border">{row.safNo}</td>

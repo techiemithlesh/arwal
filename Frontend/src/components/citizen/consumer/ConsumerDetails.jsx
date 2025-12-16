@@ -122,7 +122,6 @@ function ConsumerDetails() {
     { label: "Consumer No", value: appData?.consumerNo },
     { label: "Consumer Date", value: formatLocalDate(appData?.connectionDate) },
     { label: "Ward No", value: appData?.wardNo },
-    { label: "New Ward No", value: appData?.newWardNo },
     // Conditionally add SAF No.
     ...(appData?.safNo
       ? [

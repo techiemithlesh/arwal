@@ -8,8 +8,6 @@ function PaymentReceiptModal({ id, onClose }) {
   const [isFrozen, setIsFrozen] = useState(false);
   const printRef = useRef();
 
-  
-
   // Print in same tab (no new window)
     const handlePrint = async () => {
       setIsFrozen(true);
