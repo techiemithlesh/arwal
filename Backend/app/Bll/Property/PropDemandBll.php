@@ -114,27 +114,27 @@ class PropDemandBll{
                         ->first();
         $day_diff = floor(Carbon::parse($this->_notice?->served_at)->diffInDays($this->_tranDate));
         $month_diff = ceil(($day_diff * 1.00)/30);
-        if($month_diff>1 && $this->_notice?->served_at){
-            $day_diff = $day_diff - 30;
-			$weak_diff = ceil(($day_diff * 1.00) /7);
-			$month_diff = ceil(($day_diff * 1.00)/30);
-            $PrevDemandAmount = $this->_previousDemandList->sum("balance_tax");
-            $priveDemandPenalty = $this->_previousDemandList->sum("monthlyPenalty");
-            $arrearDemand = $PrevDemandAmount + $priveDemandPenalty;
-            if($weak_diff <= 1) 
-				$this->_noticePenalty = roundFigure(($arrearDemand) * 0.01);
-			elseif($weak_diff <= 2) 
-				$this->_noticePenalty = roundFigure(($arrearDemand) * 0.02);
-			elseif($month_diff <= 1) 
-				$this->_noticePenalty = roundFigure(($arrearDemand) * 0.03);
-			elseif($month_diff <= 2) 
-				$this->_noticePenalty = roundFigure(($arrearDemand) * 0.05);
-			elseif($month_diff > 2){
-				$this->_noticePenalty = roundFigure(($arrearDemand) * (0.05)) ;
-				$this->_noticeAdditionPenalty = roundFigure(($arrearDemand + $this->_noticePenalty ) * (($month_diff -2)*0.02));
+        // if($month_diff>1 && $this->_notice?->served_at){
+        //     $day_diff = $day_diff - 30;
+		// 	$weak_diff = ceil(($day_diff * 1.00) /7);
+		// 	$month_diff = ceil(($day_diff * 1.00)/30);
+        //     $PrevDemandAmount = $this->_previousDemandList->sum("balance_tax");
+        //     $priveDemandPenalty = $this->_previousDemandList->sum("monthlyPenalty");
+        //     $arrearDemand = $PrevDemandAmount + $priveDemandPenalty;
+        //     if($weak_diff <= 1) 
+		// 		$this->_noticePenalty = roundFigure(($arrearDemand) * 0.01);
+		// 	elseif($weak_diff <= 2) 
+		// 		$this->_noticePenalty = roundFigure(($arrearDemand) * 0.02);
+		// 	elseif($month_diff <= 1) 
+		// 		$this->_noticePenalty = roundFigure(($arrearDemand) * 0.03);
+		// 	elseif($month_diff <= 2) 
+		// 		$this->_noticePenalty = roundFigure(($arrearDemand) * 0.05);
+		// 	elseif($month_diff > 2){
+		// 		$this->_noticePenalty = roundFigure(($arrearDemand) * (0.05)) ;
+		// 		$this->_noticeAdditionPenalty = roundFigure(($arrearDemand + $this->_noticePenalty ) * (($month_diff -2)*0.02));
 
-            }
-        }
+        //     }
+        // }
 
     }
 
@@ -146,13 +146,13 @@ class PropDemandBll{
         $firstQuarterStartDate = calculateQuarterStartDate($firstQuarterLastDate);
         # 5% online Rebate
         if(!$user || $user->getTable()!="users"){ 
-            $this->_onlineRebate = ($this->_currentDemandAmount * 0.05);
+            $this->_onlineRebate = ($this->_currentDemandAmount * 0.0);
         }# 2.5% JSK Rebate
         elseif($user->getTable()=="users"){
             $role = $user->getRoleDetailsByUserId()->first();
             $roleId = $role->id??0;
             if(in_array($roleId,[1,8])){
-                $this->_jskRebate = ($this->_currentDemandAmount * 0.025);
+                $this->_jskRebate = ($this->_currentDemandAmount * 0.0);
             }
             
         }
@@ -173,19 +173,19 @@ class PropDemandBll{
                 $owners = $owners->first();
                 #5% when female Or transgender
                 if(in_array($owners->gender, ['Female','Other'])){
-                    $this->_specialRebate = $this->_demandAmount * 0.05;
+                    $this->_specialRebate = $this->_demandAmount * 0.0;
                 }
                 #5% when armed force
                 if($owners->is_armed_force){
-                    $this->_specialRebate = $this->_demandAmount * 0.05;
+                    $this->_specialRebate = $this->_demandAmount * 0.0;
                 }
                 #5% when specially able
                 if($owners->is_specially_abled){
-                    $this->_specialRebate = $this->_demandAmount * 0.05;
+                    $this->_specialRebate = $this->_demandAmount * 0.0;
                 }
                 #5% when Senior Citizen
                 if($owners->dob && Carbon::parse($owners->dob)->diffInYears($firstQuarterLastDate)>=60){
-                    $this->_specialRebate = $this->_demandAmount * 0.05;
+                    $this->_specialRebate = $this->_demandAmount * 0.0;
                 }
             }
             $this->_specialRebate = roundFigure($this->_specialRebate);
@@ -201,9 +201,18 @@ class PropDemandBll{
         $penalty = 0 ;
         $monthDiff = 0;
         # one percent penalty applicable
-        if($demandList->due_date >='2017-06-30' && $demandList->due_date < $this->_tranDate->copy()->format("Y-m-d")){
+        // if($demandList->due_date >='2017-06-30' && $demandList->due_date < $this->_tranDate->copy()->format("Y-m-d")){
+        //     $monthDiff = floor(Carbon::parse($demandList->due_date)->diffInMonths($this->_tranDate));
+        //     $penalty = roundFigure(($demandList->balance_tax * $monthDiff)/100);
+        // }
+        if(getFY($demandList->due_date)<getFY())
+        {
             $monthDiff = floor(Carbon::parse($demandList->due_date)->diffInMonths($this->_tranDate));
-            $penalty = roundFigure(($demandList->balance_tax * $monthDiff)/100);
+            $penalty = roundFigure(($demandList->balance_tax * $monthDiff * 1.5)/100);
+        }
+        if(getFY($demandList->due_date)==getFY()  && $this->_tranDate->copy()->format("Y-m-d")>=FyearQutFromDate(getFY(),3) ){
+            $monthDiff = floor(Carbon::parse(FyearQutUptoDate(getFY(),2))->diffInMonths($this->_tranDate));
+            $penalty = roundFigure(($demandList->balance_tax * $monthDiff * 1.5)/100);
         }
         $demandList->monthDiff = $monthDiff;
         $demandList->monthlyPenalty = $penalty;

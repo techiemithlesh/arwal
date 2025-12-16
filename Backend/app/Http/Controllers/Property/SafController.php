@@ -291,9 +291,9 @@ class SafController extends Controller
             } 
             $holdingType = $this->getHoldingType($request);
             $additionData["holdingType"]=$holdingType;
-            $calCulator = new BiharTaxCalculator($request);
-            $calCulator->calculateTax();
-            $tax = collect($calCulator->_GRID);
+            // $calCulator = new BiharTaxCalculator($request);
+            // $calCulator->calculateTax();
+            // $tax = collect($calCulator->_GRID);
             $propertyTypeMaster = $this->_PropertyTypeMaster->getPropertyTypeList();
             
             $workflowMater = $this->_WorkflowMaster->where("module_id",$this->_MODULE_ID )
@@ -316,32 +316,33 @@ class SafController extends Controller
             $additionData["initiatorRoleId"]=$initiator["role_id"];
             $additionData["finisherRoleId"]=$finisher["role_id"];
             $additionData["workflowId"]=$workflowMater->id;
+            $additionData["payment_status"]=1;
 
             $request->merge($additionData);
             
             $this->begin();
             $safId = $this->_ActiveSafDetail->store($request);
             
-            foreach($tax["RuleSetVersionTax"] as $key=>$safTax){  
-                if($safTax["Fyearlytax"]) {
-                    $taxRequest = new Request($safTax);  
-                    $taxRequest->merge(["safDetailId"=>$safId]);
-                    $minFyear = collect($safTax["Fyearlytax"]??[])->min("fyear");
-                    $minYearTax = collect($safTax["Fyearlytax"]??[])->where("fyear",$minFyear)->first();
-                    $minQtr = collect($minYearTax["quarterly"]??[])->min("qtr");
-                    $taxRequest->merge(["Fyear"=>$minFyear,"Qtr"=>$minQtr]);
-                    $taxId = $this->_SafTax->store($taxRequest);
-                    foreach($safTax["Fyearlytax"] as $yearTax){
-                        foreach($yearTax["quarterly"] as $quarterlyTax){
-                            $newDemandRequest = new Request($quarterlyTax);
-                            $newDemandRequest->merge(["safDetailId"=>$safId,"safTaxId"=>$taxId,"wardMstrId"=>$request->wardMstrId]);                        
-                            $demandId = $this->_SafDemand->store($newDemandRequest);
+            // foreach($tax["RuleSetVersionTax"] as $key=>$safTax){  
+            //     if($safTax["Fyearlytax"]) {
+            //         $taxRequest = new Request($safTax);  
+            //         $taxRequest->merge(["safDetailId"=>$safId]);
+            //         $minFyear = collect($safTax["Fyearlytax"]??[])->min("fyear");
+            //         $minYearTax = collect($safTax["Fyearlytax"]??[])->where("fyear",$minFyear)->first();
+            //         $minQtr = collect($minYearTax["quarterly"]??[])->min("qtr");
+            //         $taxRequest->merge(["Fyear"=>$minFyear,"Qtr"=>$minQtr]);
+            //         $taxId = $this->_SafTax->store($taxRequest);
+            //         foreach($safTax["Fyearlytax"] as $yearTax){
+            //             foreach($yearTax["quarterly"] as $quarterlyTax){
+            //                 $newDemandRequest = new Request($quarterlyTax);
+            //                 $newDemandRequest->merge(["safDetailId"=>$safId,"safTaxId"=>$taxId,"wardMstrId"=>$request->wardMstrId]);                        
+            //                 $demandId = $this->_SafDemand->store($newDemandRequest);
                             
-                        }    
-                    }
-                }          
+            //             }    
+            //         }
+            //     }          
                 
-            }
+            // }
             foreach($request->ownerDtl as $owners){
                 $newRequest = new Request($owners);
                 $newRequest->merge(["safDetailId"=>$safId]);
@@ -937,10 +938,10 @@ class SafController extends Controller
             
             $this->begin();
             if($request->status=="FORWARD"){
-                if($WfPermission->can_sam_generate){
-                    $objMemo = new GenerateMemoBll($saf->id,"SAM");
-                    $objMemo->generateMemo();
-                }
+                // if($WfPermission->can_sam_generate){
+                //     $objMemo = new GenerateMemoBll($saf->id,"SAM");
+                //     $objMemo->generateMemo();
+                // }
                 if($WfPermission->can_fam_generate){
                     $objMemo = new GenerateMemoBll($saf->id,"FAM");
                     $objMemo->generateMemo();dd("sjdklfskl");
