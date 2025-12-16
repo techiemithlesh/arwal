@@ -245,7 +245,7 @@ function Wf() {
       value: safDetails?.rainWaterHarvesting === true ? "Yes" : "No",
     },
     { label: "Address", value: safDetails?.propAddress },
-    { label: "Zone", value: safDetails?.zone },
+    { label: "Circle", value: safDetails?.zone },
 
     { label: "Apartment Name", value: safDetails?.apartmentName },
     { label: "Flat Registry Date", value: safDetails?.flatRegistryDate },

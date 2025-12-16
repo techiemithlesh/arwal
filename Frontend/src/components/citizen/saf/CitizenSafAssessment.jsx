@@ -22,6 +22,7 @@ import { setFormData } from "../../../store/slices/assessmentSlice";
 import { applyDefaults } from "../../../utils/initDefaultFormFields";
 import FormError from "../../common/FormError";
 import toast from "react-hot-toast";
+import index from "../../../modules/waterConsumer";
 
 const ulbId = import.meta.env.VITE_REACT_APP_ULB_ID;
 
@@ -31,6 +32,9 @@ const CitizenSafAssessment = ({
   propDetails,
   formType,
 }) => {
+
+  console.log("data", propDetails);
+
   const token = useSelector((state) => state.citizenAuth.token);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -79,7 +83,6 @@ const CitizenSafAssessment = ({
 
     for (const key in formData) {
       const value = formData[key];
-
       if (
         value === "" ||
         value === null ||
@@ -192,7 +195,6 @@ const CitizenSafAssessment = ({
       setNewWardLoading(true);
       dispatch(setFormData({ [name]: updatedValue }));
       dispatch(setFormData({ newWardMstrId: "" }));
-
       try {
         const newWardMstrId = await fetchCitizenNewWardByOldWard(
           updatedValue,
@@ -204,15 +206,13 @@ const CitizenSafAssessment = ({
       } finally {
         setNewWardLoading(false);
       }
-
       return;
     }
-
     if (name === "isCorrAddDiffer") {
       dispatch(setFormData({ isCorrAddDiffer: checked ? 1 : 0 }));
     }
 
-    if (name === "propTypeMstrId" && updatedValue == 3) {
+    if (name === "propTypeMstrId" && updatedValue == 1) {
       getApartment();
     }
 
@@ -221,7 +221,7 @@ const CitizenSafAssessment = ({
   };
 
   useEffect(() => {
-    if (formData.propTypeMstrId == 3) getApartment();
+    if (formData.propTypeMstrId == 1) getApartment();
   }, [formData.propTypeMstrId]);
 
   if (isLoading)
@@ -250,7 +250,6 @@ const CitizenSafAssessment = ({
 
     if (formType) {
       const assessmentType = formType === "edit" ? "newAssessment" : formType;
-
       payload.assessmentType = assessmentType
         // insert space before uppercase letters
         .replace(/([A-Z])/g, " $1")
@@ -261,10 +260,12 @@ const CitizenSafAssessment = ({
     }
 
     try {
+      
       const response = await axios.post(
         propertyTestRequestApi,
         {
           ...payload,
+          newWardMstrId : "",
           ownerDtl,
           floorDtl: floorPayload,
         },
@@ -274,7 +275,7 @@ const CitizenSafAssessment = ({
       );
 
       if (response.data.status) {
-        toast.success("Data saved successfully");
+        toast.success("Data saved successfully", {position: 'top-right'});
         navigate(previewUrl, {
           state: {
             formData: payload,
@@ -338,7 +339,7 @@ const CitizenSafAssessment = ({
         <div className="items-center gap-2 grid grid-cols-1 md:grid-cols-4 bg-gradient-to-br from-white via-blue-50 to-blue-100 shadow-sm p-4 border border-blue-300 rounded-xl">
           <div>
             <label htmlFor="wardMstrId" className="block font-medium text-sm">
-              Old Ward No <span className="text-red-500">*</span>
+              Ward No <span className="text-red-500">*</span>
             </label>
             <select
               id="wardMstrId"
@@ -361,39 +362,6 @@ const CitizenSafAssessment = ({
 
             <FormError name="wardMstrId" errors={error} />
           </div>
-
-          <div>
-            <label
-              htmlFor="newWardMstrId"
-              className="block font-medium text-sm"
-            >
-              New Ward No <span className="text-red-500">*</span>
-            </label>
-            <select
-              id="newWardMstrId"
-              className="block bg-white shadow-sm px-3 py-2 border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 w-full sm:text-xs"
-              name="newWardMstrId"
-              required
-              value={formData.newWardMstrId}
-              onChange={handleInputChange}
-              disabled={
-                (newWardLoading || pathname.includes(formType)) &&
-                formData.newWardMstrId
-              }
-            >
-              <option value="">
-                {newWardLoading ? "Loading wards..." : "Select New Ward"}
-              </option>
-              {!newWardLoading &&
-                newWardList?.map((newWard, index) => (
-                  <option key={index} value={newWard.id}>
-                    {newWard.wardNo}
-                  </option>
-                ))}
-            </select>
-            <FormError name="newWardMstrId" errors={error} />
-          </div>
-
           <div>
             <label
               htmlFor="ownershipTypeMstrId"
@@ -453,7 +421,7 @@ const CitizenSafAssessment = ({
             <FormError name="propTypeMstrId" errors={error} />
           </div>
 
-          {formData.propTypeMstrId == 3 && (
+          {formData.propTypeMstrId == 1 && (
             <div>
               <label
                 htmlFor="appartmentDetailsId"
@@ -488,7 +456,7 @@ const CitizenSafAssessment = ({
             </div>
           )}
 
-          {formData.propTypeMstrId == 3 && (
+          {formData.propTypeMstrId == 1 && (
             <div>
               <label
                 htmlFor="flatRegistryDate"
@@ -500,7 +468,7 @@ const CitizenSafAssessment = ({
                 type="date"
                 id="flatRegistryDate"
                 name="flatRegistryDate"
-                required={formData.propTypeMstrId == 3}
+                required={formData.propTypeMstrId == 1}
                 value={formData.flatRegistryDate}
                 onChange={handleInputChange}
                 className="block bg-white shadow-sm px-3 py-2 border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 w-full sm:text-xs"
@@ -517,41 +485,37 @@ const CitizenSafAssessment = ({
 
           <div>
             <label htmlFor="zoneMstrId" className="block font-medium text-sm">
-              Zone <span className="text-red-500">*</span>
+              Circle <span className="text-red-500">*</span>
             </label>
             <select
               id="zoneMstrId"
               className="block bg-white shadow-sm px-3 py-2 border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 w-full sm:text-xs"
               name="zoneMstrId"
-              required
               value={formData.zoneMstrId}
               onChange={handleInputChange}
               disabled={
                 pathname.includes(formType) && disabledFields?.zoneMstrId
               }
+              required
             >
-              <option value="">Select Zone</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
+              <option value="">Select Circle</option>
+              {mstrData?.zoneType?.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.zoneName}
+                </option>
+              ))}
             </select>
+
             {error?.zoneMstrId && (
               <FormError name="zoneMstrId" errors={error} />
             )}
-          </div>
-
-          <div className="flex flex-col justify-center items-center">
-            <span className="text-medium text-orange-400 tooltiptext">
-              Zone 1: Over bridge to Saheed chowk.
-              <br />
-              Zone 2: Rest area other than Zone 1.
-            </span>
           </div>
 
           {formType === "mutation" ? (
             <>
               <div>
                 <label
-                  htmlFor="zoneMstrId"
+                  htmlFor="transferMode"
                   className="block font-medium text-sm"
                 >
                   Mode of Ownership Transfer{" "}
@@ -569,7 +533,7 @@ const CitizenSafAssessment = ({
                     disabledFields?.transferModeMstrId
                   }
                 >
-                  <option value="">Select Zone</option>
+                  <option value="">Mode Of Transfer</option>
                   {mstrData?.transferMode.map((mode, index) => (
                     <option key={index} value={mode.id}>
                       {mode.transferMode}
@@ -583,7 +547,7 @@ const CitizenSafAssessment = ({
 
               <div>
                 <label
-                  htmlFor="zoneMstrId"
+                  htmlFor="percentageOfPropertyTransfer"
                   className="block font-medium text-sm"
                 >
                   Property Transfer (0-100%){" "}
@@ -619,6 +583,7 @@ const CitizenSafAssessment = ({
           setOwnerDtl={handleOwnerDtlUpdate}
           isDisabled={pathname.includes("reassessment")}
           disabledFields={disabledFields?.owners || []}
+          isSingleOwner={formData.ownershipTypeMstrId == 1}
         />
         {/* OWNER DETAILS END HERE */}
 
@@ -1160,7 +1125,10 @@ const CitizenSafAssessment = ({
                   className="block font-medium text-sm"
                 >
                   Date of Possession / Purchase / Acquisition (Whichever is
-                  earlier) <span className="text-red-500">*</span>
+                  earlier){" "}
+                  {formData?.propTypeMstrId == 4 && (
+                    <span className="text-red-500">*</span>
+                  )}
                 </label>
                 <input
                   type="date"

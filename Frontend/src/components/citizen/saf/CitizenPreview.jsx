@@ -25,10 +25,12 @@ export default function CitizenPreview() {
   const { formData, ownerDtl, floorDtl, mstrData, newWardList, apartmentList } =
     state || {};
 
+    console.log("tax details", taxDtl);
+
   const buildPayload = () =>
     formData?.propTypeMstrId === 4
-      ? { ...formData, ownerDtl }
-      : { ...formData, ownerDtl, floorDtl };
+      ? { ...formData,newWardMstrId: "" , ownerDtl }
+      : { ...formData,newWardMstrId: "" , ownerDtl, floorDtl };
 
   const taxPreview = async () => {
     setIsLoadingGable(true);
@@ -36,6 +38,7 @@ export default function CitizenPreview() {
       const { data } = await axios.post(reviewTaxApi, buildPayload(), {
         headers: { Authorization: `Bearer ${token}` },
       });
+      console.log("response tax: ", data);
       setTaxDtl(data?.data || {});
     } catch (err) {
       console.error("Tax preview error", err);
@@ -117,18 +120,14 @@ export default function CitizenPreview() {
               label="Assessment Type"
               value={formData?.assessmentType || "New Assessment"}
             />
-            <DetailCard label="Zone" value={formData?.zoneMstrId} />
+            <DetailCard label="Zone" value={formData?.zone} />
             <DetailCard
-              label="Old Ward"
+              label="Ward No"
               value={findName(
                 mstrData.wardList,
                 formData?.wardMstrId,
                 "wardNo"
               )}
-            />
-            <DetailCard
-              label="New Ward"
-              value={findName(newWardList, formData?.wardMstrId, "wardNo")}
             />
             <DetailCard
               label="Ownership Type"
@@ -152,7 +151,7 @@ export default function CitizenPreview() {
                 value={formData?.landOccupationDate}
               />
             )}
-            {formData?.propTypeMstrId === 3 && (
+            {formData?.propTypeMstrId === 1 && (
               <>
                 <DetailCard
                   label="Apartment Name"
@@ -212,11 +211,15 @@ export default function CitizenPreview() {
               label="Area of Plot (in Decimal)"
               value={formData?.areaOfPlot}
             />
+             <DetailCard
+              label="Built Up Area (in Sqft)"
+              value={formData?.builtupArea}
+            />
             <DetailCard
               label="Road Width (in ft)"
               value={formData?.roadWidth}
             />
-            {/* Add more fields as per your PropDtl component */}
+            
           </div>
         </section>
         {/* Water Connection Details */}
