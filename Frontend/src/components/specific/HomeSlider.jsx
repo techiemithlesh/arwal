@@ -1,6 +1,7 @@
 import Slider from "react-slick";
 import Banner1 from "../../assets/images/banner1.jpg";
 import Banner2 from "../../assets/images/banner2.jpg";
+import BannerMeeting from "../../assets/images/banner2.webp";
 
 const sliderImages = [
   {
@@ -16,7 +17,7 @@ const sliderImages = [
     buttonTxt: "Explore",
   },
   {
-    image: Banner1,
+    image: BannerMeeting,
     title: "",
     link: "",
     buttonTxt: "",
