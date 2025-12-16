@@ -222,7 +222,6 @@ const WorkflowDetail = () => {
     { label: "Application Type", value: tradeDetails.applicationType },
     { label: "License No", value: tradeDetails.licenseNo },
     { label: "Ward No", value: tradeDetails.wardNo },
-    { label: "New Ward No", value: tradeDetails.newWardNo },
     {
       label: "License For",
       value: tradeDetails.licenseForYears

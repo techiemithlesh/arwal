@@ -110,9 +110,6 @@ function PaymentReceiptDtl({data=null, id,setIsFrozen=()=>{} }) {
                         Ward No. : <strong>{receiptData?.wardNo}</strong>
                     </p>
                     <p>
-                        New Ward No. : <strong>{receiptData?.newWardNo}</strong>
-                    </p>
-                    <p>
                         Application No. : <strong>{receiptData?.applicationNo}</strong>
                     </p>
                     

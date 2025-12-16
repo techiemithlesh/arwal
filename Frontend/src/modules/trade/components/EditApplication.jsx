@@ -41,7 +41,6 @@ export default function EditApplication({ id,onClose,onSuccess }) {
       ownershipTypeId: "",
       holdingNo: "",
       wardMstrId: "",
-      newWardMstrId: "",
       areaInSqft: "",
       firmName: "",
       firmEstablishmentDate: "",
@@ -171,10 +170,8 @@ export default function EditApplication({ id,onClose,onSuccess }) {
           setFormData((prev) => ({
             ...prev,
             wardMstrId: data?.wardMstrId?.toString() ?? "",
-            newWardMstrId: data?.newWardMstrId?.toString() ?? "",
-            // ownerDtl: prev?.ownershipTypeId == 1 && Array.isArray(data?.owners)
-            //         ? data.owners.map((o, idx) => ({ ...o, id: 0, index: idx + 1 }))
-            //         : prev.ownerDtl,
+            // newWardMstrId: data?.newWardMstrId?.toString() ?? "",
+            
           }));
           setApplicantCounter(data?.owners?.length + 1 || 2);
         }
@@ -437,20 +434,6 @@ export default function EditApplication({ id,onClose,onSuccess }) {
       required: true,
       isDisabled: isReadOnly,
       options: masterData?.wardList?.map((item) => ({
-        label: item.wardNo,
-        value: item.id,
-      })),
-    },
-    {
-      name: "newWardMstrId",
-      label: "New Ward No.",
-      type: "select",
-      error: validationError?.newWardMstrId || "",
-      value: formData.newWardMstrId || "",
-      loading: newWardLoading,
-      required: true,
-      isDisabled: isReadOnly,
-      options: newWardList.map((item) => ({
         label: item.wardNo,
         value: item.id,
       })),
