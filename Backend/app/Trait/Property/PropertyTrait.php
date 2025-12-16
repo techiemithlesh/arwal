@@ -117,7 +117,7 @@ trait PropertyTrait{
         return $floor;
     }
 
-    public function getSafStatus($id){
+    public function getSafStatus_old($id){
         $status = "";
         $saf = ActiveSafDetail::find($id);
         if(!$saf){
@@ -145,6 +145,35 @@ trait PropertyTrait{
         }elseif(!$saf->payment_status && $saf->is_doc_upload){
             $role = RoleTypeMstr::find($saf->current_role_id);
             $status ="Document Uploaded But Payment Not Done";
+        }else{
+            $role = RoleTypeMstr::find($saf->current_role_id);
+            $status ="Application Pending At ".($role ? $role->role_name : "");
+        }
+        return $status;
+    }
+
+    public function getSafStatus($id){
+        $status = "";
+        $saf = ActiveSafDetail::find($id);
+        if(!$saf){
+            $saf=SafDetail::find($id);
+        }if(!$saf){
+            $saf=RejectedSafDetail::find($id);
+        }
+        if($saf->getTable()=="saf_details"){
+            $role = RoleTypeMstr::find($saf->current_role_id);
+            $status="Application Approved ";
+            if($role){
+                $status.=" By ".$role->role_name??""." On ".$saf->saf_approved_date;
+            }
+        }
+        elseif($saf->saf_pending_status == 1){
+            $status ="Application Approved";
+        }elseif($saf->is_btc){
+            $role = RoleTypeMstr::find($saf->current_role_id);
+            $status ="Application Back To Citizen ".($role ? "From ".$role->role_name??"" : " ");
+        }elseif(!$saf->is_doc_upload){
+            $status ="Document Not Uploaded";
         }else{
             $role = RoleTypeMstr::find($saf->current_role_id);
             $status ="Application Pending At ".($role ? $role->role_name : "");
