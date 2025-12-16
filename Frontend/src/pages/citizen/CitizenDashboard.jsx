@@ -74,8 +74,8 @@ export default function CitizenDashboard() {
     );
   }
 
-  console.log("citizen profile", citizenInfo);
-  console.log("dashboard", dashboardData);
+  // console.log("citizen profile", citizenInfo);
+  // console.log("dashboard", dashboardData);
 
   const fullName =
     citizenInfo?.name && citizenInfo.name.trim() !== ""

@@ -67,7 +67,7 @@ const Home = () => {
   ];
 
   return (
-    <Layout title="Muncipal Services - Home">
+    <Layout title="Nagar Prishad Arwal - Home" description="Pay Property Tax, Water Tax, Trade Municipal services">
       <HomeSlider />
       {/* CARD CONTAINER */}
       <div className="py-10 px-4 md:px-8 bg-[#f8f9fa]">
