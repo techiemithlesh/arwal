@@ -3,6 +3,7 @@
 namespace App\Bll\Property;
 
 use App\Models\Property\MemoDetail;
+use App\Models\Property\PropertyDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 

@@ -188,6 +188,10 @@ class SafApprovalBll
 
     public function FinalUpdateProperty(){
         $property = $this->_PropertyDetail->find($this->_SAF->prop_dtl_id??$this->_SAF->previous_holding_id);
+        if(!$property){
+           $this->createNewProperty(); 
+           $property = $this->_PropertyDetail->find($this->_PropId);
+        }
         if(!$property->new_holding_no){
             $property->new_holding_no = $this->_HoldingNo;
         }

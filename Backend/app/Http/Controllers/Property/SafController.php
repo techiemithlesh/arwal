@@ -291,9 +291,9 @@ class SafController extends Controller
             } 
             $holdingType = $this->getHoldingType($request);
             $additionData["holdingType"]=$holdingType;
-            // $calCulator = new BiharTaxCalculator($request);
-            // $calCulator->calculateTax();
-            // $tax = collect($calCulator->_GRID);
+            $calCulator = new BiharTaxCalculator($request);
+            $calCulator->calculateTax();
+            $tax = collect($calCulator->_GRID);
             $propertyTypeMaster = $this->_PropertyTypeMaster->getPropertyTypeList();
             
             $workflowMater = $this->_WorkflowMaster->where("module_id",$this->_MODULE_ID )
@@ -316,33 +316,32 @@ class SafController extends Controller
             $additionData["initiatorRoleId"]=$initiator["role_id"];
             $additionData["finisherRoleId"]=$finisher["role_id"];
             $additionData["workflowId"]=$workflowMater->id;
-            $additionData["payment_status"]=1;
 
             $request->merge($additionData);
             
             $this->begin();
             $safId = $this->_ActiveSafDetail->store($request);
             
-            // foreach($tax["RuleSetVersionTax"] as $key=>$safTax){  
-            //     if($safTax["Fyearlytax"]) {
-            //         $taxRequest = new Request($safTax);  
-            //         $taxRequest->merge(["safDetailId"=>$safId]);
-            //         $minFyear = collect($safTax["Fyearlytax"]??[])->min("fyear");
-            //         $minYearTax = collect($safTax["Fyearlytax"]??[])->where("fyear",$minFyear)->first();
-            //         $minQtr = collect($minYearTax["quarterly"]??[])->min("qtr");
-            //         $taxRequest->merge(["Fyear"=>$minFyear,"Qtr"=>$minQtr]);
-            //         $taxId = $this->_SafTax->store($taxRequest);
-            //         foreach($safTax["Fyearlytax"] as $yearTax){
-            //             foreach($yearTax["quarterly"] as $quarterlyTax){
-            //                 $newDemandRequest = new Request($quarterlyTax);
-            //                 $newDemandRequest->merge(["safDetailId"=>$safId,"safTaxId"=>$taxId,"wardMstrId"=>$request->wardMstrId]);                        
-            //                 $demandId = $this->_SafDemand->store($newDemandRequest);
+            foreach($tax["RuleSetVersionTax"] as $key=>$safTax){  
+                if($safTax["Fyearlytax"]) {
+                    $taxRequest = new Request($safTax);  
+                    $taxRequest->merge(["safDetailId"=>$safId]);
+                    $minFyear = collect($safTax["Fyearlytax"]??[])->min("fyear");
+                    $minYearTax = collect($safTax["Fyearlytax"]??[])->where("fyear",$minFyear)->first();
+                    $minQtr = collect($minYearTax["quarterly"]??[])->min("qtr");
+                    $taxRequest->merge(["Fyear"=>$minFyear,"Qtr"=>$minQtr]);
+                    $taxId = $this->_SafTax->store($taxRequest);
+                    // foreach($safTax["Fyearlytax"] as $yearTax){
+                    //     foreach($yearTax["quarterly"] as $quarterlyTax){
+                    //         $newDemandRequest = new Request($quarterlyTax);
+                    //         $newDemandRequest->merge(["safDetailId"=>$safId,"safTaxId"=>$taxId,"wardMstrId"=>$request->wardMstrId]);                        
+                    //         $demandId = $this->_SafDemand->store($newDemandRequest);
                             
-            //             }    
-            //         }
-            //     }          
+                    //     }    
+                    // }
+                }          
                 
-            // }
+            }
             foreach($request->ownerDtl as $owners){
                 $newRequest = new Request($owners);
                 $newRequest->merge(["safDetailId"=>$safId]);
@@ -362,7 +361,10 @@ class SafController extends Controller
                     
                 }
             }
-            $safNo = $this->_ActiveSafDetail->find($safId)->saf_no??"";
+            $saf = $this->_ActiveSafDetail->find($safId);
+            $saf->payment_status =1;
+            $saf->update();
+            $safNo = $saf->saf_no??"";
             $this->commit();
             return responseMsg(true,"Application Submitted ",remove_null(camelCase(["safId"=>$safId,"safNo"=>$safNo])));
         }catch(CustomException $e){
@@ -370,7 +372,7 @@ class SafController extends Controller
             return responseMsg(false,$e->getMessage(),"");
         }
         catch(Exception $e){ 
-            $this->rollBack();dd($e);
+            $this->rollBack();
             return responseMsg(false,"Internal Server Error","");
         }
     }
@@ -759,12 +761,12 @@ class SafController extends Controller
                     ->where("active_saf_details.is_btc",false)
                     ->where("active_saf_details.payment_status",1)
                     ->where("active_saf_details.current_role_id",$role->id);
-            if($request->keyWord){
+            if($request->key){
                 $data->where(function($where)use($request){
-                    $where->where("active_saf_details.saf_no","ILIKE","%".$request->keyWord."%")
-                    ->orWhere("active_saf_details.saf_no","ILIKE","%".$request->keyWord."%")
-                    ->orWhere("owners.owner_name","ILIKE","%".$request->keyWord."%")
-                    ->orWhere("owners.mobile_no","ILIKE","%".$request->keyWord."%");
+                    $where->where("active_saf_details.saf_no","ILIKE","%".$request->key."%")
+                    ->orWhere("active_saf_details.saf_no","ILIKE","%".$request->key."%")
+                    ->orWhere("owners.owner_name","ILIKE","%".$request->key."%")
+                    ->orWhere("owners.mobile_no","ILIKE","%".$request->key."%");
 
                 });                
             }
@@ -938,16 +940,16 @@ class SafController extends Controller
             
             $this->begin();
             if($request->status=="FORWARD"){
-                // if($WfPermission->can_sam_generate){
-                //     $objMemo = new GenerateMemoBll($saf->id,"SAM");
-                //     $objMemo->generateMemo();
-                // }
+                if($WfPermission->can_sam_generate){
+                    $objMemo = new GenerateMemoBll($saf->id,"SAM");
+                    $objMemo->generateMemo();
+                }
                 if($WfPermission->can_fam_generate){
                     $objMemo = new GenerateMemoBll($saf->id,"FAM");
                     $objMemo->generateMemo();dd("sjdklfskl");
                 }
                 
-            }
+            }dd("kkkk");
             $saf->update();
             $id=$this->_LevelRemark->store($request);
             $this->commit();
@@ -1093,7 +1095,7 @@ class SafController extends Controller
                 dd("REJECT");
             }
             $id=$this->_LevelRemark->store($request);
-
+dd($id);
             $this->commit();
             return responseMsg(true,"Saf Approved","");
 
