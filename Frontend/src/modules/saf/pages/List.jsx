@@ -116,7 +116,7 @@ const SAFList = () => {
             onSearchSubmit={handleSearchSubmit}
 
             tableHeaders={[
-                "#", "Ward No.", "New Ward No.", "SAF No.", "Owner Name", 
+                "#", "Ward No.", "SAF No.", "Owner Name", 
                 "Guardian Name", "Mobile No", "Property Type", "Assessment Type", 
                 "Apply Date", "Address", "Status", "View",
             ]}
@@ -125,7 +125,6 @@ const SAFList = () => {
                 <tr key={row.id || index}> 
                     <td className="px-3 py-2 border">{index + 1}</td>
                     <td className="px-3 py-2 border">{row.wardNo ?? ""}</td>
-                    <td className="px-3 py-2 border">{row.newWardNo ?? ""}</td>
                     <td className="px-3 py-2 border">{row.safNo}</td>
                     <td className="px-3 py-2 border">{row.ownerName ?? ""}</td>
                     <td className="px-3 py-2 border">{row.guardianName ?? ""}</td>

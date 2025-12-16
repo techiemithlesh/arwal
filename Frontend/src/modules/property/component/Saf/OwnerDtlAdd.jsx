@@ -1,6 +1,7 @@
 import { FaTrash, FaUserPlus } from "react-icons/fa";
 import { validateOwnerDtl } from "../../../../utils/safAssesmentValidation";
 import { Spinner } from "@nextui-org/react";
+import { useEffect } from "react";
 
 const OwnerDtlAdd = ({
   error,
@@ -9,12 +10,20 @@ const OwnerDtlAdd = ({
   setErrors,
   isDisabled,
   disabledFields,
+  isSingleOwner = false,
 }) => {
   // Ensure at least one row is present
   if (!ownerDtl || ownerDtl.length === 0) {
     setOwnerDtl([{ id: 1 }]);
     return null; // Prevent rendering until state updates
   }
+
+  // useEffect(() => {
+  //   if (isSingleOwner && ownerDtl?.length > 1) {
+  //     setOwnerDtl([ownerDtl[0]]);
+  //   }
+  // }, [isSingleOwner, ownerDtl, setOwnerDtl]);
+
   const handleOwnerAdd = () => {
     setOwnerDtl([...ownerDtl, { id: ownerDtl.length + 1 }]);
   };
@@ -381,8 +390,12 @@ const OwnerDtlAdd = ({
                 onClick={handleOwnerAdd}
                 type="button"
                 title="Add Owner"
-                className="bg-white hover:bg-green-100 p-2 rounded-full text-green-600 hover:text-green-800 transition-colors"
-                disabled={isDisabled}
+                className={`bg-white  p-2 rounded-full ${
+                  isDisabled || isSingleOwner
+                    ? "text-gray-600 hover:text-gray-800"
+                    : "text-green-600 hover:text-green-800"
+                } transition-colors`}
+                disabled={isDisabled || isSingleOwner}
               >
                 <FaUserPlus className="text-xl" />
               </button>

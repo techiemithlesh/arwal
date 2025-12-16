@@ -116,7 +116,7 @@ const FloorPanel = ({ floor }) => {
                 <th className="px-3 py-2 border">From Qtr</th>
                 <th className="px-3 py-2 border">Upto Year</th>
                 <th className="px-3 py-2 border">Upto Qtr</th>
-                <th className="px-3 py-2 border">ALV</th>
+                <th className="px-3 py-2 border">ARV</th>
                 <th className="px-3 py-2 border">Property Tax</th>
                 <th className="px-3 py-2 border">Holding Tax</th>
                 <th className="px-3 py-2 border">Health Cess</th>
@@ -144,7 +144,7 @@ const FloorPanel = ({ floor }) => {
                     <td className="px-3 py-2 border">{tax?.fromQtr}</td>
                     <td className="px-3 py-2 border">{tax?.uptoFYear}</td>
                     <td className="px-3 py-2 border">{tax?.uptoQtr}</td>
-                    <td className="px-3 py-2 border text-right">{tax?.aLV}</td>
+                    <td className="px-3 py-2 border text-right">{tax?.aRV}</td>
                     <td className="px-3 py-2 border text-right">
                       {tax?.propertyTax}
                     </td>
@@ -387,7 +387,7 @@ const RuleSetPanel = ({ ruleSet }) => {
                             {floor?.effectiveFromFYear}/{floor?.fromQtr}
                           </td>
                           <td className="px-3 py-2 border text-right">
-                            {floor?.aLV}
+                            {floor?.aRV}
                           </td>
                           <td className="px-3 py-2 border text-right">
                             {floor?.holdingTax}
@@ -478,7 +478,7 @@ const RuleSetPanel = ({ ruleSet }) => {
                             {floor?.effectiveFromFYear}/{floor?.fromQtr}
                           </td>
                           <td className="px-3 py-2 border text-right">
-                            {floor?.aLV}
+                            {floor?.aRV}
                           </td>
                           <td className="px-3 py-2 border text-right">
                             {floor?.holdingTax}

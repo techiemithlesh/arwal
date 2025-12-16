@@ -115,7 +115,6 @@ const PropertyListPage = () => {
       tableHeaders={[
         "#",
         "Ward No.",
-        "New Ward No.",
         "Holding No.",
         "New Holding No.",
         "Owner Name",
@@ -133,9 +132,6 @@ const PropertyListPage = () => {
           </td>
           <td className="px-1 py-1 border text-center leading-4">
             {row.wardNo ?? ""}
-          </td>
-          <td className="px-1 py-1 border text-center leading-4">
-            {row.newWardNo ?? ""}
           </td>
           <td className="px-1 py-1 border text-center leading-4">
             {row.holdingNo}

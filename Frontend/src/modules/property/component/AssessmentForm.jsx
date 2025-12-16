@@ -33,6 +33,8 @@ const AssessmentForm = ({
   isEdit,
   ulbId,
 }) => {
+  console.log("mstr Data : ", mstrData);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -230,79 +232,6 @@ const AssessmentForm = ({
       </div>
     );
 
-  // const handlePreviewFormData = async (e) => {
-  //   e.preventDefault();
-  //   const { id, owners, floors, taxDtl, tranDtls, userPermission, ...rest } =
-  //     formData;
-  //   const payload = {
-  //     ...rest,
-  //     previousHoldingId: id,
-  //   };
-
-  //   const floorPayload = floorDtl.map((floor) => ({
-  //     ...floor,
-  //     propFloorDetailId: floor.id,
-  //   }));
-
-  //   if (formType) {
-  //     payload.assessmentType = formType
-  //       // insert space before uppercase letters
-  //       .replace(/([A-Z])/g, " $1")
-  //       // trim leading/trailing spaces
-  //       .trim()
-  //       // capitalize each word
-  //       .replace(/\b\w/g, (char) => char.toUpperCase());
-  //   }
-
-  //   const previewUrl = `/property/apply/preview`;
-
-  //   try {
-
-  //     const response = await axios.post(
-  //       propertyTestRequestApi,
-  //       {
-  //         ...payload,
-  //         ownerDtl,
-  //         floorDtl: floorPayload,
-  //         ulbId,
-  //       },
-  //       {
-  //         headers: { Authorization: `Bearer ${token}` },
-  //       }
-  //     );
-
-  //     if (response.data.status) {
-  //       toast.success("Data Saved Successfully !", { position: "top-right" }
-  //       )
-  //       navigate(previewUrl, {
-  //         state: {
-  //           formData: payload,
-  //           ownerDtl,
-  //           floorDtl: floorPayload,
-  //           mstrData,
-  //           newWardList,
-  //           apartmentList,
-  //         },
-  //       });
-  //     } else {
-  //       if (response.data.errors) {
-  //         // Set errors for each field
-  //         setErrors((prev) => ({
-  //           ...prev,
-  //           ...response.data.errors,
-  //         }));
-  //         // Flatten and join all error messages
-  //         const errorMessages = Object.values(response.data.errors)
-  //           .flat()
-  //           .join("\n");
-  //         toast.error(errorMessages, { duration: 8000 });
-  //       } else {
-  //         toast.error(response?.data?.message);
-  //       }
-  //     }
-  //   } catch (error) {}
-  // };
-
   const handlePreviewFormData = async (e) => {
     e.preventDefault();
 
@@ -416,8 +345,35 @@ const AssessmentForm = ({
       <form className="flex flex-col gap-4" onSubmit={handlePreviewFormData}>
         <div className="items-center gap-2 grid grid-cols-1 md:grid-cols-4 bg-gradient-to-br from-white via-blue-50 to-blue-100 shadow-sm p-4 border border-blue-300 rounded-xl">
           <div>
+            <label htmlFor="zoneMstrId" className="block font-medium text-sm">
+              Circle <span className="text-red-400 text-sm">*</span>
+            </label>
+            <select
+              id="zoneMstrId"
+              className="block bg-white shadow-sm px-3 py-2 border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 w-full sm:text-xs"
+              name="zoneMstrId"
+              required
+              value={formData.zoneMstrId}
+              onChange={handleInputChange}
+              disabled={
+                pathname.includes(formType) && disabledFields?.zoneMstrId
+              }
+            >
+              <option value="">Select Zone</option>
+              {mstrData?.zoneType.map((item, index) => (
+                <option key={index} value={item.id}>
+                  {item.zoneName}
+                </option>
+              ))}
+            </select>
+            {error?.zoneMstrId && (
+              <FormError name="zoneMstrId" errors={error} />
+            )}
+          </div>
+
+          <div>
             <label htmlFor="wardMstrId" className="block font-medium text-sm">
-              Old Ward No <span className="text-red-400 text-sm">*</span>
+              Ward No <span className="text-red-400 text-sm">*</span>
               <select
                 id="wardMstrId"
                 className="block bg-white shadow-sm px-3 py-2 border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 w-full sm:text-xs"
@@ -429,7 +385,7 @@ const AssessmentForm = ({
                   pathname.includes(formType) && disabledFields?.wardMstrId
                 }
               >
-                <option value="">Select Old Ward</option>
+                <option value="">Select Ward</option>
                 {mstrData?.wardList.map((ward, index) => (
                   <option key={index} value={ward.id}>
                     {ward.wardNo}
@@ -438,38 +394,6 @@ const AssessmentForm = ({
               </select>
             </label>
             <FormError name="wardMstrId" errors={error} />
-          </div>
-
-          <div>
-            <label
-              htmlFor="newWardMstrId"
-              className="block font-medium text-sm"
-            >
-              New Ward No <span className="text-red-400 text-sm">*</span>
-              <select
-                id="newWardMstrId"
-                className="block bg-white shadow-sm px-3 py-2 border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 w-full sm:text-xs"
-                name="newWardMstrId"
-                required
-                value={formData.newWardMstrId}
-                onChange={handleInputChange}
-                disabled={
-                  (newWardLoading || pathname.includes(formType)) &&
-                  formData.newWardMstrId
-                }
-              >
-                <option value="">
-                  {newWardLoading ? "Loading wards..." : "Select New Ward"}
-                </option>
-                {!newWardLoading &&
-                  newWardList.map((newWard, index) => (
-                    <option key={index} value={newWard.id}>
-                      {newWard.wardNo}
-                    </option>
-                  ))}
-              </select>
-            </label>
-            <FormError name="newWardMstrId" errors={error} />
           </div>
 
           <div>
@@ -533,7 +457,7 @@ const AssessmentForm = ({
             <FormError name="propTypeMstrId" errors={error} />
           </div>
 
-          {formData.propTypeMstrId == 3 && (
+          {formData.propTypeMstrId == 1 && (
             <div>
               <label
                 htmlFor="appartmentDetailsId"
@@ -546,7 +470,7 @@ const AssessmentForm = ({
                 className="block bg-white shadow-sm px-3 py-2 border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 w-full sm:text-xs"
                 name="appartmentDetailsId"
                 value={formData.appartmentDetailsId}
-                required={formData.propTypeMstrId == 3}
+                required={formData.propTypeMstrId == 1}
                 onChange={handleInputChange}
                 disabled={
                   pathname.includes(formType) &&
@@ -568,7 +492,7 @@ const AssessmentForm = ({
             </div>
           )}
 
-          {formData.propTypeMstrId == 3 && (
+          {formData.propTypeMstrId == 1 && (
             <div>
               <label
                 htmlFor="flatRegistryDate"
@@ -595,38 +519,6 @@ const AssessmentForm = ({
               )}
             </div>
           )}
-
-          <div>
-            <label htmlFor="zoneMstrId" className="block font-medium text-sm">
-              Zone <span className="text-red-400 text-sm">*</span>
-            </label>
-            <select
-              id="zoneMstrId"
-              className="block bg-white shadow-sm px-3 py-2 border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 w-full sm:text-xs"
-              name="zoneMstrId"
-              required
-              value={formData.zoneMstrId}
-              onChange={handleInputChange}
-              disabled={
-                pathname.includes(formType) && disabledFields?.zoneMstrId
-              }
-            >
-              <option value="">Select Zone</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-            </select>
-            {error?.zoneMstrId && (
-              <FormError name="zoneMstrId" errors={error} />
-            )}
-          </div>
-
-          <div className="flex flex-col justify-center items-center">
-            <span className="text-medium text-orange-400 tooltiptext">
-              Zone 1: Over bridge to Saheed chowk.
-              <br />
-              Zone 2: Rest area other than Zone 1.
-            </span>
-          </div>
 
           {formType === "mutation" ? (
             <>
@@ -664,7 +556,7 @@ const AssessmentForm = ({
 
               <div>
                 <label
-                  htmlFor="zoneMstrId"
+                  htmlFor="percentageOfPropertyTransfer"
                   className="block font-medium text-sm"
                 >
                   Property Transfer (0-100%){" "}
@@ -684,7 +576,10 @@ const AssessmentForm = ({
                 />
 
                 {error?.percentageOfPropertyTransfer && (
-                  <FormError name="transferModeMstrId" errors={error} />
+                  <FormError
+                    name="percentageOfPropertyTransfer"
+                    errors={error}
+                  />
                 )}
               </div>
             </>
@@ -700,6 +595,7 @@ const AssessmentForm = ({
           setOwnerDtl={handleOwnerDtlUpdate}
           isDisabled={pathname.includes("reassessment")}
           disabledFields={disabledFields?.owners || []}
+          isSingleOwner={formData.ownershipTypeMstrId == 1}
         />
         {/* OWNER DETAILS END HERE */}
 
@@ -851,7 +747,7 @@ const AssessmentForm = ({
         {/* PROPERTY DETAILS END HERE HERE */}
 
         {/* WATER DETAILS START HERE */}
-        {!(formData.propTypeMstrId == 4) &&
+        {!(formData.propTypeMstrId != 4) &&
           disabledFields?.propTypeMstrId !== "" && (
             <div className="flex flex-col gap-2 text-gray-700 text-lg water_connection_details_container">
               <h1 className="flex items-center gap-2 bg-gradient-to-r from-blue-700 to-blue-400 shadow-md p-3 rounded-md font-bold text-white text-lg uppercase tracking-wide">
