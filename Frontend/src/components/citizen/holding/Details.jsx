@@ -72,7 +72,7 @@ const Details = () => {
     },
     {
       label: "Mutation",
-      onClick: () => navigate(`/citizen/holding/mutation${propId}`),
+      onClick: () => navigate(`/citizen/holding/mutation/${propId}`),
       icon: <FaEye />,
       show: true,
     },

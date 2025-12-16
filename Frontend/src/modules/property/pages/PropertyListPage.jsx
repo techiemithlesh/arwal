@@ -59,11 +59,14 @@ const PropertyListPage = () => {
     debouncedSearch(wardId, keyword, currentPage, itemsPerPage);
   };
 
+
   useEffect(() => {
     if (isSearchTriggered) {
       debouncedSearch(wardId, keyword, currentPage, itemsPerPage);
     }
   }, [currentPage, itemsPerPage]);
+
+  console.log("data", tableData);
 
   return (
     <SearchWithTable
@@ -74,12 +77,6 @@ const PropertyListPage = () => {
       loading={isLoading}
       setPageNo={setCurrentPage}
       setItemsPerPage={setItemsPerPage}
-      // pagination={{
-      //   currentPage,
-      //   totalPages,
-      //   onPrev: () => setCurrentPage((prev) => Math.max(prev - 1, 1)),
-      //   onNext: () => setCurrentPage((prev) => prev + 1),
-      // }}
       filters={[
         {
           label: "Ward No.",
@@ -156,7 +153,7 @@ const PropertyListPage = () => {
           </td>
           <td className="px-1 py-1 border text-center leading-4">
             <Link
-              to={`/property/details/${row.id}`}
+              to={`/citizen/holding/details/${row.id}`}
               rel="noopener noreferrer"
               className="inline-flex justify-center items-center text-blue-600 hover:text-blue-800"
             >
