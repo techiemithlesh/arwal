@@ -639,7 +639,7 @@ class WaterApplicationController extends Controller
         }catch(CustomException $e){
             return responseMsg(false,$e->getMessage(),"");
         }
-        catch(Exception $e){dd($e);
+        catch(Exception $e){
             return responseMsg(false,"Internal Server Error","");
         }
     }

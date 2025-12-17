@@ -82,7 +82,7 @@ class RequestAppEdit extends ParentRequest
                     },
                 ],
                 "wardMstrId" => "required|integer|exists:" . $this->_UlbWardMaster->getConnectionName() . "." . $this->_UlbWardMaster->getTable() . ",id",
-                "newWardMstrId" => "required|integer|exists:" .$this->_OldWardNewWardMap->getConnectionName() . "." .$this->_OldWardNewWardMap->getTable() . ",new_ward_id" .($this->wardMstrId ? ",old_ward_id," . $this->wardMstrId : ""),
+                "newWardMstrId" => "nullable|integer|exists:" .$this->_OldWardNewWardMap->getConnectionName() . "." .$this->_OldWardNewWardMap->getTable() . ",new_ward_id" .($this->wardMstrId ? ",old_ward_id," . $this->wardMstrId : ""),
                 "areaSqft" => "required|numeric|min:0.1",
                 "address" => "required|regex:" . $this->_REX_ALPHA_NUM_OPS_DOT_MIN_COM_AND_SPACE_SL,
                 "landmark" => "required|regex:" . $this->_REX_ALPHA_NUM_OPS_DOT_MIN_COM_AND_SPACE_SL,

@@ -95,7 +95,7 @@ class RequestApplyApplication extends ParentRequest
 
             "wardMstrId" => "required|integer|exists:" . $this->_UlbWardMaster->getConnectionName() . "." . $this->_UlbWardMaster->getTable() . ",id",
 
-            "newWardMstrId" => "required|integer|exists:" .
+            "newWardMstrId" => "nullable|integer|exists:" .
                 $this->_OldWardNewWardMap->getConnectionName() . "." .
                 $this->_OldWardNewWardMap->getTable() . ",new_ward_id" .
                 ($this->wardMstrId ? ",old_ward_id," . $this->wardMstrId : ""),
