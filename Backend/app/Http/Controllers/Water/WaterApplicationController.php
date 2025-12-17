@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Water;
 
 use App\Bll\Common;
+use App\Bll\Water\BiharTaxCalculator;
 use App\Bll\Water\PaymentReceiptBll;
 use App\Bll\Water\TaxCalculator;
 use App\Bll\Water\WaterApplicationApproveBll;
@@ -196,7 +197,7 @@ class WaterApplicationController extends Controller
 
     public function reviewTax(RequestTaxReview $request){
         try{
-            $calCulator = new TaxCalculator($request);
+            $calCulator = new BiharTaxCalculator($request);
             $calCulator->calculateTax();
             return responseMsg(true,"Tax Review",camelCase(remove_null($calCulator->_GRID)));
         }catch(CustomException $e){
@@ -265,13 +266,16 @@ class WaterApplicationController extends Controller
                 "conn_fee"=>$tax["connFee"]??0,
             ];
             $newRequest = new Request($chargeData);
-            $this->_WaterConnectionCharge->store($newRequest);
+            // $this->_WaterConnectionCharge->store($newRequest);
             foreach($request->ownerDtl as $owners){
                 $newRequest = new Request($owners);
                 $newRequest->merge(["applicationId"=>$id]);
                 $this->_WaterActiveApplicationOwner->store($newRequest);                
             }
-            $applicationNo = $this->_WaterActiveApplication->find($id)->application_no??"";
+            $application = $this->_WaterActiveApplication->find($id);
+            $application->payment_status =1;
+            $application->update();
+            $applicationNo = $application->application_no??"";
             $this->commit();
             return responseMsg(true,"Application Submitted ",remove_null(camelCase(["applicationId"=>$id,"applicationNo"=>$applicationNo])));
         }catch(CustomException $e){
@@ -659,11 +663,11 @@ class WaterApplicationController extends Controller
                     ->where("app.is_btc",false)
                     ->where("app.payment_status",1)
                     ->where("app.current_role_id",$role->id);
-            if($request->keyWord){
+            if($request->key){
                 $data->where(function($where)use($request){
-                    $where->where("app.application_no","ILIKE","%".$request->keyWord."%")
-                    ->orWhere("w.owner_name","ILIKE","%".$request->keyWord."%")
-                    ->orWhere("w.mobile_no","ILIKE","%".$request->keyWord."%");
+                    $where->where("app.application_no","ILIKE","%".$request->key."%")
+                    ->orWhere("w.owner_name","ILIKE","%".$request->key."%")
+                    ->orWhere("w.mobile_no","ILIKE","%".$request->key."%");
 
                 });                
             }
@@ -717,11 +721,11 @@ class WaterApplicationController extends Controller
                     ->where("app.ulb_id",$user->ulb_id)
                     ->where("app.is_btc",true)
                     ->where("app.payment_status",1);
-            if($request->keyWord){
+            if($request->key){
                 $data->where(function($where)use($request){
-                    $where->where("app.application_no","ILIKE","%".$request->keyWord."%")
-                        ->orWhere("w.owner_name","ILIKE","%".$request->keyWord."%")
-                        ->orWhere("w.mobile_no","ILIKE","%".$request->keyWord."%");
+                    $where->where("app.application_no","ILIKE","%".$request->key."%")
+                        ->orWhere("w.owner_name","ILIKE","%".$request->key."%")
+                        ->orWhere("w.mobile_no","ILIKE","%".$request->key."%");
 
                 });
             }
@@ -1289,7 +1293,7 @@ class WaterApplicationController extends Controller
         }
     }
 
-    public function getTradeForVerification(Request $request ){
+    public function getApplicationForVerification(Request $request ){
         try{
             $user = Auth()->user();
             $rule=[
@@ -1327,7 +1331,7 @@ class WaterApplicationController extends Controller
                 "category"=>"required|string|in:APL,BPL",
                 "pipelineTypeId"=>"required|digits_between:1,9223372036854775807|exists:".$this->_PipelineTypeMaster->getConnectionName().".".$this->_PipelineTypeMaster->getTable().",id",
                 "wardMstrId"=>"required|digits_between:1,9223372036854775807|exists:".$this->_UlbWardMaster->getConnectionName().".".$this->_UlbWardMaster->getTable().",id",
-                "newWardMstrId" => "required|integer|exists:" .
+                "newWardMstrId" => "nullable|integer|exists:" .
                                     $this->_OldWardNewWardMap->getConnectionName() . "." .
                                     $this->_OldWardNewWardMap->getTable() . ",new_ward_id" .
                                     ($request->wardMstrId ? ",old_ward_id," . $request->wardMstrId : ""),
@@ -1350,7 +1354,7 @@ class WaterApplicationController extends Controller
             $application = $this->_WaterActiveApplication->find($request->applicationId);
             $shortName = $this->_SystemConstant["USER-TYPE-SHORT-NAME"][strtoupper($role->role_name)]??"";
             $request->merge(["currentDate"=>$application->apply_date]);
-            $calCulator = new TaxCalculator($request);
+            $calCulator = new BiharTaxCalculator($request);
             $calCulator->calculateTax();
             $demand = new WaterConnectionCharge();
             $oldCharge = $demand->where("lock_status",false)->where("application_id",$application->id)->get();
@@ -1370,24 +1374,24 @@ class WaterApplicationController extends Controller
             $request->merge(["user_id"=>$user->id]);
             $this->begin();
             $verificationId = $this->_WaterApplicationFiledVerification->store($request);
-            if($totalBalance>0){                
-                $chargeData=[
-                    "applicationId"=>$application->id,
-                    "chargeFor"=>"Site Inspection",
-                    "amount"=>$totalBalance,
-                    "penalty"=>0,
-                    "conn_fee"=>$totalBalance,
-                ];
-                $newRequest = new Request($chargeData);
-                $this->_WaterConnectionCharge->store($newRequest);
-                $application->payment_status=0;
-            }else{
-                foreach($oldCharge->where("paid_status",false) as $val){
-                    $val->lock_status=true;
-                    $val->update();
-                }
-                $application->payment_status=1;
-            }
+            // if($totalBalance>0){                
+            //     $chargeData=[
+            //         "applicationId"=>$application->id,
+            //         "chargeFor"=>"Site Inspection",
+            //         "amount"=>$totalBalance,
+            //         "penalty"=>0,
+            //         "conn_fee"=>$totalBalance,
+            //     ];
+            //     $newRequest = new Request($chargeData);
+            //     $this->_WaterConnectionCharge->store($newRequest);
+            //     $application->payment_status=0;
+            // }else{
+            //     foreach($oldCharge->where("paid_status",false) as $val){
+            //         $val->lock_status=true;
+            //         $val->update();
+            //     }
+            //     $application->payment_status=1;
+            // }
             $application->update();
             $this->commit();
             return responseMsg(true,"Field Verification Done","");

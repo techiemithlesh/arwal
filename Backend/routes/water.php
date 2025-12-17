@@ -34,7 +34,7 @@ Route::middleware(['auth:sanctum',"expireBearerToken","setUlb"])->group(function
             Route::post("btc-list","btcList");
             Route::post("outbox","outbox");
             Route::post("post-next","postNextLevel");
-            Route::post("get-field-verification","getTradeForVerification");
+            Route::post("get-field-verification","getApplicationForVerification");
             Route::post("field-verification","fieldVerification");
             Route::post("field-verification-dtl", "getVerificationDetails");
         });

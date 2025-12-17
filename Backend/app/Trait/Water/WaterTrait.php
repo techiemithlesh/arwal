@@ -66,7 +66,7 @@ trait WaterTrait{
     }
 
 
-    public function getAppStatus($id){
+    public function getAppStatus_old($id){
         $status = "";
         $water = WaterActiveApplication::find($id);
         if(!$water){
@@ -100,6 +100,33 @@ trait WaterTrait{
             if($inspectionCharge){
                 $status ="Difference Amount Generated On Site Inspection Please Pay It.";
             }
+        }else{
+            $role = RoleTypeMstr::find($water->current_role_id);
+            $status ="Application Pending At ".($role ? $role->role_name : "");
+        }
+        return $status;
+    }
+
+    public function getAppStatus($id){
+        $status = "";
+        $water = WaterActiveApplication::find($id);
+        if(!$water){
+            $water=WaterApplication::find($id);
+        }if(!$water){
+            $water=WaterRejectedApplication::find($id);
+        }
+
+        if(in_array($water->getTable(),["water_applications"])){
+            $role = RoleTypeMstr::find($water->current_role_id);
+            $status="Application Approved ";
+            if($role){
+                $status.=" By ".$role->role_name??""." On ".$water->approved_date;
+            }
+        }elseif($water->is_btc){
+            $role = RoleTypeMstr::find($water->current_role_id);
+            $status ="Application Back To Citizen ".($role ? "From ".$role->role_name??"" : " ");
+        }elseif(!$water->is_doc_upload){
+            $status ="Document Not Uploaded";
         }else{
             $role = RoleTypeMstr::find($water->current_role_id);
             $status ="Application Pending At ".($role ? $role->role_name : "");

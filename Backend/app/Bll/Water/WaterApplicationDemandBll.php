@@ -73,7 +73,7 @@ class WaterApplicationDemandBll
             "otherPenalty"=>$this->_otherPenalty,
             "advanceAmount" => $this->_advanceAmount,
             "discountAmount"=>$this->_discount,
-            "description"=>$this->_discount?(" 10% (".$this->_discount.") Discount When Full Payment On Regularization") : "",
+            "description"=>$this->_discount!=0?(" 10% (".$this->_discount.") Discount When Full Payment On Regularization") : "",
             "demandAmount"=>$this->_demandAmount,
             "payableAmount" => roundFigure(($this->_connectionFee + $this->_otherPenalty + $this->_realizationPenalty) - ($this->_discount +  $this->_advanceAmount) ),
         ];
