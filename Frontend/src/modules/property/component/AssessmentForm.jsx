@@ -34,6 +34,8 @@ const AssessmentForm = ({
   ulbId,
 }) => {
 
+  // console.log("mstr data", mstrData);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -681,15 +683,12 @@ const AssessmentForm = ({
                   className="block font-medium text-sm"
                 >
                   BIND/BOOK No.{" "}
-                  {formData?.electConsumerNo && (
-                    <span className="text-red-400 text-sm">*</span>
-                  )}
+                 
                 </label>
                 <input
                   type="text"
                   id="electBindBookNo"
                   name="electBindBookNo"
-                  required={!formData.electConsumerNo}
                   placeholder=""
                   value={formData.electBindBookNo}
                   onChange={handleInputChange}
