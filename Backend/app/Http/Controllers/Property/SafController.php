@@ -946,10 +946,10 @@ class SafController extends Controller
                 }
                 if($WfPermission->can_fam_generate){
                     $objMemo = new GenerateMemoBll($saf->id,"FAM");
-                    $objMemo->generateMemo();dd("sjdklfskl");
+                    $objMemo->generateMemo();
                 }
                 
-            }dd("kkkk");
+            }
             $saf->update();
             $id=$this->_LevelRemark->store($request);
             $this->commit();
@@ -1095,7 +1095,6 @@ class SafController extends Controller
                 dd("REJECT");
             }
             $id=$this->_LevelRemark->store($request);
-dd($id);
             $this->commit();
             return responseMsg(true,"Saf Approved","");
 
@@ -1104,7 +1103,7 @@ dd($id);
             return responseMsg(false,$e->getMessage(),"");
         }
         catch(Exception $e){
-            $this->rollBack();dd($e);
+            $this->rollBack();
             return responseMsg(false,"Internal Server Error","");
         }
     }
