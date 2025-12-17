@@ -436,8 +436,8 @@ class SafController extends Controller
             if((!$WfPermission) && $user->getTable()=="users"){
                 throw new CustomException("You Have No Any Permission On This WorkFlow");
             }
-
-            if($WfPermission && (!$WfPermission->has_full_permission || !$WfPermission->can_app_edit) && $user->getTable()=="users"){
+            $canEdit = $WfPermission && ($WfPermission->has_full_permission || $WfPermission->can_app_edit);
+            if(!$canEdit && $user->getTable()=="users"){
                 throw new CustomException("You do not have permission to edit");
             }
             if($saf->payment_status!=0 && (!$saf->is_btc) && $saf->current_role_id!=$saf->initiator_role_id){
