@@ -5,6 +5,12 @@ import BannerMeeting from "../../assets/images/banner2.webp";
 
 const sliderImages = [
   {
+    image: BannerMeeting,
+    title: "",
+    link: "",
+    buttonTxt: "",
+  },
+  {
     image: Banner1,
     title: "Property Tax Online Service",
     link: "/citizen/application",
@@ -15,13 +21,8 @@ const sliderImages = [
     title: "Water User Charges Collection",
     link: "/citizen/application",
     buttonTxt: "Explore",
-  },
-  {
-    image: BannerMeeting,
-    title: "",
-    link: "",
-    buttonTxt: "",
-  },
+  }
+  
 ];
 
 const HomeSlider = () => {
