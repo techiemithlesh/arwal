@@ -36,6 +36,8 @@ const FieldVerificationView = ({ id, onClose, token }) => {
     }
   }, [id, token]);
 
+  // console.log("details", details.appComp);
+
   return (
     <div className="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 p-4">
       <motion.div
@@ -84,7 +86,6 @@ const FieldVerificationView = ({ id, onClose, token }) => {
                 <p><span className="font-medium">Application Type:</span> {details.appDtl?.applicationType}</p>
                 <p><span className="font-medium">Property Type:</span> {details.appDtl?.propertyType}</p>
                 <p><span className="font-medium">Ward No:</span> {details.appDtl?.wardNo}</p>
-                <p><span className="font-medium">New Ward No:</span> {details.appDtl?.newWardNo}</p>
                 <p><span className="font-medium">Ownership Type:</span> {details.appDtl?.ownershipType}</p>
               </div>
             </div>

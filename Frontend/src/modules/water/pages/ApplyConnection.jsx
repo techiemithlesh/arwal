@@ -402,19 +402,19 @@ export default function ApplyConnection({ mstrData, formDetails }) {
       subOnChange: fetchNewWard,
       options: wardList.map((item) => ({ label: item.wardNo, value: item.id })),
     },
-    {
-      name: "newWardMstrId",
-      label: "New Ward No.",
-      type: "select",
-      error: validationError?.newWardMstrId || "",
-      value: formData.newWardMstrId || "",
-      loading: newWardLoading,
-      required: true,
-      options: newWardList.map((item) => ({
-        label: item.wardNo,
-        value: item.id,
-      })),
-    },
+    // {
+    //   name: "newWardMstrId",
+    //   label: "New Ward No.",
+    //   type: "select",
+    //   error: validationError?.newWardMstrId || "",
+    //   value: formData.newWardMstrId || "",
+    //   loading: newWardLoading,
+    //   required: true,
+    //   options: newWardList.map((item) => ({
+    //     label: item.wardNo,
+    //     value: item.id,
+    //   })),
+    // },
     {
       name: "areaSqft",
       label: "Total Area (in Sq. Ft)",

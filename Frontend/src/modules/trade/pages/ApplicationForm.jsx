@@ -24,7 +24,7 @@ export default function ApplicationForm({ applicationType = "NEW LICENSE" , mstr
   const token = getToken();
   const { id } = useParams();
   const fromPriv = location.state?.fromPriv;
-  console.log("fromPriv",fromPriv);
+  // console.log("fromPriv",fromPriv);
 
   const [applicantCounter, setApplicantCounter] = useState(2);
   const [newWardList, setNewWardList] = useState([]);
@@ -355,7 +355,7 @@ export default function ApplicationForm({ applicationType = "NEW LICENSE" , mstr
   }
 
   const handleNatureOfBusinessChange = (name,value) => {
-    console.log("value",value)
+    // console.log("value",value)
     const selectedItems = value.map((id) => ({
       tradeItemTypeId: id.toString(),
     }));
@@ -470,20 +470,7 @@ export default function ApplicationForm({ applicationType = "NEW LICENSE" , mstr
         value: item.id,
       })),
     },
-    {
-      name: "newWardMstrId",
-      label: "New Ward No.",
-      type: "select",
-      error: validationError?.newWardMstrId || "",
-      value: formData.newWardMstrId || "",
-      loading: newWardLoading,
-      required: true,
-      isDisabled: isReadOnly,
-      options: newWardList.map((item) => ({
-        label: item.wardNo,
-        value: item.id,
-      })),
-    },
+    
     {
       label: "Total Area (in Sq. Ft)",
       name: "areaInSqft",
@@ -813,7 +800,7 @@ export default function ApplicationForm({ applicationType = "NEW LICENSE" , mstr
       </div>
     ),
   };
-console.log("formData",formData);
+// console.log("formData",formData);
   return (
     <AdminLayout>
       <form

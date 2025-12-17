@@ -135,7 +135,7 @@ function LicenseCertificateDtl({ data=null,id, setIsFrozen }) {
             {qrCode}
           </div>
 
-          <p className="mt-3">Ward No. : <b>{receiptData?.wardNo || receiptData?.newWardNo}</b></p>
+          <p className="mt-3">Ward No. : <b>{receiptData?.wardNo}</b></p>
           <p>Holding No. : <b>{receiptData?.holdingNo}</b></p>
           <p>Street Address : <b>{receiptData?.address}</b></p>
           <p>Application No. : <b>{receiptData?.applicationNo}</b></p>

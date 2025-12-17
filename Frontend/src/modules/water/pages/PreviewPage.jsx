@@ -241,15 +241,7 @@ export default function PreviewPage() {
               {getName(masterData?.wardList, formData.wardMstrId, "wardNo")}
             </p>
           </div>
-          <div className="flex flex-col">
-            <label className="mb-1 font-medium text-gray-500 text-sm">
-              New Ward No.
-            </label>
-            <p className="text-gray-900 text-sm">
-              {newWardList.find((w) => w.id === formData.newWardMstrId)
-                ?.wardNo || "N/A"}
-            </p>
-          </div>
+          
           <div className="flex flex-col">
             <label className="mb-1 font-medium text-gray-500 text-sm">
               Total Area (in Sq. Ft)
