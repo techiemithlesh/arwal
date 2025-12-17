@@ -2,6 +2,7 @@ const env = import.meta.env;
 
 export const BASE_URL = `${import.meta.env.VITE_REACT_APP_BACKEND_API}`;
 export const heartBeatApi = `${BASE_URL}/api/heartbeat`;
+export const cacheClearApi = `${BASE_URL}/api/cache-clear`;
 export const UlbApi = `${BASE_URL}/api/ulb/show/{id}`;
 export const loginApi = `${BASE_URL}/api/login`;
 export const logoutApi = `${BASE_URL}/api/logout`;

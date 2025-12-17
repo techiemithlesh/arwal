@@ -133,7 +133,7 @@ export default function ApplyConnection({ mstrData, formDetails }) {
   const fetchNewWard = async (oldWardId) => {
     if (!oldWardId) {
       setNewWardList([]);
-      setFormData((prev) => ({ ...prev, newWardMstrId: "" }));
+      setFormData((prev) => ({ ...prev }));
       return;
     }
     try {

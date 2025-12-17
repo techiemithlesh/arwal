@@ -169,7 +169,7 @@ export default function ApplyConnection({ mstrData, formDetails }) {
           ...prev,
           safNo: "",
           wardMstrId: data?.wardMstrId,
-          newWardMstrId: data?.newWardMstrId,
+          // newWardMstrId: data?.newWardMstrId,
           ownerDtl: data?.owners || [],
         }));
         fetchNewWard(data?.wardMstrId);
@@ -201,7 +201,7 @@ export default function ApplyConnection({ mstrData, formDetails }) {
           ...prev,
           holdingNo: "",
           wardMstrId: data?.wardMstrId,
-          newWardMstrId: data?.newWardMstrId,
+          // newWardMstrId: data?.newWardMstrId,
           ownerDtl: data?.owners || [],
         }));
         fetchNewWard(data?.wardMstrId);

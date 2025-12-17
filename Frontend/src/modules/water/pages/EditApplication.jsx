@@ -163,7 +163,7 @@ function EditApplication({ mstrData, fetchApi }) {
           ...prev,
           safNo: "",
           wardMstrId: data?.wardMstrId,
-          newWardMstrId: data?.newWardMstrId,
+          // newWardMstrId: data?.newWardMstrId,
         }));
         fetchNewWard(data?.wardMstrId);
       } else {
@@ -194,7 +194,7 @@ function EditApplication({ mstrData, fetchApi }) {
           ...prev,
           holdingNo: "",
           wardMstrId: data?.wardMstrId,
-          newWardMstrId: data?.newWardMstrId,
+          // newWardMstrId: data?.newWardMstrId,
         }));
         fetchNewWard(data?.wardMstrId);
       } else {
@@ -252,7 +252,7 @@ function EditApplication({ mstrData, fetchApi }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const payload = { ...formData, newWardMstrId: "" };
+      const payload = { ...formData };
       const response = await axios.post(waterAppEditApi, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });

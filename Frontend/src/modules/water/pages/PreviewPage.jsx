@@ -328,16 +328,16 @@ export default function PreviewPage() {
             <div className="space-y-3 text-gray-700 text-base">
               <div>
                 <span className="font-semibold">Rate:</span> ₹{tax?.rate?.rate}{" "}
-                per {tax?.rate?.fromArea} - {tax?.rate?.uptoArea} sqft
+                per Month
               </div>
               <div>
                 <span className="font-semibold">Effective From:</span>{" "}
                 {tax?.rate?.effectiveFrom}
               </div>
-              <div>
+              {/* <div>
                 <span className="font-semibold">Connection Fee:</span> ₹
                 {tax?.connFee}
-              </div>
+              </div> */}
               <div>
                 <span className="font-semibold">Penalty:</span> ₹{tax?.penalty}
                 {tax?.description && (
