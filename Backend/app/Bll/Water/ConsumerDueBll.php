@@ -57,16 +57,16 @@ class ConsumerDueBll
         $penalty = 0 ;
         $monthDiff = 0;
         # on meter after 3 month of demand generation 1.5% of balance per month
-        if($demandList->generation_date>="2021-01-01" && strtolower($demandList->demand_type)=="meter"){
-           $monthDiff = monthDiff($demandList->generation_date,$this->_tranDate);
-           $monthDiff = $monthDiff>2 ? $monthDiff-2 : 0;
-           $penalty = ($monthDiff * 1.5 * $demandList->balance)/100;
-        }
-        # on fixed after 1 month of demand generation 10% of balance
-        elseif($demandList->generation_date>="2015-07-01" && strtolower($demandList->demand_type)=="fixed"){
-            $monthDiff = monthDiff($demandList->generation_date,$this->_tranDate);            
-            $penalty = $monthDiff>1 ? (($demandList->balance * 10)/100) : 0 ;
-        }
+        // if($demandList->generation_date>="2021-01-01" && strtolower($demandList->demand_type)=="meter"){
+        //    $monthDiff = monthDiff($demandList->generation_date,$this->_tranDate);
+        //    $monthDiff = $monthDiff>2 ? $monthDiff-2 : 0;
+        //    $penalty = ($monthDiff * 1.5 * $demandList->balance)/100;
+        // }
+        // # on fixed after 1 month of demand generation 10% of balance
+        // elseif($demandList->generation_date>="2015-07-01" && strtolower($demandList->demand_type)=="fixed"){
+        //     $monthDiff = monthDiff($demandList->generation_date,$this->_tranDate);            
+        //     $penalty = $monthDiff>1 ? (($demandList->balance * 10)/100) : 0 ;
+        // }
         $demandList->monthDiff = $monthDiff;
         $demandList->latePenalty = $penalty;
         $demandList->totalTax = roundFigure($demandList->latePenalty + $demandList->balance);
