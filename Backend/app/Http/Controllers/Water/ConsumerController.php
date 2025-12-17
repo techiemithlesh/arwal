@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Water;
 
 use App\Bll\Common;
+use App\Bll\Water\BiharConsumerDemandGenerateBll;
 use App\Bll\Water\ConsumerDemandGenerateBll;
 use App\Bll\Water\ConsumerDueBll;
 use App\Bll\Water\ConsumerPaymentBll;
@@ -322,7 +323,7 @@ class ConsumerController extends Controller
             
             $this->begin();
 
-            $objGenerateDemand = new ConsumerDemandGenerateBll($request);
+            $objGenerateDemand = new BiharConsumerDemandGenerateBll($request);
             $objGenerateDemand->generateDemand();
 
             $response = [
