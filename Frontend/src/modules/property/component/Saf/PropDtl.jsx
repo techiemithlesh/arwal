@@ -168,6 +168,7 @@ const PropDtl = ({
               name="roadWidth"
               required
               placeholder=""
+              
               value={formData.roadWidth}
               onChange={(e) => {
                 // Allow only digits and one decimal point
@@ -190,13 +191,13 @@ const PropDtl = ({
             )}
           </div>
 
-          <div className="mb-4" style={{ paddingTop: "25px" }}>
+          {/* <div className="mb-4" style={{ paddingTop: "25px" }}>
             <span className="text-medium text-orange-400 tooltiptext">
               In Case of No Road Enter "0"
               <br />
               (For Vacant Land Only)
             </span>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
