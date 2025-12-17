@@ -33,7 +33,6 @@ const AssessmentForm = ({
   isEdit,
   ulbId,
 }) => {
-  console.log("mstr Data : ", mstrData);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -213,7 +212,7 @@ const AssessmentForm = ({
       dispatch(setFormData({ isCorrAddDiffer: checked ? 1 : 0 }));
     }
 
-    if (name === "propTypeMstrId" && updatedValue == 3) {
+    if (name === "propTypeMstrId" && updatedValue == 1) {
       getApartment();
     }
 
@@ -222,7 +221,7 @@ const AssessmentForm = ({
   };
 
   useEffect(() => {
-    if (formData.propTypeMstrId == 3) getApartment();
+    if (formData.propTypeMstrId == 1) getApartment();
   }, [formData.propTypeMstrId]);
 
   if (isLoading)
@@ -231,7 +230,7 @@ const AssessmentForm = ({
         <Spinner />
       </div>
     );
-
+  // console.log("formData",formData);
   const handlePreviewFormData = async (e) => {
     e.preventDefault();
 

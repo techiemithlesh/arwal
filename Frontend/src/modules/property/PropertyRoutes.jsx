@@ -9,7 +9,6 @@ import Mutation from "./pages/Mutation";
 import Preview from "../saf/components/Preview";
 import ReportRoute from "./ReportRoute";
 import EditHolding from "./pages/EditHolding";
-// import Preview from "./component/Preview";
 
 const PropertyRoutes = () => {
   return (

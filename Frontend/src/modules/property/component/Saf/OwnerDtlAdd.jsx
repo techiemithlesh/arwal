@@ -12,23 +12,25 @@ const OwnerDtlAdd = ({
   disabledFields,
   isSingleOwner = false,
 }) => {
-  // Ensure at least one row is present
-  if (!ownerDtl || ownerDtl.length === 0) {
-    setOwnerDtl([{ id: 1 }]);
-    return null; // Prevent rendering until state updates
-  }
+  useEffect(() => {
+    if (!Array.isArray(ownerDtl) || ownerDtl.length === 0) {
+      setOwnerDtl([{ id: 1 }]);
+    }
+  }, []);
 
-  // useEffect(() => {
-  //   if (isSingleOwner && ownerDtl?.length > 1) {
-  //     setOwnerDtl([ownerDtl[0]]);
-  //   }
-  // }, [isSingleOwner, ownerDtl, setOwnerDtl]);
+  useEffect(() => {
+    if (isSingleOwner && ownerDtl.length > 1) {
+      setOwnerDtl([ownerDtl[0]]); // keep only first owner
+    }
+  }, [isSingleOwner]);
 
   const handleOwnerAdd = () => {
+    if (isSingleOwner) return; // ❌ hard stop
     setOwnerDtl([...ownerDtl, { id: ownerDtl.length + 1 }]);
   };
 
   const handleRemoveOwner = (index) => {
+    if (isSingleOwner) return; // ❌ hard stop
     setOwnerDtl(ownerDtl.filter((_, i) => i !== index));
   };
 
