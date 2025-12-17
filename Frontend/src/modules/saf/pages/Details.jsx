@@ -255,7 +255,7 @@ const Details = () => {
     { label: "Address", value: safDetails?.propAddress },
     { label: "Circle", value: safDetails?.zone },
     // Only add these fields if propertyType matches
-    ...(safDetails?.propertyType === "FLATS / UNIT IN MULTI STORIED BUILDING"
+    ...(safDetails?.propTypeMstrId === 1
       ? [
           { label: "Apartment Name", value: safDetails?.apartmentName },
           { label: "Flat Registry Date", value: safDetails?.flatRegistryDate },

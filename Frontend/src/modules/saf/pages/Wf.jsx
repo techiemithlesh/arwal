@@ -48,8 +48,7 @@ function Wf() {
   const [isFrozen, setIsFrozen] = useState(false);
   const [isRemarksModalOpen, setIsRemarksModalOpen] = useState(false);
   const [verificationRemarks, setVerificationRemarks] = useState("");
-  const [isShowPaymentReceiptModal, setIsShowPaymentReceiptModal] =
-    useState(false);
+  const [isShowPaymentReceiptModal, setIsShowPaymentReceiptModal] = useState(false);
   const [paymentReceiptId, setPaymentReceiptId] = useState(null);
   const [isShowSamModal, setIsShowSamModal] = useState(false);
   const [isShowFamModal, setIsShowFamModal] = useState(false);
@@ -247,8 +246,12 @@ function Wf() {
     { label: "Address", value: safDetails?.propAddress },
     { label: "Circle", value: safDetails?.zone },
 
-    { label: "Apartment Name", value: safDetails?.apartmentName },
-    { label: "Flat Registry Date", value: safDetails?.flatRegistryDate },
+    ...(safDetails?.propTypeMstrId === 1
+      ? [
+          { label: "Apartment Name", value: safDetails?.apartmentName },
+          { label: "Flat Registry Date", value: safDetails?.flatRegistryDate },
+        ]
+      : []),
   ];
 
   const fetchSafDocs = async ({ id, token }) => {
