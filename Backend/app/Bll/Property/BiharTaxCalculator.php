@@ -361,13 +361,20 @@ class BiharTaxCalculator
         ];
 
         $roadTypeId = (collect($this->_mRoadType)
-                    ->where("effective_from",">=",$floorTax["effectiveFrom"])
-                    ->where("effective_upto","<=",$floorTax["effectiveUpto"])
-                    ->where("effective_from","<=",$floorTax["effectiveUpto"])
-                    ->filter(function ($item) {
-                        return floatval($item->from_width) <= floatval($this->_REQUEST["roadWidth"]) && 
+                    ->filter(function ($item) use ($floorTax) {
+                        // ✅ effective date overlap
+                        $dateValid =
+                            $item->effective_from <= $floorTax['effectiveUpto'] &&
+                            (is_null($item->effective_upto) || $item->effective_upto >= $floorTax['effectiveFrom']);
+
+                        // ✅ road width range
+
+                        $widthValid = floatval($item->from_width) <= floatval($this->_REQUEST["roadWidth"]) && 
                                floatval($this->_REQUEST["roadWidth"]) <= floatval($item->upto_width);
+
+                        return $dateValid && $widthValid;
                     })->first())->road_type_id??0;
+        
         
         $occupancyRate = collect($this->_mOccupancyTypeMaster)
                 ->where("id",$floor["occupancyTypeMasterId"])
@@ -507,12 +514,18 @@ class BiharTaxCalculator
 
 
         $roadTypeId = (collect($this->_mRoadType)
-                    ->where("effective_from",">=",$floorTax["effectiveFrom"])
-                    ->where("effective_upto","<=",$floorTax["effectiveUpto"])
-                    ->where("effective_from","<=",$floorTax["effectiveUpto"])
-                    ->filter(function ($item) {
-                        return floatval($item->from_width) <= floatval($this->_REQUEST["roadWidth"]) && 
+                    ->filter(function ($item) use ($floorTax) {
+                        // ✅ effective date overlap
+                        $dateValid =
+                            $item->effective_from <= $floorTax['effectiveUpto'] &&
+                            (is_null($item->effective_upto) || $item->effective_upto >= $floorTax['effectiveFrom']);
+
+                        // ✅ road width range
+
+                        $widthValid = floatval($item->from_width) <= floatval($this->_REQUEST["roadWidth"]) && 
                                floatval($this->_REQUEST["roadWidth"]) <= floatval($item->upto_width);
+
+                        return $dateValid && $widthValid;
                     })->first())->road_type_id??0;
         
         $occupancyRate = collect($this->_mOccupancyTypeMaster)
