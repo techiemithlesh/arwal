@@ -1,10 +1,12 @@
+
 const PropDtl = ({
+  mstrData,
   formData,
   error,
   handleInputChange,
   isDisabled,
   disabledFields,
-}) => {
+}) => { 
   return (
     <div className="flex flex-col gap-2 text-gray-700 text-lg property_details_container">
       <h2 className="flex items-center gap-2 bg-gradient-to-r from-blue-700 to-blue-400 shadow-md p-3 rounded-md font-bold text-white text-lg uppercase tracking-wide">
@@ -159,33 +161,26 @@ const PropDtl = ({
           </div>
 
           <div className="">
-            <label htmlFor="roadWidth" className="block font-medium text-sm">
-              Road Width (in ft) <span className="text-red-500">*</span>
+            <label htmlFor="roadTypeMstrId" className="block font-medium text-sm">
+              Road Type <span className="text-red-500">*</span>
             </label>
-            <input
-              type="text"
-              id="roadWidth"
-              name="roadWidth"
-              required
-              placeholder=""
-              
-              value={formData.roadWidth}
-              onChange={(e) => {
-                // Allow only digits and one decimal point
-                const val = e.target.value
-                  .replace(/[^0-9.]/g, "")
-                  .replace(/^(\d*\.\d{0,2}).*$/, "$1"); // optional: limit to 2 decimals
-                handleInputChange({
-                  target: {
-                    name: "roadWidth",
-                    value: val,
-                    type: "text",
-                  },
-                });
-              }}
+            <select
+              id="roadTypeMstrId"
               className="block bg-white shadow-sm px-3 py-2 border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 w-full sm:text-xs"
-              disabled={isDisabled && disabledFields?.roadWidth}
-            />
+              name="roadTypeMstrId"
+              value={formData.roadTypeMstrId}
+              required={!isDisabled || !disabledFields?.roadTypeMstrId}
+              onChange={handleInputChange}
+              
+            >
+              <option value="">Select Road Type</option>
+              {mstrData?.roadType.map((item, index) => (
+                <option key={index} value={item.id}>
+                  {item.roadType}
+                </option>
+              ))}
+            </select>
+           
             {error?.roadWidth && (
               <span className="text-red-400">{error?.roadWidth}</span>
             )}

@@ -11,6 +11,7 @@ import { validateFormData } from "../../../utils/safAssesmentValidation";
 import {
   getApartmentListByOldWardApi,
   propertyTestRequestApi,
+  UlbApi,
   updateSafApplicationApi,
 } from "../../../api/endpoints";
 import { useLoading } from "../../../contexts/LoadingContext";
@@ -23,6 +24,7 @@ import FormError from "../../../components/common/FormError";
 import { extractDateYYMM } from "../../../utils/common";
 import { fetchNewWardByOldWard } from "../../../utils/commonFunc";
 import toast from "react-hot-toast";
+import { getUserDetails } from "../../../utils/auth";
 
 const AssessmentForm = ({
   mstrData,
@@ -49,6 +51,37 @@ const AssessmentForm = ({
   const [newWardLoading, setNewWardLoading] = useState(false);
   const [apartmentList, setApartmentList] = useState([]);
   const [disabledFields, setDisabledFields] = useState({});
+
+  const ulbIdL = getUserDetails()?.ulbId;
+
+  useEffect(() => {
+    
+    if(ulbIdL){
+      fetchUlbInfo(ulbIdL);
+    }
+  },[ulbIdL]);
+  
+   const fetchUlbInfo = async (ulbId) => {
+    if(!ulbId) return;
+     try{
+      const res = await axios.post(UlbApi.replace("{id}", ulbId), {});
+      if(res.data.status){ 
+        const { city, district, state } = res.data.data || {};
+        const updatedData = {
+          ...formData,
+          propCity: city,
+          propDist: district,
+          propState: state,
+        };
+
+        // Pass the OBJECT, not a function
+        dispatch(setFormData(updatedData));
+        setDisabledFields((prev) => ({ ...prev, propCity: true, propDist: true, propState: true }) );
+      }
+     }catch (error) {
+      console.error("Error fetching ULb info:", error);
+     }
+   }
 
   useEffect(() => {
     const savedFloorDtl = localStorage.getItem("floorDtl");
@@ -341,6 +374,8 @@ const AssessmentForm = ({
     );
   }
 
+  // console.log("formData in assessment form:", formData);
+
   return (
     <div className="container-fluid">
       <form className="flex flex-col gap-4" onSubmit={handlePreviewFormData}>
@@ -613,17 +648,11 @@ const AssessmentForm = ({
                   className="block font-medium text-sm"
                 >
                   Electricity K. No{" "}
-                  <span className="text-red-400 text-sm">*</span>
                 </label>
                 <input
                   type="text"
                   id="electConsumerNo"
                   name="electConsumerNo"
-                  required={
-                    formData.propTypeMstrId !== 4 &&
-                    formData.propTypeMstrId !== "" &&
-                    !formData.electAccNo
-                  }
                   placeholder=""
                   value={formData.electConsumerNo}
                   onChange={(e) => {
@@ -656,7 +685,6 @@ const AssessmentForm = ({
                   type="text"
                   id="electAccNo"
                   name="electAccNo"
-                  required={!formData.electConsumerNo}
                   placeholder=""
                   value={formData.electAccNo}
                   onChange={(e) => {
@@ -705,13 +733,11 @@ const AssessmentForm = ({
                   className="block font-medium text-sm"
                 >
                   Electricity Consumer Category{" "}
-                  <span className="text-red-400 text-sm">*</span>
                 </label>
                 <select
                   id="electConsCategory"
                   className="block bg-white shadow-sm px-3 py-2 border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 w-full sm:text-xs"
                   name="electConsCategory"
-                  required
                   value={formData.electConsCategory}
                   onChange={handleInputChange}
                 >
@@ -736,6 +762,7 @@ const AssessmentForm = ({
 
         {/* PROPERTY DETAILS START HERE */}
         <PropDtl
+          mstrData={mstrData}
           formData={formData}
           error={error}
           handleInputChange={handleInputChange}
