@@ -114,7 +114,11 @@ export default function Preview() {
               label="Assessment Type"
               value={formData?.assessmentType || "New Assessment"}
             />
-            <DetailCard label="Zone" value={formData?.zoneMstrId} />
+            <DetailCard label="Circle" value={findName(
+                mstrData.zoneType,
+                formData?.zoneMstrId,
+                "zoneName"
+              )}/>
             <DetailCard
               label="Ward No"
               value={findName(
@@ -163,8 +167,11 @@ export default function Preview() {
               </>
             )}
             <DetailCard
-              label="Road Width (in ft)"
-              value={formData?.roadWidth}
+              label="Road Type" value={findName(
+                    mstrData.roadType,
+                    formData?.roadTypeMstrId,
+                    "roadType"
+                  )}
             />
           </div>
         </section>
@@ -206,10 +213,7 @@ export default function Preview() {
               label="Area of Plot (in Decimal)"
               value={formData?.areaOfPlot}
             />
-            <DetailCard
-              label="Road Width (in ft)"
-              value={formData?.roadWidth}
-            />
+           
             {/* Add more fields as per your PropDtl component */}
           </div>
         </section>

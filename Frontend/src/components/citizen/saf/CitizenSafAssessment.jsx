@@ -16,6 +16,7 @@ import { validateFormData } from "../../../utils/safAssesmentValidation";
 import {
   getApartmentListByOldWardApi,
   propertyTestRequestApi,
+  UlbApi,
 } from "../../../api/endpoints";
 import { useLoading } from "../../../contexts/LoadingContext";
 import { setFormData } from "../../../store/slices/assessmentSlice";
@@ -49,6 +50,35 @@ const CitizenSafAssessment = ({
   const [newWardLoading, setNewWardLoading] = useState(false);
   const [apartmentList, setApartmentList] = useState([]);
   const [disabledFields, setDisabledFields] = useState({});
+
+  useEffect(() => {
+    
+    if(ulbId){
+      fetchUlbInfo(ulbId);
+    }
+  },[ulbId]);
+  
+   const fetchUlbInfo = async (ulbId) => {
+    if(!ulbId) return;
+     try{
+      const res = await axios.post(UlbApi.replace("{id}", ulbId), {});
+      if(res.data.status){ 
+        const { city, district, state } = res.data.data || {};
+        const updatedData = {
+          ...formData,
+          propCity: city,
+          propDist: district,
+          propState: state,
+        };
+
+        // Pass the OBJECT, not a function
+        dispatch(setFormData(updatedData));
+        setDisabledFields((prev) => ({ ...prev, propCity: true, propDist: true, propState: true }) );
+      }
+     }catch (error) {
+      console.error("Error fetching ULb info:", error);
+     }
+   }
 
   useEffect(() => {
     const savedFloorDtl = localStorage.getItem("floorDtl");
@@ -338,6 +368,34 @@ const CitizenSafAssessment = ({
       <form className="flex flex-col gap-4" onSubmit={handlePreviewFormData}>
         <div className="items-center gap-2 grid grid-cols-1 md:grid-cols-4 bg-gradient-to-br from-white via-blue-50 to-blue-100 shadow-sm p-4 border border-blue-300 rounded-xl">
           <div>
+            <label htmlFor="zoneMstrId" className="block font-medium text-sm">
+              Circle <span className="text-red-500">*</span>
+            </label>
+            <select
+              id="zoneMstrId"
+              className="block bg-white shadow-sm px-3 py-2 border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 w-full sm:text-xs"
+              name="zoneMstrId"
+              value={formData.zoneMstrId}
+              onChange={handleInputChange}
+              disabled={
+                pathname.includes(formType) && disabledFields?.zoneMstrId
+              }
+              required
+            >
+              <option value="">Select Circle</option>
+              {mstrData?.zoneType?.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.zoneName}
+                </option>
+              ))}
+            </select>
+
+            {error?.zoneMstrId && (
+              <FormError name="zoneMstrId" errors={error} />
+            )}
+          </div>
+         
+          <div>
             <label htmlFor="wardMstrId" className="block font-medium text-sm">
               Ward No <span className="text-red-500">*</span>
             </label>
@@ -352,7 +410,7 @@ const CitizenSafAssessment = ({
                 pathname.includes(formType) && disabledFields?.wardMstrId
               }
             >
-              <option value="">Select Old Ward</option>
+              <option value="">Select Ward</option>
               {mstrData?.wardList.map((ward, index) => (
                 <option key={index} value={ward.id}>
                   {ward.wardNo}
@@ -483,34 +541,6 @@ const CitizenSafAssessment = ({
             </div>
           )}
 
-          <div>
-            <label htmlFor="zoneMstrId" className="block font-medium text-sm">
-              Circle <span className="text-red-500">*</span>
-            </label>
-            <select
-              id="zoneMstrId"
-              className="block bg-white shadow-sm px-3 py-2 border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 w-full sm:text-xs"
-              name="zoneMstrId"
-              value={formData.zoneMstrId}
-              onChange={handleInputChange}
-              disabled={
-                pathname.includes(formType) && disabledFields?.zoneMstrId
-              }
-              required
-            >
-              <option value="">Select Circle</option>
-              {mstrData?.zoneType?.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.zoneName}
-                </option>
-              ))}
-            </select>
-
-            {error?.zoneMstrId && (
-              <FormError name="zoneMstrId" errors={error} />
-            )}
-          </div>
-
           {formType === "mutation" ? (
             <>
               <div>
@@ -599,17 +629,13 @@ const CitizenSafAssessment = ({
                   htmlFor="electConsumerNo"
                   className="block font-medium text-sm"
                 >
-                  Electricity K. No <span className="text-red-500">*</span>
+                  Electricity K. No
                 </label>
                 <input
                   type="text"
                   id="electConsumerNo"
                   name="electConsumerNo"
-                  required={
-                    formData.propTypeMstrId !== 4 &&
-                    formData.propTypeMstrId !== "" &&
-                    !formData.electAccNo
-                  }
+                  
                   placeholder="xxxx xxxx xxxx"
                   value={formData.electConsumerNo}
                   onChange={(e) => {
@@ -642,7 +668,6 @@ const CitizenSafAssessment = ({
                   type="text"
                   id="electAccNo"
                   name="electAccNo"
-                  required={!formData.electConsumerNo}
                   placeholder="xxxx xxxx xxxx"
                   value={formData.electAccNo}
                   onChange={(e) => {
@@ -674,7 +699,6 @@ const CitizenSafAssessment = ({
                   type="text"
                   id="electBindBookNo"
                   name="electBindBookNo"
-                  required={!formData.electConsumerNo}
                   placeholder="xxxx xxxx xxxx"
                   value={formData.electBindBookNo}
                   onChange={handleInputChange}
@@ -691,13 +715,11 @@ const CitizenSafAssessment = ({
                   className="block font-medium text-sm"
                 >
                   Electricity Consumer Category{" "}
-                  <span className="text-red-500">*</span>
                 </label>
                 <select
                   id="electConsCategory"
                   className="block bg-white shadow-sm px-3 py-2 border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 w-full sm:text-xs"
                   name="electConsCategory"
-                  required
                   value={formData.electConsCategory}
                   onChange={handleInputChange}
                 >
@@ -721,6 +743,7 @@ const CitizenSafAssessment = ({
 
         {/* PROPERTY DETAILS START HERE */}
         <PropDtl
+        mstrData={mstrData}
           formData={formData}
           error={error}
           handleInputChange={handleInputChange}

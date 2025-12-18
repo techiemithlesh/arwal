@@ -25,12 +25,12 @@ export default function CitizenPreview() {
   const { formData, ownerDtl, floorDtl, mstrData, newWardList, apartmentList } =
     state || {};
 
-    console.log("tax details", taxDtl);
+  // console.log("tax details", taxDtl);
 
   const buildPayload = () =>
     formData?.propTypeMstrId === 4
-      ? { ...formData,newWardMstrId: "" , ownerDtl }
-      : { ...formData,newWardMstrId: "" , ownerDtl, floorDtl };
+      ? { ...formData, newWardMstrId: "", ownerDtl }
+      : { ...formData, newWardMstrId: "", ownerDtl, floorDtl };
 
   const taxPreview = async () => {
     setIsLoadingGable(true);
@@ -120,7 +120,11 @@ export default function CitizenPreview() {
               label="Assessment Type"
               value={formData?.assessmentType || "New Assessment"}
             />
-            <DetailCard label="Zone" value={formData?.zone} />
+            <DetailCard label="Circle" value={findName(
+                mstrData.zoneType,
+                formData?.zoneMstrId,
+                "zoneName"
+              )}/>
             <DetailCard
               label="Ward No"
               value={findName(
@@ -168,8 +172,12 @@ export default function CitizenPreview() {
               </>
             )}
             <DetailCard
-              label="Road Width (in ft)"
-              value={formData?.roadWidth}
+              label="Road Type"
+              value={findName(
+                mstrData.roadType,
+                formData?.roadTypeMstrId,
+                "roadType"
+              )}
             />
           </div>
         </section>
@@ -211,7 +219,7 @@ export default function CitizenPreview() {
               label="Area of Plot (in Decimal)"
               value={formData?.areaOfPlot}
             />
-             <DetailCard
+            <DetailCard
               label="Built Up Area (in Sqft)"
               value={formData?.builtupArea}
             />
@@ -219,7 +227,6 @@ export default function CitizenPreview() {
               label="Road Width (in ft)"
               value={formData?.roadWidth}
             />
-            
           </div>
         </section>
         {/* Water Connection Details */}
