@@ -87,7 +87,8 @@ class RequestAddSaf extends ParentRequest
             "transferModeMstrId"=>"nullable|required_if:assessmentType,Mutation|int",
             "percentageOfPropertyTransfer"=>"nullable|required_if:assessmentType,Mutation|numeric|min:0.1|max:100",
             "zoneMstrId"=>"required|int|regex:/^[0-9]+$/|exists:".$this->_ZoneMaster->getConnectionName().".".$this->_ZoneMaster->getTable().",id",
-            "roadWidth"=>"required|numeric|".($this->propTypeMstrId==4 ? "min:0":"min:0.5")."|max:499",
+            "roadTypeMstrId"=>"required|int|exists:".$this->_RoadTypeMaster->getConnectionName().".".$this->_RoadTypeMaster->getTable().",id",   
+            "roadWidth"=>"nullable|numeric|".($this->propTypeMstrId==4 ? "min:0":"min:0.5")."|max:499",
             "appartmentDetailsId"=>[
                 "nullable",
                 "required_if:propTypeMstrId,1",

@@ -29,6 +29,7 @@ class BiharTaxCalculator
     public $_FloorWiseTax;
     public $_FYearWiseTax;
     public $_PropertyType;
+    public $_RoadTypeId;
     public $_ulbId;
     public $_ulbTypeId;
     public $_hasRWH = false;
@@ -375,7 +376,7 @@ class BiharTaxCalculator
                         return $dateValid && $widthValid;
                     })->first())->road_type_id??0;
         
-        
+        $roadTypeId = isset($this->_REQUEST["roadTypeMstrId"]) ? $this->_REQUEST["roadTypeMstrId"] : $roadTypeId;
         $occupancyRate = collect($this->_mOccupancyTypeMaster)
                 ->where("id",$floor["occupancyTypeMasterId"])
                 ->first();
@@ -527,6 +528,8 @@ class BiharTaxCalculator
 
                         return $dateValid && $widthValid;
                     })->first())->road_type_id??0;
+
+        $roadTypeId = isset($this->_REQUEST["roadTypeMstrId"]) ? $this->_REQUEST["roadTypeMstrId"] : $roadTypeId;
         
         $occupancyRate = collect($this->_mOccupancyTypeMaster)
                 ->where("id",$floor["occupancyTypeMasterId"])

@@ -19,6 +19,7 @@ use App\Models\Property\OwnershipTypeMaster;
 use App\Models\Property\PropertyDetail;
 use App\Models\Property\PropertyTypeMaster;
 use App\Models\Property\RejectedSafDetail;
+use App\Models\Property\RoadTypeMaster;
 use App\Models\Property\SafDetail;
 use App\Models\Property\TransferModeMaster;
 use App\Models\Property\UsageTypeMaster;
@@ -90,7 +91,9 @@ trait PropertyTrait{
         $ownershipTypeMaster = OwnershipTypeMaster::find($saf->ownership_type_mstr_id);
         $propertyTypeMaster = PropertyTypeMaster::find($saf->prop_type_mstr_id);
         $apartments = ApartmentDetail::find($saf->appartment_details_id);
+        $roadType = RoadTypeMaster::find($saf->road_type_mstr_id);
         $saf->zone = $this->getZone($saf->zone_mstr_id);
+        $saf->roadType = $roadType?->road_type;
         $saf->ulb_name = $ulbDtl->ulb_name??"";
         $saf->transfer_mode = $transferModeMaster->transfer_mode??"";
         $saf->ward_no = $oldWard->ward_no??"";

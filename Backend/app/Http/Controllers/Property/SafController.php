@@ -169,7 +169,7 @@ class SafController extends Controller
             $usageTypeMaster  = $this->_UsageTypeMaster->getUsageTypeList();
             $ulbWardMaster = $this->_UlbWardMaster->getNumericWardList($ulbId);
             $electricityType = Config::get('PropertyConstant.ELECTRIC_CATEGORY');
-            $zoneType = $this->_ZoneMaster->getZoneList(); Config::get("PropertyConstant.ZONE_TYPE");
+            $zoneType = $this->_ZoneMaster->getZoneList(); 
 
             $data=[
                 "wardList"=>$ulbWardMaster,
