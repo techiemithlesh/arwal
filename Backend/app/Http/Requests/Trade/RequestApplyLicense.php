@@ -57,7 +57,7 @@ class RequestApplyLicense extends ParentRequest
             "otherFirmType"=> "nullable|required_if:firmTypeId,5|regex:".$this->_REX_ALPHA_NUM_OPS_DOT_MIN_COM_AND_SPACE_SL,
             "ownershipTypeId"=> "required|exists:".$this->_OwnershipTypeMaster->getConnectionName().".".$this->_OwnershipTypeMaster->getTable().",id",
             "wardMstrId"   => "required|exists:".$this->_UlbWardMaster->getConnectionName().".".$this->_UlbWardMaster->getTable().",id",
-            "newWardMstrId"=>"required|int|exists:".$this->_OldWardNewWardMap->getConnectionName().".".$this->_OldWardNewWardMap->getTable().",new_ward_id".($this->wardMstrId ? ",old_ward_id,".$this->wardMstrId : ""),
+            "newWardMstrId"=>"nullable|int|exists:".$this->_OldWardNewWardMap->getConnectionName().".".$this->_OldWardNewWardMap->getTable().",new_ward_id".($this->wardMstrId ? ",old_ward_id,".$this->wardMstrId : ""),
             "holdingNo"=>"nullable|exists:".$this->_PropertyDetail->getConnectionName().".".$this->_PropertyDetail->getTable().",new_holding_no,lock_status,false",
             "firmName"=>"required|regex:".$this->_REX_ALPHA_NUM_OPS_DOT_MIN_COM_AND_SPACE_SL,
             "firmDescription"=>"required|regex:".$this->_REX_ALPHA_NUM_OPS_DOT_MIN_COM_AND_SPACE_SL,
