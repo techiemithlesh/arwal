@@ -41,7 +41,7 @@ const PropAddress = ({
             <span className="text-sm text-red-400 text-sm">{error?.propAddress}</span>
           )}
         </div>
-        <div className="gap-4 grid grid-cols-4">
+        <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
           {/* City Field */}
           <div className="">
             <label htmlFor="propCity" className="block font-medium text-sm">
@@ -213,7 +213,7 @@ const PropAddress = ({
               <span className="text-sm text-red-400">{error?.corrAddress}</span>
             )}
           </div>
-          <div className="gap-4 grid grid-cols-4">
+          <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
             {/* City Field */}
             <div className="">
               <label htmlFor="corrCity" className="block font-medium text-sm">
