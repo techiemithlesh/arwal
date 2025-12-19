@@ -281,7 +281,7 @@ const FloorDtlAdd = ({
                   handleFloorDtl(index, "dateFrom", e.target.value)
                 }
                 disabled={
-                  isDisabled && disabledFields[index]?.dateUpto
+                  isDisabled && disabledFields[index]?.dateFrom
                 }
               >
                 <option value="">SELECT FROM YEAR</option>
@@ -310,7 +310,6 @@ const FloorDtlAdd = ({
                 id={`uptoDate-${index}`}
                 className="block bg-white shadow px-3 py-2 border border-gray-300 focus:border-blue-500 rounded-md focus:outline-none focus:ring-blue-500 w-full text-sm"
                 name="dateUpto"
-                required
                 value={floor.dateUpto || ""}
                 onChange={(e) =>
                   handleFloorDtl(index, "dateUpto", e.target.value)
