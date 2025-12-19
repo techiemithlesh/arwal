@@ -373,7 +373,7 @@ if (!function_exists("FyListasoc")) {
 }
 
 if (!function_exists('FyListdesc')) {
-    function FyListdesc($date = null)
+    function FyListdesc($date = null,$uptoYear="2015")
     {
         $data = [];
         $strtotime = $date ? strtotime($date) : strtotime(date('Y-m-d'));
@@ -384,7 +384,7 @@ if (!function_exists('FyListdesc')) {
             $year = $y + 1;
         while (true) {
             $data[] = ($year - 1) . '-' . $year;
-            if ($year == '2015')
+            if ($year == $uptoYear)
                 break;
             --$year;
         }

@@ -169,7 +169,10 @@ class SafController extends Controller
             $usageTypeMaster  = $this->_UsageTypeMaster->getUsageTypeList();
             $ulbWardMaster = $this->_UlbWardMaster->getNumericWardList($ulbId);
             $electricityType = Config::get('PropertyConstant.ELECTRIC_CATEGORY');
-            $zoneType = $this->_ZoneMaster->getZoneList(); 
+            $zoneType = $this->_ZoneMaster->getZoneList();
+            $fyearList = collect(FyListdesc(null,"1986"))->map(function($item){
+                return ["fromDate"=>Carbon::parse(FyearQutFromDate($item,1))->format("Y-m"),"uptoDate"=>Carbon::parse(FyearQutUptoDate($item,4))->format("Y-m"),"fyear"=>$item];
+            });
 
             $data=[
                 "wardList"=>$ulbWardMaster,
@@ -183,6 +186,7 @@ class SafController extends Controller
                 "usageType"=>$usageTypeMaster,
                 "electricityType"=>$electricityType,
                 "zoneType"=>$zoneType,
+                "fyearList"=>$fyearList,
             ];
             return responseMsg(true,"Property Master Data",camelCase(remove_null($data)));
         }
