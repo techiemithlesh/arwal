@@ -166,7 +166,12 @@ const FloorPanel = ({ floor }) => {
                         ({tax?.latrineTaxPercent}%)
                       </span>
                     </td>
-                    <td className="px-3 py-2 border text-right">{tax?.rWH}</td>
+                    <td className="px-3 py-2 border text-right">
+                      {tax?.rWH}
+                      <span className="ml-1 text-blue-600 text-xs">
+                        ({tax?.rWHTaxPercent}%)
+                      </span>
+                    </td>
                     <td className="px-3 py-2 border font-semibold text-right">
                       {tax?.totalTax}
                     </td>
