@@ -36,7 +36,7 @@ const AssessmentForm = ({
   ulbId,
 }) => {
 
-  // console.log("mstr data", mstrData);
+  console.log("mstr data", mstrData);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -374,7 +374,7 @@ const AssessmentForm = ({
     );
   }
 
-  // console.log("formData in assessment form:", formData);
+  console.log("formData in assessment form:", formData);
 
   return (
     <div className="container-fluid">

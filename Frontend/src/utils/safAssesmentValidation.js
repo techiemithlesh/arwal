@@ -240,13 +240,11 @@ export const validateOwnerDtl = (owner, index) => {
     dobDate.setHours(0, 0, 0, 0);
 
     // Date 10 years ago
-    const tenYearsAgo = new Date();
-    tenYearsAgo.setFullYear(today.getFullYear() - 10);
+    // const tenYearsAgo = new Date();
+    // tenYearsAgo.setFullYear(today.getFullYear() - 10);
 
     if (dobDate > today) {
       errors.dob = `birth cannot be in the future`;
-    } else if (dobDate > tenYearsAgo) {
-      errors.dob = `At last 10 years`;
     }
   }
 
@@ -336,6 +334,11 @@ export const validateFloorDtl = (floor, index, formData) => {
       )} Floor's Builtup Area is required`;
     }
 
+    const dateFrom = floor.dateFrom ? new Date(floor.dateFrom) : null;
+    const dateUpto = floor.dateUpto ? new Date(floor.dateUpto) : null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     if (isEmptyOrWhitespace(floor.dateFrom)) {
       errors.dateFrom = `${getOrdinal(
         index + 1
@@ -344,10 +347,6 @@ export const validateFloorDtl = (floor, index, formData) => {
 
     if (!isEmptyOrWhitespace(floor.dateUpto)) {
       const dateUpto = new Date(floor.dateUpto);
-      const today = new Date();
-
-      // Clear the time part of the date for accurate comparison
-      today.setHours(0, 0, 0, 0);
 
       // Check if the dateUpto is a valid date and in the future
       if (isNaN(dateUpto.getTime())) {
@@ -356,6 +355,13 @@ export const validateFloorDtl = (floor, index, formData) => {
         errors.dateUpto = `${getOrdinal(
           index + 1
         )} Floor's Upto date can not be in future`;
+      }
+
+      // NEW: Comparison Logic (From Date should not be greater than Upto Date)
+      if (dateFrom && !isNaN(dateFrom.getTime()) && dateFrom > dateUpto) {
+        errors.dateFrom = `${getOrdinal(
+          index + 1
+        )} From Date cannot be later than Upto Date`;
       }
     }
   }
