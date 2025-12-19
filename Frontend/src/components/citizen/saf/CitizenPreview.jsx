@@ -149,7 +149,7 @@ export default function CitizenPreview() {
                 "propertyType"
               )}
             />
-            {formData?.propTypeMstrId === 4 && (
+            {[3,4].includes(Number(formData?.propTypeMstrId)) && (
               <DetailCard
                 label="Date of Possession"
                 value={formData?.landOccupationDate}

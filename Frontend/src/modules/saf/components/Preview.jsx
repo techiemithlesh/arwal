@@ -144,7 +144,7 @@ export default function Preview() {
                 "propertyType"
               )}
             />
-            {formData?.propTypeMstrId === 4 && (
+            {([3,4]).includes(Number(formData?.propTypeMstrId)) && (
               <DetailCard
                 label="Date of Possession"
                 value={formData?.landOccupationDate}
@@ -212,6 +212,11 @@ export default function Preview() {
             <DetailCard
               label="Area of Plot (in Decimal)"
               value={formData?.areaOfPlot}
+            />
+
+            <DetailCard
+              label="Built Up Area (In Sqft) "
+              value={formData?.builtupArea}
             />
            
             {/* Add more fields as per your PropDtl component */}

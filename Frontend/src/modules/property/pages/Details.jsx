@@ -38,7 +38,6 @@ import GenerateNoticeModal from "../component/GenerateNoticeModal";
 const Details = () => {
   const { propId } = useParams();
   const [propDetails, setPropDetails] = useState(null);
-  const [remarks, setRemarks] = useState([]);
   const [wfPermissions, setWfPermissions] = useState(true);
   const [wfId, setWfId] = useState(null);
   const [isFrozen, setIsFrozen] = useState(false);
@@ -78,25 +77,25 @@ const Details = () => {
       label: "Proceed Payment",
       onClick: () => setModal((m) => ({ ...m, demandPay: true })),
       icon: <FaCommentDollar />,
-      show: true,
+      show: propDetails?.userPermission?.canTakePayment ?? false,
     },
     {
       label: "Basic Edit",
       onClick: () => setModal((m) => ({ ...m, basicEdit: true })),
       icon: <FaEye />,
-      show: true,
+      show: propDetails?.userPermission?.canAppEdit ?? false,
     },
     {
       label: "Owner Detail Edit",
       onClick: () => setModal((m) => ({ ...m, ownerDetailEdit: true })),
       icon: <FaEye />,
-      show: true,
+      show: propDetails?.userPermission?.canAppEdit ?? false,
     },
     {
       label: "Deactivate Holding",
       onClick: () => setModal((m) => ({ ...m, deactivateHolding: true })),
       icon: <FaEye />,
-      show: true,
+      show: propDetails?.userPermission?.canAppLock ?? false,
     },
     {
       label: "View Saf",
@@ -109,43 +108,20 @@ const Details = () => {
       label: "ReAssessment",
       onClick: () => navigate(`/property/details/${propId}/reassessment`),
       icon: <FaEye />,
-      show: true,
+      show: propDetails?.userPermission?.canAdd ?? false,
     },
     {
       label: "Mutation",
       onClick: () => navigate(`/property/details/${propId}/mutation`),
       icon: <FaEye />,
-      show: true,
+      show: propDetails?.userPermission?.canAdd ?? false,
     },
-    {
-      label: "Apply Objection",
-      onClick: () => setModal((m) => ({ ...m, demandView: true })),
-      icon: <FaEye />,
-      show: true,
-    },
-    // {
-    //   label: "Edit Property",
-    //   onClick: () => navigate(`/property/details/${propId}/edit`),
-    //   icon: <FaEdit />,
-    //   show: true,
-    // },
-    {
-      label: "Consession Details Update",
-      onClick: () => setModal((m) => ({ ...m, demandView: true })),
-      icon: <FaEye />,
-      show: true,
-    },
-    {
-      label: "Online Payment Request",
-      onClick: () => setModal((m) => ({ ...m, demandView: true })),
-      icon: <FaEye />,
-      show: true,
-    },
+    
     {
       label: "Generate Notice",
       onClick: () => setModal((m) => ({ ...m, noticeGenerate: true })),
       icon: <FaEye />,
-      show: propDetails?.userPermission?.canGenerateNotice,
+      show: propDetails?.userPermission?.canGenerateNotice?? false,
     },
   ];
 
@@ -165,26 +141,8 @@ const Details = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const data = response.data?.data;
-      console.log("data", data);
-      setPropDetails(data);
-      setWfId(data.workflowId);
-      setHeaderData({
-        applicationNo: data?.safNo,
-        statusText: data?.appStatus,
-        applicationType: data?.assessmentType,
-      });
-      setRemarks(
-        data?.levelRemarks?.map((item) => ({
-          roleCode: item?.senderRole,
-          action: item?.actions,
-          userName: item?.senderUserName,
-          message: item?.senderRemarks,
-          date: item?.createdAt
-            ? new Date(item?.createdAt).toLocaleDateString()
-            : "NA",
-          time: item?.createdAt ? formatTimeAMPM(item.createdAt) : "NA",
-        }))
-      );
+      // console.log("data", data);
+      setPropDetails(data);  
     } catch (error) {
       console.error("Failed to fetch SAF details", error);
     }
