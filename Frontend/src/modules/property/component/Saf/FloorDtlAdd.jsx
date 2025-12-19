@@ -71,15 +71,6 @@ const FloorDtlAdd = ({
     setFloorDtl(newList);
   };
 
-  // Loading spinner example (uncomment if needed)
-  // if (isDisabled && floorDtl.length === 0) {
-  //   return (
-  //     <div className="flex justify-center items-center h-32 loading">
-  //       <Spinner />
-  //     </div>
-  //   );
-  // }
-
   return (
     <div className="flex flex-col gap-4 text-gray-700 text-base owner_details_container">
       <h2 className="flex items-center gap-2 bg-gradient-to-r from-blue-700 to-blue-400 shadow-md p-3 rounded-md font-bold text-white text-lg uppercase tracking-wide">
@@ -201,7 +192,8 @@ const FloorDtlAdd = ({
                 htmlFor={`constructionTypeMasterId-${index}`}
                 className="block mb-1 font-semibold text-sm"
               >
-                Construction Type <span className="text-sm text-red-400">*</span>
+                Construction Type{" "}
+                <span className="text-sm text-red-400">*</span>
               </label>
               <select
                 id={`constructionTypeMasterId-${index}`}
@@ -240,7 +232,8 @@ const FloorDtlAdd = ({
                 htmlFor={`builtUpArea-${index}`}
                 className="block mb-1 font-semibold text-sm"
               >
-                Built Up Area (Sq. Ft) <span className="text-sm text-red-400">*</span>
+                Built Up Area (Sq. Ft){" "}
+                <span className="text-sm text-red-400">*</span>
               </label>
               <input
                 type="text"
@@ -278,36 +271,27 @@ const FloorDtlAdd = ({
               >
                 From Date <span className="text-sm text-red-400">*</span>
               </label>
-              <DatePicker
-                aria-label={`dateFrom-${index}`}
-                variant="bordered"
+              <select
                 id={`dateFrom-${index}`}
+                className="block bg-white shadow px-3 py-2 border border-gray-300 focus:border-blue-500 rounded-md focus:outline-none focus:ring-blue-500 w-full text-sm"
                 name="dateFrom"
-                value={getSafeCalendarDate(floor.dateFrom)}
-                onChange={(date) => {
-                  const formatted = date
-                    ? `${date.year}-${String(date.month).padStart(2, "0")}`
-                    : null; // store null instead of empty string
-                  handleFloorDtl(index, "dateFrom", formatted);
-                }}
-                granularity="month"
-                isDisabled={isDisabled && disabledFields[index]?.dateFrom}
-                isRequired
-                placeholder="Select month and year"
-                classNames={{
-                  base: "w-full rounded-md bg-white",
-                  inputWrapper: "rounded-md w-full text-sm bg-white",
-                }}
-                startContent={
-                  getSafeCalendarDate(floor.dateFrom) && (
-                    <button
-                      onClick={() => handleFloorDtl(index, "dateFrom", null)}
-                    >
-                      <TiDeleteOutline size={25} />
-                    </button>
-                  )
+                required
+                value={floor.dateFrom || ""}
+                onChange={(e) =>
+                  handleFloorDtl(index, "dateFrom", e.target.value)
                 }
-              />
+                disabled={
+                  isDisabled && disabledFields[index]?.dateUpto
+                }
+              >
+                <option value="">SELECT FROM YEAR</option>
+                {mstrData?.fyearList.map((fy, idx) => (
+                  <option key={idx} value={fy.fromDate}>
+                    {fy.fyear}
+                  </option>
+                ))}
+              </select>
+
               {error?.floorErrors && error.floorErrors[index]?.dateFrom && (
                 <span className="text-sm text-red-400 text-xs">
                   {error.floorErrors[index].dateFrom}
@@ -322,35 +306,26 @@ const FloorDtlAdd = ({
               >
                 Upto Date
               </label>
-              <DatePicker
-                aria-label={`dateUpto-${index}`}
-                variant="bordered"
-                id={`dateUpto-${index}`}
+              <select
+                id={`uptoDate-${index}`}
+                className="block bg-white shadow px-3 py-2 border border-gray-300 focus:border-blue-500 rounded-md focus:outline-none focus:ring-blue-500 w-full text-sm"
                 name="dateUpto"
-                value={getSafeCalendarDate(floor.dateUpto)}
-                onChange={(date) => {
-                  const formatted = date
-                    ? `${date.year}-${String(date.month).padStart(2, "0")}`
-                    : null;
-                  handleFloorDtl(index, "dateUpto", formatted);
-                }}
-                granularity="month"
-                isDisabled={isDisabled && disabledFields[index]?.dateUpto}
-                placeholder="Select month and year"
-                classNames={{
-                  base: "w-full rounded-md bg-white",
-                  inputWrapper: "rounded-md w-full text-sm bg-white",
-                }}
-                startContent={
-                  getSafeCalendarDate(floor.dateUpto) && (
-                    <button
-                      onClick={() => handleFloorDtl(index, "dateUpto", null)}
-                    >
-                      <TiDeleteOutline size={25} />
-                    </button>
-                  )
+                required
+                value={floor.dateUpto || ""}
+                onChange={(e) =>
+                  handleFloorDtl(index, "dateUpto", e.target.value)
                 }
-              />
+                disabled={
+                  isDisabled && disabledFields[index]?.dateUpto
+                }
+              >
+                <option value="">SELECT UPTO YEAR</option>
+                {mstrData?.fyearList.map((fy, idx) => (
+                  <option key={idx} value={fy.uptoDate}>
+                    {fy.fyear}
+                  </option>
+                ))}
+              </select>
               {error?.floorErrors && error.floorErrors[index]?.dateUpto && (
                 <span className="text-sm text-red-400 text-xs">
                   {error.floorErrors[index].dateUpto}
