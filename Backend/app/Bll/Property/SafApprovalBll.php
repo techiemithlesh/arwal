@@ -4,11 +4,13 @@ namespace App\Bll\Property;
 
 use App\Models\Property\ActiveSafDetail;
 use App\Models\Property\ActiveSafFloorDetail;
+use App\Models\Property\PenaltyDetail;
 use App\Models\Property\PropertyDemand;
 use App\Models\Property\PropertyDetail;
 use App\Models\Property\PropertyFloorDetail;
 use App\Models\Property\PropertyOwnerDetail;
 use App\Models\Property\PropertyTax;
+use App\Models\Property\PropertyTypeMaster;
 use App\Models\Property\SafCollection;
 use App\Models\Property\SafDemand;
 use App\Models\Property\SafDetail;
@@ -38,6 +40,8 @@ class SafApprovalBll
     public $_PropertyTax;
     public $_PropertyDemand;
     public $_HoldingNo;
+    public $_isVacantLand = false;
+    public $_lateAssessmentPenalty =0;
 
     function __construct($safId){
         $this->_SafId = $safId; 
@@ -52,6 +56,7 @@ class SafApprovalBll
 
     public function safApproved(){
         $this->setParam();
+        $this->testVacantLand();
         $this->generateRequest();
         $this->calculateDiffDemand();
         $this->replicateSaf();
@@ -61,6 +66,7 @@ class SafApprovalBll
 
     public function generateSAM(){
         $this->setParam();
+        $this->testVacantLand();
         $this->generateRequest();
         $this->calculateDiffDemand();
         $this->createNewProperty();
@@ -69,6 +75,7 @@ class SafApprovalBll
 
     public function generateFAM(){
         $this->setParam();
+        $this->testVacantLand();
         $this->generateRequest();
         $this->calculateDiffDemand();
         $this->FinalUpdateProperty();
@@ -101,7 +108,7 @@ class SafApprovalBll
     }
 
     public function generateRequest(){
-        $saf = collect($this->_ReplicateSaf);      
+        $saf = collect($this->_ReplicateSaf);   
         $saf["ownerDtl"] = camelCase($this->_Owner);
         $saf["floorDtl"] = camelCase($this->_ReplicateFloor);
         $request = camelCase($saf)->toArray();
@@ -191,14 +198,17 @@ class SafApprovalBll
         if(!$property){
            $this->createNewProperty(); 
            $property = $this->_PropertyDetail->find($this->_PropId);
-        }
+        }        
+        $this->_PropId = $property->id;
+        $this->getLateAssesPenalty();
+        
         if(!$property->new_holding_no){
             $property->new_holding_no = $this->_HoldingNo;
         }
         if(!$property->holding_no){
             $property->holding_no = $property->new_holding_no;
         }
-        $this->_PropId = $property->id;
+
         $this->_HoldingNo = $property->new_holding_no;
         $property->update($this->_ReplicateSaf->toArray());
 
@@ -313,6 +323,56 @@ class SafApprovalBll
         } 
 
         $this->_SAF->forceDelete();
+
+    }
+
+    public function testVacantLand(){
+        $propertyTypeMaster = new PropertyTypeMaster();
+        $vacantLand = collect($propertyTypeMaster->getPropertyTypeList())->where("property_type","VACANT LAND")->first();
+        if($this->_ReplicateSaf->property_type_mstr_id==($vacantLand->id??"")){
+            $this->_isVacantLand = true;
+        }
+    }
+
+    public function getLateAssesPenalty(){
+        $before90Days = Carbon::parse($this->_SAF->apply_date)->copy()->subDays("90")->format("Y-m-d");
+        if($this->_isVacantLand && $this->_ReplicateSaf->land_occupation_date < $before90Days){
+            if($this->_ReplicateSaf->is_mobile_tower || $this->_ReplicateSaf->is_hoarding_board){
+                $this->_lateAssessmentPenalty = 5000;
+            }
+            else{
+                $this->_lateAssessmentPenalty = 2000;
+            }
+        }
+        else{
+            $newFloors = collect($this->_ReplicateFloor)->whereNull("prop_floor_detail_id")->where("date_from","<",$before90Days);
+            $commercialFloor = collect($newFloors)->whereNotIn("usage_type_master_id",[1]);
+            if($newFloors->isNotEmpty()){
+                $this->_lateAssessmentPenalty = 2000;
+                if($commercialFloor->isNotEmpty()){
+                    $this->_lateAssessmentPenalty = 5000;
+                }
+            }
+        }
+
+        if($this->_lateAssessmentPenalty>0){
+            $objPenalty = new PenaltyDetail();
+            $newRequest = new Request(); 
+            $newRequest->merge([
+                "saf_detail_id"=>$this->_SAF->id,
+                "property_detail_id"=>$this->_PropId,
+                "penalty_amt"=>$this->_lateAssessmentPenalty,
+                "penalty_type"=>"Late Assessment Fine",
+            ]);
+            $test = $objPenalty
+                    ->where("saf_detail_id",$newRequest->saf_detail_id)
+                    ->where("property_detail_id",$newRequest->property_detail_id)
+                    ->where("lock_status",false)
+                    ->count();
+            if(!$test){
+                $id = $objPenalty->store($newRequest);
+            }
+        }
 
     }
 

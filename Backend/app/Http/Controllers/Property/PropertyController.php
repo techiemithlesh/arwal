@@ -365,7 +365,7 @@ class PropertyController extends Controller
             if(!$isLastPaymentClear){
                 throw new CustomException("Last Payment Is Not Clear Please Wait For Clearance");
             } 
-            if($propertyDemandBLL->_GRID["notice"]->count()>0 && $request->paymentType=="PART"){
+            if($propertyDemandBLL->_GRID["notice"]??false && $request->paymentType=="PART"){
                 throw new CustomException("If Notice Generated Then Not Pay Part Payment");
             }
             $propertyPaymentBll = new PropertyPaymentBll($request);

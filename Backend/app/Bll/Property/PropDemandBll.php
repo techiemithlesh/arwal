@@ -101,7 +101,7 @@ class PropDemandBll{
     }
 
     public function getOtherPenalty(){
-        $this->_otherPenaltyList = PenaltyDetail::where("lock_status",false)->where("property_detail_id",$this->_PROPId)->get();
+        $this->_otherPenaltyList = PenaltyDetail::where("lock_status",false)->where("paid_status",false)->where("property_detail_id",$this->_PROPId)->get();
         $this->_otherPenalty = roundFigure($this->_otherPenaltyList->sum("penalty_amt"));
     }
 

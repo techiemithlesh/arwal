@@ -2,6 +2,8 @@
 namespace App\Bll\Property;
 
 use App\Models\Citizen;
+use App\Models\Property\AdjustmentDetail;
+use App\Models\Property\AdvanceDetail;
 use App\Models\Property\ChequeDetail;
 use App\Models\Property\PropertyCollection;
 use App\Models\Property\PropertyDemand;
@@ -208,6 +210,8 @@ class PropertyPaymentBll{
         $objTranFineRebate = new TransactionFineRebateDetail();
         $objChequeDtl = new ChequeDetail();
         $objPropNotice = new PropertyNotice();
+        $objAdvance = new AdvanceDetail();
+        $objAdjustment = new AdjustmentDetail();
 
         # insert Transaction
         $tranId = $objPropTran->store($this->_REQUEST);
@@ -286,9 +290,12 @@ class PropertyPaymentBll{
         }
         
         foreach($OtherPenaltys as $p){
-            $newPenaltyRequest = new Request($p);
-            $newPenaltyRequest->merge(["transaction_id"=>$tranId]);
+            $newPenaltyRequest = new Request();
+            $newPenaltyRequest->merge(["transaction_id"=>$tranId,"amount"=>$p->penalty_amt,"headName"=>$p->penalty_type,"is_rebate"=>false]);
             $id = $objTranFineRebate->store($newPenaltyRequest);
+            $p->transaction_id = $tranId;
+            $p->paid_status =true;
+            $p->update();
         }
         if($noticePenalty>0){
             $newPenaltyRequest = new Request();
@@ -305,6 +312,32 @@ class PropertyPaymentBll{
             $newPenaltyRequest->merge(["transaction_id"=>$tranId,"is_rebate"=>true]);
             $id = $objTranFineRebate->store($newPenaltyRequest);
         }
+
+        # Advance Adjust and new Advance Insert
+        //Advance
+        if($remainAmount>0){
+            $advance=[
+                "property_detail_id"=>$this->_PROPERTY->id,
+                "amount"=>$remainAmount,
+                "reason"=>"Advance Payment",
+                "transactionId"=>$tranId,
+                "userId"=>$this->_REQUEST->userId,
+            ];
+            $newAdvanceRequest = new Request($advance);
+            $objAdvance->store($newAdvanceRequest);
+        }
+        //Adjustment
+        if($advanceAmount>0){
+            $adjustment=[
+                "property_detail_id"=>$this->_PROPERTY->id,
+                "amount"=>$advanceAmount,
+                "transactionId"=>$tranId,
+                "userId"=>$this->_REQUEST->userId,
+            ];
+            $newAdjustmentRequest = new Request($adjustment);
+            $objAdjustment->store($newAdjustmentRequest);
+        }
+
         return[
             "tranId"=>$tranId
         ];
