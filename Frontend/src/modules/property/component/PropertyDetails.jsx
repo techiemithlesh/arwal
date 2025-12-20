@@ -6,6 +6,7 @@ const PropertyDetails = ({ data }) => {
     newWardNo,
     assessmentType,
     propertyType,
+    propTypeMstrId,
     ownershipType,
     roadWidth,
     plotNo,
@@ -18,6 +19,7 @@ const PropertyDetails = ({ data }) => {
     newHoldingNo,
     holdingNo,
     holdingType,
+    landOccupationDate,
   } = data;
 
   const fields = [
@@ -39,6 +41,7 @@ const PropertyDetails = ({ data }) => {
     { label: "Road Type", value: roadWidth },
     { label: "Circle", value: zone },
     { label: "Entry Type", value: entryType },
+    ...([3,4].includes(Number(propTypeMstrId)) ? [{ label: "Land Occupation Date", value: landOccupationDate }]:[]),
   ];
 
   const isMutation = assessmentType?.toLowerCase() === "mutation";

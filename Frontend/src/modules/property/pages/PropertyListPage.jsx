@@ -153,7 +153,7 @@ const PropertyListPage = () => {
           </td>
           <td className="px-1 py-1 border text-center leading-4">
             <Link
-              to={`/citizen/holding/details/${row.id}`}
+              to={`/property/details/${row.id}`}
               rel="noopener noreferrer"
               className="inline-flex justify-center items-center text-blue-600 hover:text-blue-800"
             >

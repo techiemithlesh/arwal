@@ -290,7 +290,6 @@ const CitizenSafAssessment = ({
     }
 
     try {
-      
       const response = await axios.post(
         propertyTestRequestApi,
         {
@@ -478,6 +477,34 @@ const CitizenSafAssessment = ({
             </select>
             <FormError name="propTypeMstrId" errors={error} />
           </div>
+
+          {[3,4].includes(Number(formData?.propTypeMstrId)) && (
+              <div className="">
+                <label
+                  htmlFor="landOccupationDate"
+                  className="block font-medium text-sm"
+                >
+                  Date of Possession / Purchase / Acquisition (Whichever is
+                  earlier){" "}
+                  {formData?.propTypeMstrId == 4 && (
+                    <span className="text-red-500">*</span>
+                  )}
+                </label>
+                <input
+                  type="date"
+                  id="landOccupationDate"
+                  name="landOccupationDate"
+                  placeholder="..."
+                  value={formData.landOccupationDate}
+                  required={formData?.propTypeMstrId == 4}
+                  onChange={handleInputChange}
+                  className="block bg-white shadow-sm px-3 py-2 border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 w-full sm:text-xs"
+                />
+                {error?.landOccupationDate && (
+                  <FormError name="landOccupationDate" errors={error} />
+                )}
+              </div>
+            )}
 
           {formData.propTypeMstrId == 1 && (
             <div>
