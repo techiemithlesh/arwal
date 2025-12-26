@@ -42,13 +42,55 @@ class PropertyPaymentBll{
 
     public function setParams(){
         if(!$this->_REQUEST->amount){
-            $this->_REQUEST->merge(["amount"=>$this->_Demand["payableAmount"]]);
+            $this->_REQUEST->merge([
+                "amount"=>$this->_Demand["totalPayableAmount"],
+                "propertyPaidAmount"=>$this->_Demand["payableAmount"],
+                "swmPaidAmount"=>$this->_Demand["swmPayableAmount"],
+            ]);
         }
         if($this->_REQUEST->paymentType=="FULL"){
-            $this->_REQUEST->merge(["amount"=>$this->_Demand["payableAmount"]]);
+            $this->_REQUEST->merge([
+                "amount"=>$this->_Demand["totalPayableAmount"],                
+                "propertyPaidAmount"=>$this->_Demand["payableAmount"],
+                "swmPaidAmount"=>$this->_Demand["swmPayableAmount"],
+        ]);
         }
         if($this->_REQUEST->paymentType=="ARREAR"){
-            $this->_REQUEST->merge(["amount"=>$this->_Demand["arrearPayableAmount"]]);
+            $this->_REQUEST->merge([
+                "amount"=>$this->_Demand["arrearPayableAmount"],
+                "propertyPaidAmount"=>$this->_Demand["arrearPayableAmount"],
+                "swmPaidAmount"      => 0,
+            ]);
+        }
+        if($this->_REQUEST->paymentType=="PART"){
+            $amount = roundFigure($this->_REQUEST->amount);
+
+            // Cap amount to total payable
+            $amount = min($amount, roundFigure($this->_Demand["totalPayableAmount"]));
+
+            $proPayable = roundFigure($this->_Demand["payableAmount"]);
+            $swmPayable = roundFigure($this->_Demand["swmPayableAmount"]);
+
+            if ($amount <= $proPayable) {
+
+                // Partial property payment only
+                $propertyPaid = $amount;
+                $swmPaid = 0;
+
+            } else {
+
+                // Property fully paid, remaining to SWM
+                $propertyPaid = $proPayable;
+                $remaining = roundFigure($amount - $proPayable);
+                $swmPaid = min($remaining, $swmPayable);
+            }
+
+            $this->_REQUEST->merge([
+                "amount"             => roundFigure($propertyPaid + $swmPaid),
+                "propertyPaidAmount" => $propertyPaid,
+                "swmPaidAmount"      => $swmPaid,
+            ]);
+
         }
 
         $user = Auth()->user();
@@ -187,7 +229,7 @@ class PropertyPaymentBll{
         ];
         $this->_REQUEST->merge($metaData);
         if($paidTotalMonthlyPenalty>0){
-            $penalty->push(["amount"=>roundFigure($paidTotalMonthlyPenalty),"head_name"=>"1% Monthly Penalty"]);
+            $penalty->push(["amount"=>roundFigure($paidTotalMonthlyPenalty),"head_name"=>"1.5% Monthly Penalty"]);
         }
         
         if($rebateAmount>0){
@@ -312,7 +354,26 @@ class PropertyPaymentBll{
             $newPenaltyRequest->merge(["transaction_id"=>$tranId,"is_rebate"=>true]);
             $id = $objTranFineRebate->store($newPenaltyRequest);
         }
-
+        
+        #==========swm Payment==============
+        if($remainAmount>0){
+            foreach($this->_Demand["swmConsumers"] as $key=>$consumer){
+                $newSwmRequest = new Request(["id"=>$consumer["consumer"]["id"],"propTranId"=>$tranId,"tranDate"=>$this->_REQUEST->tranDate,"paymentMode"=>$this->_REQUEST->paymentMode]);
+                $swmPaidAmount = $consumer["payableAmount"];
+                if($remainAmount<=$consumer["payableAmount"]){
+                    $swmPaidAmount = $remainAmount;
+                    $remainAmount =0;
+                }else{
+                    $remainAmount -= $consumer["payableAmount"];
+                }
+                $newSwmRequest->merge(["amount"=>$swmPaidAmount,"paymentType"=>($consumer["payableAmount"]==$swmPaidAmount ? "FULL":"PART")]);
+                if($swmPaidAmount<0){
+                    break;
+                }
+                $objSwmPaymentBll = new SwmPaymentBll($newSwmRequest);
+                $objSwmPaymentBll->payNow();                
+            }
+        } 
         # Advance Adjust and new Advance Insert
         //Advance
         if($remainAmount>0){

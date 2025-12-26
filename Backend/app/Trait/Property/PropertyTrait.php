@@ -21,6 +21,8 @@ use App\Models\Property\PropertyTypeMaster;
 use App\Models\Property\RejectedSafDetail;
 use App\Models\Property\RoadTypeMaster;
 use App\Models\Property\SafDetail;
+use App\Models\Property\SwmCategoryTypeMaster;
+use App\Models\Property\SwmSubCategoryTypeMaster;
 use App\Models\Property\TransferModeMaster;
 use App\Models\Property\UsageTypeMaster;
 use App\Models\Property\ZoneMaster;
@@ -482,5 +484,15 @@ trait PropertyTrait{
                 $generated_holding_no = $ward_no . $road_type . $serial_no_pad . $sub_holding_no . $usage_type_code . $const_type_code;                
         }
         return $property && $property->new_holding_no ? $property->new_holding_no : $generated_holding_no ;
+    }
+
+    public function adjustSWMConsumer($consumer){
+        $occupancyType = OccupancyTypeMaster::find($consumer->occupancy_type_master_id);
+        $categoryType = SwmCategoryTypeMaster::find($consumer->category_type_master_id);
+        $subCategoryType = SwmSubCategoryTypeMaster::find($consumer->sub_category_type_master_id);
+        $consumer->occupancy_type = $occupancyType?->occupancy_type;
+        $consumer->category_type = $categoryType?->category_type;
+        $consumer->sub_category_type = $subCategoryType?->sub_category_type;
+        return $consumer;
     }
 }

@@ -12,11 +12,13 @@ use App\Http\Controllers\Water\ReportController as WaterReportController;
 use App\Models\DBSystem\ModuleMaster;
 use App\Models\Property\ActiveSafDetail;
 use App\Models\Property\ChequeDetail;
+use App\Models\Property\PropertyCollection;
 use App\Models\Property\PropertyDetail;
 use App\Models\Property\PropTransaction;
 use App\Models\Property\PropTransactionDeactivation;
 use App\Models\Property\RejectedSafDetail;
 use App\Models\Property\SafDetail;
+use App\Models\Property\SwmChequeDetail;
 use App\Models\Trade\ActiveTradeLicense;
 use App\Models\Trade\ChequeDetail as TradeChequeDetail;
 use App\Models\Trade\RejectedTradeLicense;
@@ -335,7 +337,12 @@ class AccountController extends Controller
                     $tran->verified_by = $user->id;
                     $tran->verify_date = Carbon::now();
                     $tran->update();
-
+                    $tran->getSwmTrans()->map(function($item)use($user){
+                        $item->verification_status=1;
+                        $item->verified_by = $user->id;
+                        $item->verify_date = Carbon::now();
+                        $item->update();
+                    });
                 }
             }
             #Water
@@ -522,7 +529,9 @@ class AccountController extends Controller
             $cheque->bounce_amount = $request->bounceAmount;
             
             $this->begin();  
-            $objTranDeactivate->chequeBounce();          
+            if($request->verificationStatus=="BOUNCED"){
+                $objTranDeactivate->chequeBounce();
+            }
             $tran->update();
             $cheque->update();
             $this->commit();
@@ -760,7 +769,10 @@ class AccountController extends Controller
             if($cheque){
                 $cheque->save();
             }
-            $this->commit();
+            if($configModule["PROPERTY"]==$request->moduleId){
+                $this->updateSwmPaymentMode($request);
+            }
+            // $this->commit();
             return responseMsg(true,"Transaction Update","");
         }catch(CustomException $e){
             $this->rollback();
@@ -770,6 +782,39 @@ class AccountController extends Controller
             return responseMsg(false,"Server Error !!!","");
         }
 
+    }
+    
+    private function updateSwmPaymentMode(Request $request){
+        $PropTran = $this->_PropTransaction->find($request->tranId);
+        $swmTran = $PropTran->getSwmTrans();
+        foreach($swmTran as $tran){
+            $tran->payment_mode = $request->paymentMode;
+            $cheque = SwmChequeDetail::where("lock_status",false)->where("transaction_id",$tran->id)->first();
+            if($request->paymentMode!="CASH"){
+                if(!$cheque){
+                    $cheque = SwmChequeDetail::where("transaction_id",$tran->id)->first();
+                    if(!$cheque){
+                        $cheque = new SwmChequeDetail();
+                        $cheque->transaction_id = $tran->id;
+                    }                   
+                }
+                $cheque->lock_status = false;
+                $cheque->cheque_no = $request->chequeNo;
+                $cheque->cheque_date = $request->chequeDate;
+                $cheque->bank_name = $request->bankName;
+                $cheque->branch_name = $request->branchName;
+            }else{
+                if($cheque){
+                    $cheque->lock_status = true;
+                }
+            }
+
+            $tran->update();
+            if($cheque){
+                $cheque->save();
+            }
+        }
+            
     }
 
     public function deactivateTransaction(Request $request){

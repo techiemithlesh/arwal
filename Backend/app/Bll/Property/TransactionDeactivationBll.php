@@ -6,6 +6,7 @@ use App\Exceptions\CustomException;
 use App\Models\Property\ActiveSafDetail;
 use App\Models\Property\AdjustmentDetail;
 use App\Models\Property\AdvanceDetail;
+use App\Models\Property\PenaltyDetail;
 use App\Models\Property\PropertyCollection;
 use App\Models\Property\PropertyDemand;
 use App\Models\Property\PropertyDetail;
@@ -46,6 +47,15 @@ class TransactionDeactivationBll
         if($adjustment){
             $adjustment->lock_status =  true;
             $adjustment->update();
+        }
+    }
+
+    private function deactivateOtherPenaltyPaid(){
+        $penalty = PenaltyDetail::where("lock_status",false)->where("paid_status",true)->where("transaction_id",$this->_TranId)->get();
+        foreach($penalty as $p){
+            $p->paid_status =  false;
+            $p->transaction_id = null;
+            $p->update();
         }
     }
 
@@ -116,9 +126,20 @@ class TransactionDeactivationBll
             $this->propertyTranDeactivation();
         }
         $this->deactivateAdvance();
-        $this->deactivateAdjustment();                
+        $this->deactivateAdjustment();   
+        $this->deactivateOtherPenaltyPaid();             
         $this->_Transaction->lock_status =  true;        
         $this->_Transaction->update();
+        
+        $this->deactivateSwmTransaction();
+    }
+
+    public function deactivateSwmTransaction(){
+        $swmTran = $this->_Transaction->getSwmTrans();
+        foreach($swmTran as $tran){
+            $obj = new SwmTransactionDeactivationBll($tran->id);
+            $obj->deactivateTransaction();
+        }
     }
 
     public function chequeBounce(){
@@ -133,5 +154,8 @@ class TransactionDeactivationBll
         }
         $this->deactivateAdvance();
         $this->deactivateAdjustment();
+        $this->deactivateOtherPenaltyPaid();
+
+        $this->deactivateSwmTransaction();
     }
 }

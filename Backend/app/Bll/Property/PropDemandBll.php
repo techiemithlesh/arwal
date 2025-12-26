@@ -19,6 +19,8 @@ class PropDemandBll{
     public $_GRID;
     public $_PROPId;
     public $_PROPERTY;
+    public $_SwmConsumers;
+    public $_SwmGRID;
     public $_tranDate;
     public $_tranDateFyear ;
     public $_isVacantLand = false ;
@@ -54,10 +56,12 @@ class PropDemandBll{
 
     function __construct($propId,$tranDate=null)
     {
+        $this->_SwmGRID = collect();
         $this->_PROPId = $propId;
         $this->_tranDate = Carbon::parse($tranDate);
         $this->_tranDateFyear = getFY($this->_tranDate->copy()->format("Y-m-d"));
-        $this->_PROPERTY = PropertyDetail::find($this->_PROPId);     
+        $this->_PROPERTY = PropertyDetail::find($this->_PROPId);  
+        $this->_SwmConsumers = $this->_PROPERTY->getSwmConsumer();
         $this->setDemandList();
         $this->testLastTran();
     }
@@ -220,8 +224,6 @@ class PropDemandBll{
     }
 
     public function generateDemand(){
-        $previousDemand = $this->generateGrantTax($this->_DemandList->where("fyear","<",$this->_tranDateFyear));
-        $currentTax = $this->generateGrantTax($this->_DemandList->where("fyear",$this->_tranDateFyear));
         $this->_GRID = [
             "lastPaymentClear" => $this->_lastPaymentIsClear,
             "demandList"=>$this->_DemandList,
@@ -253,7 +255,14 @@ class PropDemandBll{
             "payableAmount" => roundFigure(($this->_demandAmount + $this->_lateAssessmentPenalty + $this->_otherPenalty + $this->_monthlyPenalty + $this->_noticePenalty + $this->_noticeAdditionPenalty) - ($this->_quarterlyRebate + $this->_specialRebate + $this->_advanceAmount) ),
             "arrearPayableAmount" => roundFigure(($this->_arrearDemandAmount + $this->_lateAssessmentPenalty + $this->_otherPenalty + $this->_arrearDemandMonthlyPenalty + $this->_noticePenalty + $this->_noticeAdditionPenalty) - ( $this->_specialRebate + $this->_advanceAmount) ),
         ];
-        $this->_GRID["payableAmountInWord"] = getIndianCurrency($this->_GRID["payableAmount"]);
+        $this->_GRID["payableAmountInWord"] = getIndianCurrency($this->_GRID["payableAmount"]); 
+        
+        $this->_GRID["swmConsumerIds"] = $this->_SwmConsumers->pluck("id")->implode(",");
+        $this->_GRID["swmConsumers"] = $this->_SwmGRID;
+        $totalPaybleAmount = $this->_SwmGRID->sum("payableAmount");
+        $this->_GRID["totalPayableAmount"] = roundFigure($this->_GRID["payableAmount"] + $totalPaybleAmount);
+        $this->_GRID["swmPayableAmount"] = roundFigure($totalPaybleAmount);
+        $this->_GRID["totalPayableAmountInWord"] = getIndianCurrency($this->_GRID["totalPayableAmount"]); 
     }
 
     public function generateGrantTax($demandList){
@@ -286,6 +295,17 @@ class PropDemandBll{
         $this->getAdvanceAmount();
         $this->getOtherPenalty();
         $this->noticePenalty();
+        $this->getConsumersDue();
         $this->generateDemand();
+    }
+
+    private function getConsumersDue(){
+        foreach($this->_SwmConsumers as $key=> $consumer){
+            $objSwmDemandBll = new SwmDemandBll($consumer->id,$this->_tranDate); 
+            $objSwmDemandBll->generateDemand();
+            $demand = $objSwmDemandBll->_GRID;
+            $demand["consumer"]=$consumer;
+            $this->_SwmGRID->push($demand);
+        }
     }
 }

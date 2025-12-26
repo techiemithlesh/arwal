@@ -11,6 +11,11 @@ use App\Models\Property\PropTransaction;
 use App\Models\Property\RejectedSafDetail;
 use App\Models\Property\SafCollection;
 use App\Models\Property\SafDetail;
+use App\Models\Property\SwmActiveConsumer;
+use App\Models\Property\SwmConsumer;
+use App\Models\Property\SwmConsumerDemandsCollection;
+use App\Models\Property\SwmConsumerTransactionFineRebateDetail;
+use App\Models\Property\SwmRejectedConsumer;
 use App\Models\Property\TransactionFineRebateDetail;
 use App\Models\User;
 
@@ -19,8 +24,11 @@ class PaymentReceiptBll{
     public $_GRID;
     public $_TranId;
     public $_TranDetail;
+    public $_SwmTran;
+    public $_Consumers;
     public $_ChequeDtl;
     public $_CollectionDetail;
+    public $_SwmDemandCollectionDetail;
     public $_FineRebates;
     public $_UserDetail;
     public $_UlbDetail;
@@ -70,7 +78,22 @@ class PaymentReceiptBll{
         }
         $this->_oldWard = UlbWardMaster::find($this->_propSafData->ward_mstr_id);
         $this->_newWard = UlbWardMaster::find($this->_propSafData->new_ward_mstr_id);
-        $this->_owners = collect($this->_propSafData->getOwners())->sortBy("id");
+        $this->_owners = collect($this->_propSafData->getOwners())->sortBy("id");        
+        $this->_SwmTran = $this->_TranDetail->getSwmTrans()->map(function($item){
+            $consumers = SwmConsumer::find($item->consumer_id);
+            if(!$consumers){
+                $consumers = SwmActiveConsumer::find($item->consumer_id);
+            }
+            if(!$consumers){
+                $consumers = SwmRejectedConsumer::find($item->consumer_id);
+            }
+            $item->ownerDtl = $consumers->getOwners();
+            $item->consumers = $consumers;            
+            $item->collectionDetail = SwmConsumerDemandsCollection::where("lock_status",false)->where("transaction_id",$item->id)->get();
+            $item->penaltyRebate = SwmConsumerTransactionFineRebateDetail::where("lock_status",false)->where("transaction_id",$item->id)->get();
+
+            return $item;
+        });
     }
 
     public function generateReceipt(){
@@ -110,6 +133,7 @@ class PaymentReceiptBll{
             
             "propertyDtl"=>$this->_propSafData,
             "tranDtl" => $this->_TranDetail,
+            "swmTranDtl"=>$this->_SwmTran,
             "chequeDtl" => $this->_ChequeDtl,
             "ulbDtl" => $this->_UlbDetail,
             "ownerDtl" => $this->_owners,

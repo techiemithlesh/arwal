@@ -36,6 +36,9 @@ class PropTransaction extends ParamModel
         "payment_status",
         "lock_status",
         "tran_type",
+        "swm_paid_amount",
+        "property_paid_amount",
+        "water_paid_amount"
     ];
 
     public function store($request){
@@ -45,5 +48,9 @@ class PropTransaction extends ParamModel
 
     public function getChequeDtl(){
         return $this->belongsTo(ChequeDetail::class,"id","transaction_id")->where("lock_status",false)->orderBy("id","DESC")->first();
+    }
+
+    public function getSwmTrans(){
+        return $this->hasMany(SwmConsumerTransaction::class,"prop_transaction_id","id")->where("lock_status",false)->orderBy("id","DESC")->get();
     }
 }

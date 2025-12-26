@@ -165,6 +165,12 @@ class PropertyController extends Controller
             $property->floors = $this->adjustFloorValue($property->getFloors());
             $property->owners = $property->getOwners();
             $property->tran_dtls = $property->getTrans();
+            $property->swm_consumer = $property->getSwmConsumer()->map(function($val){
+                $val=$this->adjustSWMConsumer($val);
+                $val->owners = $val->getOwners();
+                $val->tran_dtls = $val->getTrans();
+                return $val;
+            });
             
             $user = Auth()->user();
             if($user){
@@ -370,7 +376,7 @@ class PropertyController extends Controller
             }
             $propertyPaymentBll = new PropertyPaymentBll($request);
             $this->begin();           
-            $responseData = ($propertyPaymentBll->payNow());            
+            $responseData = ($propertyPaymentBll->payNow());           
             $this->commit();
             return responseMsg(true,"Payment Successfully Done",$responseData);
         }catch(CustomException $e){

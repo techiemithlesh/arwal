@@ -6,6 +6,8 @@ use App\Models\Property\ActiveSafDetail;
 use App\Models\Property\MemoDetail;
 use App\Models\Property\PropertyNotice;
 use App\Models\Property\PropTransaction;
+use App\Models\Property\SwmActiveConsumer;
+use App\Models\Property\SwmConsumerTransaction;
 use App\Models\Trade\ActiveTradeLicense;
 use App\Models\Trade\TradeTransaction;
 use App\Models\User;
@@ -15,6 +17,8 @@ use App\Observers\Property\ActiveSafDetailObserver;
 use App\Observers\Property\MemoDetailObserver;
 use App\Observers\Property\PropertyNoticeObserver;
 use App\Observers\Property\PropTransactionObserver;
+use App\Observers\Property\SwmActiveConsumerObserver;
+use App\Observers\Property\SwmConsumerTransactionObserver;
 use App\Observers\Trade\ActiveTradeLicenseObserver;
 use App\Observers\Trade\TradeTransactionObserver;
 use App\Observers\UserObserver;
@@ -43,7 +47,9 @@ class AppServiceProvider extends ServiceProvider
         ActiveSafDetail::observe(ActiveSafDetailObserver::class);
         MemoDetail::observe(MemoDetailObserver::class);
         PropTransaction::observe(PropTransactionObserver::class);
-        PropertyNotice::observe(PropertyNoticeObserver::class);
+        PropertyNotice::observe(PropertyNoticeObserver::class); 
+        SwmActiveConsumer::observe(SwmActiveConsumerObserver::class);
+        SwmConsumerTransaction::observe(SwmConsumerTransactionObserver::class);
         //trade
         ActiveTradeLicense::observe(ActiveTradeLicenseObserver::class);
         TradeTransaction::observe(TradeTransactionObserver::class);

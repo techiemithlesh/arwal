@@ -50,4 +50,8 @@ class PropertyDetail extends ParamModel
     public function getAllDemand(){
         return $this->hasMany(PropertyDemand::class,"property_detail_id","id")->where("lock_status",false);
     }
+
+    public function getSwmConsumer(){
+        return $this->hasMany(SwmConsumer::class,"property_detail_id","id")->where("lock_status",false)->get();
+    }
 }

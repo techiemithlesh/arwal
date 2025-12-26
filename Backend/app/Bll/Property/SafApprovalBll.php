@@ -16,6 +16,9 @@ use App\Models\Property\SafDemand;
 use App\Models\Property\SafDetail;
 use App\Models\Property\SafFloorDetail;
 use App\Models\Property\SafOwnerDetail;
+use App\Models\Property\SwmConsumer;
+use App\Models\Property\SwmConsumerDemand;
+use App\Models\Property\SwmConsumerOwner;
 use App\Trait\Property\PropertyTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -42,6 +45,7 @@ class SafApprovalBll
     public $_HoldingNo;
     public $_isVacantLand = false;
     public $_lateAssessmentPenalty =0;
+    public $_SwmConsumerDemand;
 
     function __construct($safId){
         $this->_SafId = $safId; 
@@ -52,6 +56,7 @@ class SafApprovalBll
         $this->_PropertyOwnerDetail = new PropertyOwnerDetail();
         $this->_PropertyTax = new PropertyTax();
         $this->_PropertyDemand = new PropertyDemand();
+        $this->_SwmConsumerDemand = new SwmConsumerDemand();
     }
 
     public function safApproved(){
@@ -189,7 +194,6 @@ class SafApprovalBll
                 $owner->setTable($this->_PropertyOwnerDetail->getTable());
                 $owner->save();
             }
-
         }
     }
 
@@ -324,6 +328,7 @@ class SafApprovalBll
 
         $this->_SAF->forceDelete();
 
+        $this->generateConsumer();
     }
 
     public function testVacantLand(){
@@ -374,6 +379,36 @@ class SafApprovalBll
             }
         }
 
+    }
+
+    public function generateConsumer(){
+        $consumers = $this->_SAF->getSwmConsumer();
+        foreach($consumers as $swm){
+            $swmConsumer = $swm->replicate();
+            $swmConsumer->setTable((new SwmConsumer())->getTable());
+            $swmConsumer->id = $swm->id;
+            $swmConsumer->property_detail_id = $this->_PropId;
+            $swmConsumer->save();
+
+            foreach($swm->getOwners() as $val){
+                $approveOwner = $val->replicate();
+                $approveOwner->setTable((new SwmConsumerOwner())->getTable());
+                $approveOwner->id = $val->id;
+                $approveOwner->save();
+                $val->forceDelete();
+            } 
+            $swm->forceDelete();
+            $newRequest = new Request(camelCase($swm)->toArray());
+            $objTaxCalculator = new BiharSwmTaxCalculator($newRequest);
+            $objTaxCalculator->calculateTax();
+            $tax = collect($objTaxCalculator->_GRID)->sortBy("demandFrom");
+            foreach($tax as $demand){
+                $newDemand = new Request($demand);
+                $newDemand->merge(["consumer_id"=>$swm->id,"balance"=>$newDemand->amount]);
+                $this->_SwmConsumerDemand->store($newDemand);
+
+            }
+        }
     }
 
 }
