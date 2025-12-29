@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Property;
 
 use App\Bll\Common;
+use App\Bll\Property\BiharTaxCalculator;
 use App\Bll\Property\NoticeReceiptBll;
 use App\Bll\Property\PaymentReceiptBll;
 use App\Bll\Property\PropDemandBll;
 use App\Bll\Property\PropertyPaymentBll;
 use App\Exceptions\CustomException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Property\RequestAddExistingProperty;
 use App\Http\Requests\Property\RequestOwnerEdit;
 use App\Http\Requests\Property\RequestPropertyBasicEdit;
 use App\Models\DBSystem\RoleTypeMstr;
@@ -19,10 +21,16 @@ use App\Models\Property\ActiveSafDetail;
 use App\Models\Property\AppBasicUpdate;
 use App\Models\Property\AppOwnerUpdate;
 use App\Models\Property\DeactivateAppDetail;
+use App\Models\Property\PropertyDemand;
 use App\Models\Property\PropertyDetail;
+use App\Models\Property\PropertyFloorDetail;
 use App\Models\Property\PropertyNotice;
 use App\Models\Property\PropertyOwnerDetail;
+use App\Models\Property\PropertyTax;
+use App\Models\Property\PropertyTypeMaster;
 use App\Models\Property\PropTransaction;
+use App\Models\Property\SwmConsumer;
+use App\Models\Property\SwmConsumerOwner;
 use App\Models\User;
 use App\Trait\Property\PropertyTrait;
 use Carbon\Carbon;
@@ -45,13 +53,19 @@ class PropertyController extends Controller
      * State : open
      */
 
+    private $_PropertyTypeMaster;
+    private $_PropertyTax;
     private $_PropertyDetail;
     private $_PropertyOwnerDetail;
+    private $_PropertyFloorDetail;
+    private $_PropertyDemand;
     private $_DeactivateAppDetail;
     private $_ActiveSafDetail;
     private $_AppBasicUpdate;
     private $_AppOwnerUpdate;
     private $_PropertyNotice;
+    private $_SwmConsumer;
+    private $_SwmConsumerOwner;
     private $_SYSTEM_CONST;
     private $_UlbWardMaster;
     private $_UlbMaster;
@@ -61,13 +75,20 @@ class PropertyController extends Controller
     private $_CommonClass ;
     function __construct()
     {
+        $this->_PropertyTypeMaster = new PropertyTypeMaster();
+        $this->_PropertyTax = new PropertyTax();
         $this->_PropertyDetail = new PropertyDetail();
         $this->_PropertyOwnerDetail = new PropertyOwnerDetail();
+        $this->_PropertyFloorDetail =  new PropertyFloorDetail();
+        $this->_PropertyDemand = new PropertyDemand();
         $this->_DeactivateAppDetail = new DeactivateAppDetail();
         $this->_ActiveSafDetail = new ActiveSafDetail();
         $this->_AppBasicUpdate = new AppBasicUpdate();
         $this->_AppOwnerUpdate = new AppOwnerUpdate();
         $this->_PropertyNotice = new PropertyNotice();
+
+        $this->_SwmConsumer = new SwmConsumer();
+        $this->_SwmConsumerOwner = new SwmConsumerOwner();
         
         $this->_UlbWardMaster = new UlbWardMaster();
         $this->_UlbMaster = new UlbMaster();
@@ -677,6 +698,113 @@ class PropertyController extends Controller
             $receiptBll = new NoticeReceiptBll($request->id); 
             $receiptBll->generateReceipt();
             return responseMsg(true," Notice List",camelCase(remove_null($receiptBll->_GRID)));
+
+        }catch(CustomException $e){
+            return responseMsg(false,$e->getMessage(),"");
+        }
+        catch(Exception $e){
+            return responseMsg(false,"Internal Server Error","");
+        }
+    }
+
+    public function addExistingProperty(RequestAddExistingProperty $request){
+        try{
+            if(!$request->isCorrAddDiffer){
+                $request->merge([
+                    "isCorrAddDiffer"=>false,
+                    "corrAddress"=>$request->propAddress,
+                    "corrCity"=>$request->propCity,
+                    "corrDist"=>$request->propDist,
+                    "corrPinCode"=>$request->propPinCode,
+                    "corrState"=>$request->propState,
+                ]);
+            }
+            $user = Auth()->user(); 
+            $additionData = []; 
+            if($user && $user->getTable()=='users'){
+                $additionData["userId"]=$user->id;
+            }elseif($user){
+                $additionData["citizenId"]=$user->id;
+            }
+
+            $holdingType = $this->getHoldingType($request);
+            $additionData["holdingType"]=$holdingType;
+            $additionData["entryType"]="Existing";
+            $calCulator = new BiharTaxCalculator($request);
+            $calCulator->calculateTax();
+            $tax = collect($calCulator->_GRID);
+
+            $propertyTypeMaster = $this->_PropertyTypeMaster->getPropertyTypeList();
+
+            $request->merge($additionData);
+            
+            $this->begin();
+            $propertyId = $this->_PropertyDetail->store($request);
+            
+            foreach($tax["RuleSetVersionTax"] as $key=>$safTax){  
+                if($safTax["Fyearlytax"]) {
+                    $taxRequest = new Request($safTax);  
+                    $taxRequest->merge(["propertyDetailId"=>$propertyId]);
+                    $minFyear = collect($safTax["Fyearlytax"]??[])->min("fyear");
+                    $minYearTax = collect($safTax["Fyearlytax"]??[])->where("fyear",$minFyear)->first();
+                    $minQtr = collect($minYearTax["quarterly"]??[])->min("qtr");
+                    $taxRequest->merge(["Fyear"=>$minFyear,"Qtr"=>$minQtr]);
+                    $taxId = $this->_PropertyTax->store($taxRequest);
+                    foreach($safTax["Fyearlytax"] as $yearTax){
+                        $qtrTax = $yearTax["quarterly"];
+                        if ($request->demandPaidUpto) {
+                            $paidFy  = getFy($request->demandPaidUpto);
+                            $paidQtr = getQtr($request->demandPaidUpto);
+                            $qtrTax = collect($yearTax['quarterly'])
+                                ->filter(function ($item) use ($paidFy, $paidQtr) {
+                                    return $item['fyear'] > $paidFy || ($item['fyear'] == $paidFy && $item['qtr'] > $paidQtr);
+                                })
+                                ->values()   
+                                ->toArray();
+                        }
+                        foreach($qtrTax as $quarterlyTax){
+                            $newDemandRequest = new Request($quarterlyTax);
+                            $newDemandRequest->merge(["propertyDetailId"=>$propertyId,"propertyTaxId"=>$taxId,"wardMstrId"=>$request->wardMstrId]);                        
+                            $demandId = $this->_PropertyDemand->store($newDemandRequest);
+                            
+                        }    
+                    }
+                }          
+                
+            }
+            foreach($request->ownerDtl as $owners){
+                $newRequest = new Request($owners);
+                $newRequest->merge(["propertyDetailId"=>$propertyId]);
+                $this->_PropertyOwnerDetail->store($newRequest);
+                
+            }
+            $vacantLand = collect($propertyTypeMaster)->where("property_type","VACANT LAND")->first();
+            if($request->propTypeMstrId!=($vacantLand->id??"")){
+                foreach($request->floorDtl as $floor){
+                    $newRequest = new Request($floor);
+                    $newRequest->merge(["dateFrom"=>$newRequest->dateFrom."-01"]);
+                    if($newRequest->dateUpto){
+                        $newRequest->merge(["dateUpto"=>$newRequest->dateUpto."-01"]);
+                    }
+                    $newRequest->merge(["propertyDetailId"=>$propertyId]);
+                    $this->_PropertyFloorDetail->store($newRequest);
+                    
+                }
+            }
+
+            if($request->swmConsumer){
+                foreach($request->swmConsumer as $swm){
+                    $swmNewRequest = new Request($swm);
+                    $swmNewRequest->merge(["propertyDetailId"=>$propertyId,"dateOfEffective"=>$swmNewRequest->dateOfEffective."-01"]);
+                    $consumerId = $this->_SwmConsumer->store($swmNewRequest);
+                    $swmNewRequest->merge(["consumerId"=>$consumerId]);
+                    $swmConsumerOwnerId = $this->_SwmConsumerOwner->store($swmNewRequest);
+                }
+            }
+            $property = $this->_PropertyDetail->find($propertyId);
+            // dd($property,$property->getOwners(),$property->getFloors(),$property->getAllDemand()->orderby("fyear")->get()->toArray());
+            $this->commit();
+            return responseMsg(true,"Holding Add",remove_null(camelCase(["id"=>$property->id,"safNo"=>$property->holding_no])));
 
         }catch(CustomException $e){
             return responseMsg(false,$e->getMessage(),"");

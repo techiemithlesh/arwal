@@ -198,10 +198,10 @@ class RequestAddSaf extends ParentRequest
                 }),
             ],
 
-            "swmConsumer"=>"nullable|required_unless:propTypeMstrId,4|array",
+            "swmConsumer"=>"nullable|array",//|required_unless:propTypeMstrId,4
             "swmConsumer.*.occupancyTypeMasterId"=>[
                 "nullable",
-                "required_unless:propTypeMstrId,4",
+                // "required_unless:propTypeMstrId,4",
                 "regex:/^[0-9]+$/",
                 Rule::exists($this->_OccupancyTypeMaster->getConnectionName().".".$this->_OccupancyTypeMaster->getTable(), 'id')
                 ->where(function ($query){
@@ -210,7 +210,7 @@ class RequestAddSaf extends ParentRequest
             ],
             "swmConsumer.*.categoryTypeMasterId"=>[
                 "nullable",
-                "required_unless:propTypeMstrId,4",
+                // "required_unless:propTypeMstrId,4",
                 "regex:/^[0-9]+$/",
                 Rule::exists($this->_SwmCategoryTypeMaster->getConnectionName().".".$this->_SwmCategoryTypeMaster->getTable(), 'id')
                 ->where(function ($query){
@@ -219,15 +219,15 @@ class RequestAddSaf extends ParentRequest
             ],
             "swmConsumer.*.subCategoryTypeMasterId"=>[
                 "nullable",
-                "required_unless:propTypeMstrId,4",
+                // "required_unless:propTypeMstrId,4",
                 "regex:/^[0-9]+$/",
                 Rule::exists($this->_SwmSubCategoryTypeMaster->getConnectionName().".".$this->_SwmSubCategoryTypeMaster->getTable(), 'id')
                 ->where(function ($query){
                     return $query->where('lock_status', false);
                 }),
             ],
-            "swmConsumer.*.category"=>"nullable|required_unless:propTypeMstrId,4|in:APL,BPL",
-            "swmConsumer.*.dateOfEffective"=>"nullable|required_unless:propTypeMstrId,4|date|date_format:Y-m|before_or_equal:".Carbon::now()->format("Y-m"),
+            "swmConsumer.*.category"=>"nullable|in:APL,BPL",//|required_unless:propTypeMstrId,4
+            "swmConsumer.*.dateOfEffective"=>"nullable|date|date_format:Y-m|before_or_equal:".Carbon::now()->format("Y-m"),//required_unless:propTypeMstrId,4|
             "swmConsumer.*.ownerName"=>"required",
             "swmConsumer.*.guardianName"=>"nullable",
             "swmConsumer.*.relationType"=>"nullable|required_with:swmConsumer.*.guardianName|in:S/O,D/O,W/O,C/O",
