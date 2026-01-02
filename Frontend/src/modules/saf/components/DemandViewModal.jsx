@@ -9,6 +9,7 @@ import { formatLocalDate } from "../../../utils/common";
 import PaymentModal from "./PaymentModal";
 import toast from "react-hot-toast";
 import PaymentReceiptModal from "./PaymentReceiptModal";
+import { isArray } from "lodash";
 
 function DemandViewModal({
   id,
@@ -317,29 +318,52 @@ function DemandViewModal({
                     <span className="font-medium">Arrear Demand:</span>
                     <span>{demandData?.arrearDemandAmount ?? "-"}</span>
                   </div>
+                   <div className="flex justify-between bg-gray-100 px-3 py-2 rounded">
+                    <span className="font-medium">SWM Amount:</span>
+                    <span>{demandData?.swmPayableAmount ?? "-"}</span>
+                  </div>
                 </div>
               </div>
 
               {/* Penalty Group */}
               <div>
                 <h3 className="mb-2 font-semibold text-red-600">Penalties</h3>
-                <div className="gap-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
-                  <div className="flex justify-between bg-red-100 px-3 py-2 rounded">
-                    <span className="font-medium">
-                      Late Assessment Penalty:
-                    </span>
-                    <span>{demandData?.lateAssessmentPenalty ?? "-"}</span>
-                  </div>
+                <div className="gap-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4">                  
                   <div className="flex justify-between bg-red-100 px-3 py-2 rounded">
                     <span className="font-medium">Monthly Penalty:</span>
                     <span>{demandData?.monthlyPenalty ?? "-"}</span>
                   </div>
-                  <div className="flex justify-between bg-red-100 px-3 py-2 rounded">
+                  {/* <div className="flex justify-between bg-red-100 px-3 py-2 rounded">
                     <span className="font-medium">Other Penalty:</span>
                     <span>{demandData?.otherPenalty ?? "-"}</span>
-                  </div>
+                  </div> */}
+                  {demandData?.otherPenaltyList?.map((penalty, idx) => (
+                    <div key={idx} className="flex justify-between bg-red-100 px-3 py-2 rounded">
+                      <span className="font-medium">
+                        {penalty?.penaltyType}:
+                      </span>
+                      <span>{penalty?.penaltyAmt ?? "-"}</span>
+                    </div>
+                  ))}
+                  
                 </div>
               </div>
+
+              {/* Additional Tax */}
+              {isArray(demandData?.additionalTaxList) && demandData?.additionalTaxList?.length > 0 && (
+              <div>
+                <h3 className="mb-2 font-semibold text-red-600">Additonal Tax</h3>                
+                  {demandData?.additionalTaxList?.map((tax, idx) => (
+                    <div key={idx} className="flex justify-between bg-red-100 px-3 py-2 rounded">
+                      <span className="font-medium">
+                        {tax?.taxType}:
+                      </span>
+                      <span>{tax?.amount ?? "-"}</span>
+                    </div>
+                  ))}
+                  
+              </div>
+              )}
 
               {/* Rebate Group */}
               <div>
@@ -361,6 +385,7 @@ function DemandViewModal({
                     <span className="font-medium">First Qtr Rebate:</span>
                     <span>{demandData?.firstQuatreRebate ?? "-"}</span>
                   </div>
+
                 </div>
               </div>
 
@@ -370,14 +395,14 @@ function DemandViewModal({
                 <div className="gap-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
                   <div className="flex justify-between bg-yellow-200 px-3 py-2 rounded font-semibold text-red-700">
                     <span>Total Payable Amount:</span>
-                    <span>{demandData?.payableAmount ?? "-"}</span>
+                    <span>{demandData?.totalPayableAmount ?? "-"}</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Payment div */}
-            {actionType === "Payment" && demandData?.payableAmount > 0 && (
+            {actionType === "Payment" && demandData?.totalPayableAmount > 0 && (
               <div className="mt-6 text-right">
                 <button
                   onClick={() => setIsShowPaymentModal(true)}
