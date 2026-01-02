@@ -4,6 +4,7 @@ namespace App\Bll\Property;
 
 use App\Exceptions\CustomException;
 use App\Models\Property\ActiveSafDetail;
+use App\Models\Property\AdditionalTax;
 use App\Models\Property\AdjustmentDetail;
 use App\Models\Property\AdvanceDetail;
 use App\Models\Property\PenaltyDetail;
@@ -56,6 +57,15 @@ class TransactionDeactivationBll
             $p->paid_status =  false;
             $p->transaction_id = null;
             $p->update();
+        }
+    }
+
+    private function deactivateAdditionalTaxPaid(){
+        $additionalTax = AdditionalTax::where("lock_status",false)->where("paid_status",true)->where("transaction_id",$this->_TranId)->get();
+        foreach($additionalTax as $tax){
+            $tax->paid_status =  false;
+            $tax->transaction_id = null;
+            $tax->update();
         }
     }
 
@@ -127,7 +137,8 @@ class TransactionDeactivationBll
         }
         $this->deactivateAdvance();
         $this->deactivateAdjustment();   
-        $this->deactivateOtherPenaltyPaid();             
+        $this->deactivateOtherPenaltyPaid();
+        $this->deactivateAdditionalTaxPaid();             
         $this->_Transaction->lock_status =  true;        
         $this->_Transaction->update();
         
@@ -155,6 +166,7 @@ class TransactionDeactivationBll
         $this->deactivateAdvance();
         $this->deactivateAdjustment();
         $this->deactivateOtherPenaltyPaid();
+        $this->deactivateAdditionalTaxPaid();
 
         $this->deactivateSwmTransaction();
     }
