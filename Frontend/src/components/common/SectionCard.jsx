@@ -9,9 +9,12 @@ const SectionCard = ({
   if (!data || data.length === 0) {
     return (
       <div className="bg-white shadow border border-blue-800 rounded-lg">
-        <div className="bg-blue-900 px-4 py-2 rounded-t-md font-bold text-white">
-          {title}
-        </div>
+        {title &&(
+          <div className="bg-blue-900 px-4 py-2 rounded-t-md font-bold text-white">
+            {title}
+          </div>
+
+        )}
         <div className="p-4 text-gray-500 text-sm text-center">
           No {title} Available!
         </div>
@@ -21,12 +24,15 @@ const SectionCard = ({
 
   return (
     <div className="bg-white shadow border border-blue-800 rounded-lg">
-      <div
-        style={{ backgroundColor: color || "#1e3a8a" }} // fallback to Tailwind's bg-blue-900
-        className={`px-4 py-2 rounded-t-md font-bold text-white`}
-      >
-        {title}
-      </div>
+      {title &&(
+        <div
+          style={{ backgroundColor: color || "#1e3a8a" }} // fallback to Tailwind's bg-blue-900
+          className={`px-4 py-2 rounded-t-md font-bold text-white`}
+        >
+          {title}
+        </div>
+
+      )}
       <div className="p-2 overflow-x-auto">
         {note && (
           <div
