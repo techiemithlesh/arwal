@@ -24,9 +24,16 @@ export default function Preview() {
   const [isModalOpen, setModalOpen] = useState(false);
   const [data, setIsData] = useState([]);
 
-  const { formData, ownerDtl, floorDtl,swmConsumer, mstrData, newWardList, apartmentList } =
-    state || {};
-    console.log("swmConsumerDtl",state);
+  const {
+    formData,
+    ownerDtl,
+    floorDtl,
+    swmConsumer,
+    mstrData,
+    newWardList,
+    apartmentList,
+  } = state || {};
+  console.log("swmConsumerDtl", state);
 
   const buildPayload = () =>
     formData?.propTypeMstrId === 4
@@ -78,9 +85,13 @@ export default function Preview() {
     const swmDetails = formData?.hasSwm ? swmConsumer : [];
     setIsLoadingGable(true);
     try {
-      const { data: res } = await axios.post(safApplyApi, {...finalPayload,swmConsumer:swmDetails}, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const { data: res } = await axios.post(
+        safApplyApi,
+        { ...finalPayload, swmConsumer: swmDetails },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (!res.status) {
         if (res.errors) {
@@ -106,7 +117,7 @@ export default function Preview() {
       }
     } catch (err) {
       console.error("Submit error:", err);
-    }finally{
+    } finally {
       setIsLoadingGable(false);
     }
   };
@@ -126,11 +137,14 @@ export default function Preview() {
               label="Assessment Type"
               value={formData?.assessmentType || "New Assessment"}
             />
-            <DetailCard label="Circle" value={findName(
+            <DetailCard
+              label="Circle"
+              value={findName(
                 mstrData.zoneType,
                 formData?.zoneMstrId,
                 "zoneName"
-              )}/>
+              )}
+            />
             <DetailCard
               label="Ward No"
               value={findName(
@@ -139,7 +153,7 @@ export default function Preview() {
                 "wardNo"
               )}
             />
-           
+
             <DetailCard
               label="Ownership Type"
               value={findName(
@@ -156,7 +170,7 @@ export default function Preview() {
                 "propertyType"
               )}
             />
-            {([3,4]).includes(Number(formData?.propTypeMstrId)) && (
+            {[3, 4].includes(Number(formData?.propTypeMstrId)) && (
               <DetailCard
                 label="Date of Possession"
                 value={formData?.landOccupationDate}
@@ -179,11 +193,12 @@ export default function Preview() {
               </>
             )}
             <DetailCard
-              label="Road Type" value={findName(
-                    mstrData.roadType,
-                    formData?.roadTypeMstrId,
-                    "roadType"
-                  )}
+              label="Road Type"
+              value={findName(
+                mstrData.roadType,
+                formData?.roadTypeMstrId,
+                "roadType"
+              )}
             />
           </div>
         </section>
@@ -230,22 +245,45 @@ export default function Preview() {
               label="Built Up Area (In Sqft) "
               value={formData?.builtupArea}
             />
-           
+
             {/* Add more fields as per your PropDtl component */}
           </div>
         </section>
-        {/* Water Connection Details */}
+
+        {/* Water Tax Details */}
         <section className="flex flex-col gap-4 bg-gray-50 p-4 border rounded">
-          <h2 className="font-semibold text-xl">Water Connection Details</h2>
-          <div className="gap-4 grid sm:grid-cols-2 md:grid-cols-4 bg-gray-50 rounded">
+          <h2 className="font-semibold text-xl">Water One Time Payment</h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <DetailCard
-              label="Water Connection No"
-              value={formData?.waterConnNo}
+              label="Water Connection Facility"
+              value={findName(
+                mstrData.waterFacility,
+                formData?.waterConnectionFacilityTypeId,
+                "facilityType"
+              )}
             />
+
             <DetailCard
-              label="Water Connection Date"
-              value={formData?.waterConnDate}
+              label="Water Tax Type"
+              value={findName(
+                mstrData.waterTax,
+                formData?.waterTaxTypeId,
+                "taxType"
+              )}
             />
+
+            {/* NOTE */}
+            <div className="col-span-full mt-2">
+              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded-md">
+                <p className="text-xs text-gray-700 leading-relaxed">
+                  <span className="font-semibold">Note:</span> Water Tax is a
+                  one-time tax and is applicable only if you are doing your
+                  assessment for the first time or if you have never paid it
+                  earlier.
+                </p>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -283,12 +321,10 @@ export default function Preview() {
 
         {/* Floor Details */}
         <FloorTable data={floorDtl} mstrData={mstrData} />
-        {/* SWM */}  
-        {formData?.hasSwm &&(
+        {/* SWM */}
+        {formData?.hasSwm && (
           <div className="flex flex-col gap-4 bg-white shadow p-6 border-green-500 border-t-4 rounded-lg">
-            <h3 className="font-semibold text-gray-700 text-xl">
-              SWM Details
-            </h3>
+            <h3 className="font-semibold text-gray-700 text-xl">SWM Details</h3>
             <div className="overflow-x-auto">
               <table className="min-w-full">
                 <thead className="bg-gray-50">
@@ -329,7 +365,11 @@ export default function Preview() {
                   {swmConsumer?.map((app, idx) => (
                     <tr key={idx}>
                       <td className="px-4 py-2 border border-gray-500 font-medium text-gray-900 text-sm whitespace-nowrap">
-                        {getName(mstrData?.occupancyType,app?.occupancyTypeMasterId,"occupancyName")}
+                        {getName(
+                          mstrData?.occupancyType,
+                          app?.occupancyTypeMasterId,
+                          "occupancyName"
+                        )}
                       </td>
                       <td className="px-4 py-2 border border-gray-500 text-gray-500 text-sm whitespace-nowrap">
                         {app.ownerName}
@@ -344,13 +384,21 @@ export default function Preview() {
                         {app.mobileNo}
                       </td>
                       <td className="px-4 py-2 border border-gray-500 text-gray-500 text-sm whitespace-nowrap">
-                        {getName(mstrData?.swmConsumerType, app.categoryTypeMasterId,"categoryType")}
-                      </td>                      
+                        {getName(
+                          mstrData?.swmConsumerType,
+                          app.categoryTypeMasterId,
+                          "categoryType"
+                        )}
+                      </td>
                       <td className="px-4 py-2 border border-gray-500 text-gray-500 text-sm whitespace-nowrap">
                         {app.category}
                       </td>
                       <td className="px-4 py-2 border border-gray-500 text-gray-500 text-sm whitespace-nowrap">
-                        {getName(app?.subCategoryList, app.subCategoryTypeMasterId,"subCategoryType")}
+                        {getName(
+                          app?.subCategoryList,
+                          app.subCategoryTypeMasterId,
+                          "subCategoryType"
+                        )}
                       </td>
                       <td className="px-4 py-2 border border-gray-500 text-gray-500 text-sm whitespace-nowrap">
                         {app.dateOfEffective}
@@ -364,8 +412,7 @@ export default function Preview() {
               </table>
             </div>
           </div>
-
-        )} 
+        )}
 
         {/* Additional Details */}
         <AdditionalDetails formData={formData} />
@@ -396,7 +443,10 @@ export default function Preview() {
       {isModalOpen && (
         <SuccessModal
           isOpen={isModalOpen}
-          onClose={() => {setModalOpen(false);navigate("/saf/list/");}}
+          onClose={() => {
+            setModalOpen(false);
+            navigate("/saf/list/");
+          }}
           title="Application Submitted"
           message={
             <>

@@ -21,7 +21,7 @@ const SafRoutes = () => {
           </div>
         }
       >
-        <AdminLayout>
+        <AdminLayout title="Nagar Prishad Arval - SAF Module">
           <Routes>
             <Route
               path="/list"

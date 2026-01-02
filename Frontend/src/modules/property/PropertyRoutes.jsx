@@ -9,6 +9,7 @@ import Mutation from "./pages/Mutation";
 import Preview from "../saf/components/Preview";
 import ReportRoute from "./ReportRoute";
 import EditHolding from "./pages/EditHolding";
+import AddExisitingHolding from "./pages/AddExistingHolding";
 
 const PropertyRoutes = () => {
   return (
@@ -71,6 +72,9 @@ const PropertyRoutes = () => {
                 </ProtectedRoute>
               }
             />
+            <Route path="/add-existing-holding" element={<ProtectedRoute>
+              <AddExisitingHolding />
+            </ProtectedRoute>} />
             <Route path="/report/*" element={<ReportRoute />} />
           </Routes>
         </AdminLayout>

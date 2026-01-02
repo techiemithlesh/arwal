@@ -27,6 +27,7 @@ import { fetchNewWardByOldWard } from "../../../utils/commonFunc";
 import toast from "react-hot-toast";
 import { getUserDetails } from "../../../utils/auth";
 import SwmConsumerAdd from "./Saf/SwmConsumerAdd";
+import WaterSafPayment from "./Saf/WaterSafPayment";
 
 const AssessmentForm = ({
   mstrData,
@@ -37,7 +38,6 @@ const AssessmentForm = ({
   isEdit,
   ulbId,
 }) => {
-
   console.log("mstr data", mstrData);
 
   const dispatch = useDispatch();
@@ -48,28 +48,27 @@ const AssessmentForm = ({
   const floorDtl = useSelector((state) => state.floor.floorDtl);
   const ownerDtl = useSelector((state) => state.owner.OwnerDtl);
   const formData = useSelector((state) => state.assessment.formData);
-  const swmConsumer = useSelector((state)=> state.swmConsumer.swmConsumerDtl);
+  const swmConsumer = useSelector((state) => state.swmConsumer.swmConsumerDtl);
   const [error, setErrors] = useState({});
   const [newWardList, setNewWardList] = useState([]);
   const [newWardLoading, setNewWardLoading] = useState(false);
   const [apartmentList, setApartmentList] = useState([]);
   const [disabledFields, setDisabledFields] = useState({});
-  const [isFormSubmit,setIsFormSubmit]=useState(false);
+  const [isFormSubmit, setIsFormSubmit] = useState(false);
 
   const ulbIdL = getUserDetails()?.ulbId;
 
   useEffect(() => {
-    
-    if(ulbIdL){
+    if (ulbIdL) {
       fetchUlbInfo(ulbIdL);
     }
-  },[ulbIdL]);
-  
-   const fetchUlbInfo = async (ulbId) => {
-    if(!ulbId) return;
-     try{
+  }, [ulbIdL]);
+
+  const fetchUlbInfo = async (ulbId) => {
+    if (!ulbId) return;
+    try {
       const res = await axios.post(UlbApi.replace("{id}", ulbId), {});
-      if(res.data.status){ 
+      if (res.data.status) {
         const { city, district, state } = res.data.data || {};
         const updatedData = {
           ...formData,
@@ -80,12 +79,17 @@ const AssessmentForm = ({
 
         // Pass the OBJECT, not a function
         dispatch(setFormData(updatedData));
-        setDisabledFields((prev) => ({ ...prev, propCity: true, propDist: true, propState: true }) );
+        setDisabledFields((prev) => ({
+          ...prev,
+          propCity: true,
+          propDist: true,
+          propState: true,
+        }));
       }
-     }catch (error) {
+    } catch (error) {
       console.error("Error fetching ULb info:", error);
-     }
-   }
+    }
+  };
 
   useEffect(() => {
     const savedFloorDtl = localStorage.getItem("floorDtl");
@@ -229,7 +233,7 @@ const AssessmentForm = ({
     }
 
     dispatch(setFormData({ [name]: updatedValue }));
-    if(name=="propTypeMstrId" && updatedValue!=4){
+    if (name == "propTypeMstrId" && updatedValue != 4) {
       dispatch(setFormData({ hasSwm: false }));
     }
 
@@ -325,7 +329,7 @@ const AssessmentForm = ({
             ...payload,
             ownerDtl,
             floorDtl: floorPayload,
-            swmConsumer:swmDetails,
+            swmConsumer: swmDetails,
             ulbId,
           },
           { headers: { Authorization: `Bearer ${token}` } }
@@ -357,7 +361,7 @@ const AssessmentForm = ({
     } catch (error) {
       console.error("Error submitting form:", error);
       toast.error("Something went wrong!");
-    }finally{
+    } finally {
       setIsLoadingGable(false);
     }
   };
@@ -508,29 +512,29 @@ const AssessmentForm = ({
             <FormError name="propTypeMstrId" errors={error} />
           </div>
           {[3, 4].includes(Number(formData?.propTypeMstrId)) && (
-              <div className="">
-                <label
-                  htmlFor="landOccupationDate"
-                  className="block font-medium text-sm"
-                >
-                  Date of Possession / Purchase / Acquisition (Whichever is
-                  earlier) <span className="text-red-400 text-sm">*</span>
-                </label>
-                <input
-                  type="date"
-                  id="landOccupationDate"
-                  name="landOccupationDate"
-                  placeholder=""
-                  value={formData.landOccupationDate}
-                  required={formData?.propTypeMstrId == 4}
-                  onChange={handleInputChange}
-                  className="block bg-white shadow-sm px-3 py-2 border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 w-full sm:text-xs"
-                />
-                {error?.landOccupationDate && (
-                  <FormError name="landOccupationDate" errors={error} />
-                )}
-              </div>
-            )}
+            <div className="">
+              <label
+                htmlFor="landOccupationDate"
+                className="block font-medium text-sm"
+              >
+                Date of Possession / Purchase / Acquisition (Whichever is
+                earlier) <span className="text-red-400 text-sm">*</span>
+              </label>
+              <input
+                type="date"
+                id="landOccupationDate"
+                name="landOccupationDate"
+                placeholder=""
+                value={formData.landOccupationDate}
+                required={formData?.propTypeMstrId == 4}
+                onChange={handleInputChange}
+                className="block bg-white shadow-sm px-3 py-2 border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 w-full sm:text-xs"
+              />
+              {error?.landOccupationDate && (
+                <FormError name="landOccupationDate" errors={error} />
+              )}
+            </div>
+          )}
 
           {formData.propTypeMstrId == 1 && (
             <div>
@@ -750,7 +754,6 @@ const AssessmentForm = ({
                   className="block font-medium text-sm"
                 >
                   BIND/BOOK No.{" "}
-                 
                 </label>
                 <input
                   type="text"
@@ -810,69 +813,6 @@ const AssessmentForm = ({
         />
         {/* PROPERTY DETAILS END HERE HERE */}
 
-        {/* WATER DETAILS START HERE */}
-        {!(formData.propTypeMstrId != 4) &&
-          disabledFields?.propTypeMstrId !== "" && (
-            <div className="flex flex-col gap-2 text-gray-700 text-lg water_connection_details_container">
-              <h1 className="flex items-center gap-2 bg-gradient-to-r from-blue-700 to-blue-400 shadow-md p-3 rounded-md font-bold text-white text-lg uppercase tracking-wide">
-                Water Connection Details
-              </h1>
-              <div className="gap-4 grid grid-cols-1 md:grid-cols-2 bg-gradient-to-br from-white via-blue-50 to-blue-100 shadow-sm p-4 border border-blue-300 rounded-xl">
-                <div className="">
-                  <label
-                    htmlFor="waterConnNo"
-                    className="block font-medium text-sm"
-                  >
-                    Water Connection No
-                  </label>
-                  <input
-                    type="text"
-                    id="waterConnNo"
-                    name="waterConnNo"
-                    value={formData.waterConnNo}
-                    onChange={(e) => {
-                      // Only allow letters and digits
-                      const val = e.target.value.replace(/[^a-zA-Z0-9]/g, "");
-                      handleInputChange({
-                        target: {
-                          name: "waterConnNo",
-                          value: val,
-                          type: "text",
-                        },
-                      });
-                    }}
-                    className="block bg-white shadow-sm px-3 py-2 border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 w-full sm:text-xs"
-                  />
-
-                  {error?.waterConnNo && (
-                    <FormError name="waterConnNo" errors={error} />
-                  )}
-                </div>
-
-                <div className="">
-                  <label
-                    htmlFor="waterConnDate"
-                    className="block font-medium text-sm"
-                  >
-                    Water Connection Date
-                  </label>
-                  <input
-                    type="date"
-                    id="waterConnDate"
-                    name="waterConnDate"
-                    value={formData.waterConnDate}
-                    onChange={handleInputChange}
-                    className="block bg-white shadow-sm px-3 py-2 border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 w-full sm:text-xs"
-                  />
-                  {error?.waterConnDate && (
-                    <FormError name="waterConnDate" errors={error} />
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-        {/* WATER DETAILS END HERE */}
-
         {/* PROPERTY ADDRESS START HERE */}
         <PropAddress
           formData={formData}
@@ -899,7 +839,7 @@ const AssessmentForm = ({
           )}
         {/* FLOOR DETAILS END HERE */}
         {/* SWM */}
-        {formType=="New Assessment" && formData?.propTypeMstrId!=4 &&(
+        {formType == "New Assessment" && formData?.propTypeMstrId != 4 && (
           <div className="flex items-center">
             <input
               type="checkbox"
@@ -917,7 +857,7 @@ const AssessmentForm = ({
             </label>
           </div>
         )}
-        {formData.hasSwm &&(
+        {formData.hasSwm && (
           <SwmConsumerAdd
             masterData={mstrData}
             error={error}
@@ -928,9 +868,16 @@ const AssessmentForm = ({
         )}
         {/* SWM End */}
 
+        <WaterSafPayment
+          mstrData={mstrData}
+          formData={formData}
+          error={error}
+          handleInputChange={handleInputChange}
+        />
+
         {/* MOBILE TOWER CONTAINER START HERE */}
         <div className="mobile_petrol_details_container">
-          <div className="gap-4 grid grid-cols-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="">
               <label
                 htmlFor="isMobileTower"
@@ -1227,15 +1174,15 @@ const AssessmentForm = ({
                 )}
               </div>
             )}
-
-            
           </div>
         </div>
 
         <div className="text-center">
           <button
             type="submit"
-            className={`items-center px-4 py-2 rounded text-white ${isFormSubmit?"btn-secondary":"btn-primary"}`}
+            className={`items-center px-4 py-2 rounded text-white ${
+              isFormSubmit ? "btn-secondary" : "btn-primary"
+            }`}
             isDisabled={isFormSubmit}
           >
             Submit

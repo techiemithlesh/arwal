@@ -9,10 +9,10 @@ import axios from "axios";
 
 const Layout = ({
   children,
-  title = "Bihar Municipal Services",
-  description = "Official portal for Bihar Municipal Corporation - Property Tax, Water Charges, Trade License and more services online.",
-  keywords = "Bihar, Municipal Services, Property Tax, Water Charges, Trade License, Jharkhand, Bihar Municipal",
-  author = "Bihar Municipal Corporation",
+  title = "Nagar Prishad - Arval",
+  description = "Official portal for Nagar Prishad Arval - Property Tax, Water Charges, Trade License and more services online.",
+  keywords = "Nagar Prishad Arval, Property Tax, Water Charges, Trade License, Nagar Prishad Arval",
+  author = "Nagar Prishad Arval",
 }) => {
   const [ulbData, setUlbData] = useState(null);
   const ulbId = 1;
