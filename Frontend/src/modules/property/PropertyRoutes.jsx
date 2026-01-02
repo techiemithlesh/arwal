@@ -9,7 +9,8 @@ import Mutation from "./pages/Mutation";
 import Preview from "../saf/components/Preview";
 import ReportRoute from "./ReportRoute";
 import EditHolding from "./pages/EditHolding";
-import AddExisitingHolding from "./pages/AddExistingHolding";
+import AddExistingHolding from "./pages/AddExistingHolding";
+import AddExistingFormPreview from "./component/AddExistingFormPreview";
 
 const PropertyRoutes = () => {
   return (
@@ -72,9 +73,22 @@ const PropertyRoutes = () => {
                 </ProtectedRoute>
               }
             />
-            <Route path="/add-existing-holding" element={<ProtectedRoute>
-              <AddExisitingHolding />
-            </ProtectedRoute>} />
+            <Route 
+              path="/add-existing-holding" 
+              element={
+                <ProtectedRoute>
+                <AddExistingHolding />
+                </ProtectedRoute>
+              } />
+
+              <Route
+                path="/add-existing/preview"
+                element={
+                  <ProtectedRoute>
+                    <AddExistingFormPreview />
+                  </ProtectedRoute>
+                }
+              />
             <Route path="/report/*" element={<ReportRoute />} />
           </Routes>
         </AdminLayout>

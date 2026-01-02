@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { getToken } from "../../../utils/auth";
 import { getSafMstrDataApi } from "../../../api/endpoints";
 import _ from "lodash";
-import AssessmentForm from "../component/AssessmentForm";
 import { Spinner } from "@nextui-org/react";
+import axios from "axios";
+import AddExistingForm from "../component/AddExistingForm";
 
-const AddExisitingHolding = () => {
+const AddExistingHolding = () => {
   const token = getToken();
   const [isLoading, setIsLoading] = useState(true);
   const [mstrData, setMstrData] = useState([]);
@@ -41,14 +42,15 @@ const AddExisitingHolding = () => {
 
   return (
     <div className="bg-white shadow-lg mx-auto p-6 border rounded-lg container-fluid">
-      <AssessmentForm
+      <AddExistingForm
+        formType={"Existing"}
         mstrData={mstrData}
         isLoading={isLoading}
-        propDetails={propDetails}
+        // propDetails={propDetails}
         token={token}
       />
     </div>
   );
 };
 
-export default AddExisitingHolding;
+export default AddExistingHolding;

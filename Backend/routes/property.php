@@ -107,6 +107,8 @@ Route::middleware(['auth:sanctum',"expireBearerToken","setUlb"])->group(function
         Route::post("prop-notice-list","getPropertyNoticeList");
         Route::post("prop-notice-receipt","propertyNoticeReceipt");
         Route::post("prop-notice-deactivate","propertyNoticeDeactivate");
+        Route::post("validate-existing-holding-no","validateExistingHolding");
+        Route::post("test-add-existing-prop","testAddExistingPropertyRequest");
         Route::post("add-existing-prop","addExistingProperty");
     });
     Route::prefix("report")->group(function(){

@@ -707,6 +707,29 @@ class PropertyController extends Controller
         }
     }
 
+
+    public function validateExistingHolding(Request $request){
+        try{
+            $rules = [
+                "holdingNo"=>"required|unique:".$this->_PropertyDetail->getConnectionName().".".$this->_PropertyDetail->getTable().",holding_no",
+            ];
+            $validator = Validator::make($request->all(),$rules);
+            if($validator->fails()){
+                return validationError($validator);
+            }
+            return responseMsg(true,"Valid Holding","");
+        }catch(CustomException $e){
+            return responseMsg(false,$e->getMessage(),"");
+        }
+        catch(Exception $e){
+            return responseMsg(false,"Internal Server Error","");
+        }
+    }
+
+    public function testAddExistingPropertyRequest(RequestAddExistingProperty $request){
+        return responseMsg(true,"Valid Request",""); 
+    }
+
     public function addExistingProperty(RequestAddExistingProperty $request){
         try{
             if(!$request->isCorrAddDiffer){
@@ -804,7 +827,7 @@ class PropertyController extends Controller
             $property = $this->_PropertyDetail->find($propertyId);
             // dd($property,$property->getOwners(),$property->getFloors(),$property->getAllDemand()->orderby("fyear")->get()->toArray());
             $this->commit();
-            return responseMsg(true,"Holding Add",remove_null(camelCase(["id"=>$property->id,"safNo"=>$property->holding_no])));
+            return responseMsg(true,"Holding Add",remove_null(camelCase(["id"=>$property->id,"holdingNo"=>$property->holding_no])));
 
         }catch(CustomException $e){
             return responseMsg(false,$e->getMessage(),"");

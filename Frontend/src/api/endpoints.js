@@ -193,6 +193,9 @@ export const propertyGenerateNoticeApi = `${BASE_URL}/api/property/prop-generate
 export const propertyNoticeListApi = `${BASE_URL}/api/property/prop-notice-list`;
 export const propertyNoticeReceiptApi = `${BASE_URL}/api/property/prop-notice-receipt`;
 export const propertyNoticeDeactivateApi = `${BASE_URL}/api/property/prop-notice-deactivate`;
+export const addExistingPropertyApi = `${BASE_URL}/api/property/add-existing-prop`;
+export const addExistingPropertyTestReqApi = `${BASE_URL}/api/property/test-add-existing-prop`;
+export const validateHoldingUniqueApi = `${BASE_URL}/api/property/validate-existing-holding-no`;
 
 /**
  * property Reports
