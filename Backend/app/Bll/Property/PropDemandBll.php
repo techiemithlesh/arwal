@@ -304,6 +304,7 @@ class PropDemandBll{
         $this->getSpecialRebate();
         $this->getAdvanceAmount();
         $this->getOtherPenalty();
+        $this->getAdditionalTax();
         $this->noticePenalty();
         $this->getConsumersDue();
         $this->generateDemand();
