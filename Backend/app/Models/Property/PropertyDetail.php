@@ -77,6 +77,8 @@ class PropertyDetail extends ParamModel
         'user_id',
         'citizen_id',
         'prive_saf_detail_ids',
+        "water_connection_facility_type_id",
+        "water_tax_type_id",
         "lock_status",
     ];
 

@@ -56,6 +56,8 @@ use App\Models\Property\SwmRateMaster;
 use App\Models\Property\SwmSubCategoryTypeMaster;
 use App\Models\Property\TransferModeMaster;
 use App\Models\Property\UsageTypeMaster;
+use App\Models\Property\WaterConnectionFacilityType;
+use App\Models\Property\WaterTaxType;
 use App\Models\Property\ZoneMaster;
 use App\Models\User;
 use App\Trait\Property\PropertyTrait;
@@ -110,6 +112,9 @@ class SafController extends Controller
     private $_FieldVerificationDetail;
     private $_FieldVerificationFloorDetail;
 
+    private $_WaterConnectionFacilityType;
+    private $_WaterTaxType;
+
     //========== swm=================
     private $_SwmCategoryTypeMaster;
     private $_SwmSubCategoryTypeMaster;
@@ -156,6 +161,9 @@ class SafController extends Controller
         $this->_FieldVerificationDetail = new FieldVerificationDetail();
         $this->_FieldVerificationFloorDetail = new FieldVerificationFloorDetail();
 
+        $this->_WaterConnectionFacilityType = new WaterConnectionFacilityType();
+        $this->_WaterTaxType = new WaterTaxType();
+
         $this->_SwmCategoryTypeMaster = new SwmCategoryTypeMaster();
         $this->_SwmSubCategoryTypeMaster = new SwmSubCategoryTypeMaster();
         $this->_SwmRateMaster = new SwmRateMaster();
@@ -193,6 +201,12 @@ class SafController extends Controller
                 return ["fromDate"=>Carbon::parse(FyearQutFromDate($item,1))->format("Y-m"),"uptoDate"=>Carbon::parse(FyearQutUptoDate($item,4))->format("Y-m"),"fyear"=>$item];
             });
 
+            $waterFacility = $this->_WaterConnectionFacilityType->getWaterFacilityList();
+            $waterTax = $this->_WaterTaxType->getWaterTaxList()->map(function($item){
+                $item->tax_type = $item->taxType." @ ".$item->amount;
+                return $item;
+            });
+
             $data=[
                 "wardList"=>$ulbWardMaster,
                 "ownershipType"=>$ownershipTypeMaster,
@@ -207,6 +221,8 @@ class SafController extends Controller
                 "zoneType"=>$zoneType,
                 "swmConsumerType"=>$swmConsumerType,
                 "fyearList"=>$fyearList,
+                "waterFacility"=>$waterFacility,
+                "waterTax"=>$waterTax,
             ];
             return responseMsg(true,"Property Master Data",camelCase(remove_null($data)));
         }

@@ -20,6 +20,8 @@ use App\Models\Property\SwmCategoryTypeMaster;
 use App\Models\Property\SwmSubCategoryTypeMaster;
 use App\Models\Property\TransferModeMaster;
 use App\Models\Property\UsageTypeMaster;
+use App\Models\Property\WaterConnectionFacilityType;
+use App\Models\Property\WaterTaxType;
 use App\Models\Property\ZoneMaster;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
@@ -44,6 +46,8 @@ class RequestAddSaf extends ParentRequest
     protected $_ActiveSafDetail;
     protected $_ActiveSafOwnerDetail;
     protected $_ActiveSafFloorDetail;
+    protected $_WaterConnectionFacilityType;
+    protected $_WaterTaxType;
 
     private $_SwmCategoryTypeMaster;
     private $_SwmSubCategoryTypeMaster;
@@ -67,6 +71,9 @@ class RequestAddSaf extends ParentRequest
         $this->_ActiveSafDetail = new ActiveSafDetail();
         $this->_ActiveSafOwnerDetail = new ActiveSafOwnerDetail();
         $this->_ActiveSafFloorDetail = new ActiveSafFloorDetail();
+
+        $this->_WaterConnectionFacilityType = new WaterConnectionFacilityType();
+        $this->_WaterTaxType = new WaterTaxType();
 
         $this->_SwmCategoryTypeMaster = new SwmCategoryTypeMaster();
         $this->_SwmSubCategoryTypeMaster = new SwmSubCategoryTypeMaster();
@@ -130,6 +137,8 @@ class RequestAddSaf extends ParentRequest
             "isWaterHarvesting"=>"nullable|required_if:propTypeMstrId,1,2,3,5|bool",
             "waterHarvestingDate"=>"nullable|required_if:isWaterHarvesting,true,1|date|date_format:Y-m-d|before_or_equal:".Carbon::now()->format("Y-m-d"),
             "landOccupationDate"=>"nullable|required_if:propTypeMstrId,4|date|date_format:Y-m-d|before_or_equal:".Carbon::now()->format("Y-m-d"),
+            "waterConnectionFacilityTypeId"=>"required|exists:".$this->_WaterConnectionFacilityType->getConnectionName().".".$this->_WaterConnectionFacilityType->getTable().",id",
+            "waterTaxTypeId"=>"required|exists:".$this->_WaterTaxType->getConnectionName().".".$this->_WaterTaxType->getTable().",id",
             
             "ownerDtl"=>"required|array",
             "ownerDtl.*.ownerName"=>"required",

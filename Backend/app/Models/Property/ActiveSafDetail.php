@@ -86,6 +86,8 @@ class ActiveSafDetail extends ParamModel
         'apply_date',
         'user_id',
         'citizen_id',
+        "water_connection_facility_type_id",
+        "water_tax_type_id",
         "lock_status",
     ];
 
@@ -104,7 +106,7 @@ class ActiveSafDetail extends ParamModel
                 "is_mobile_tower","tower_area","tower_installation_date","is_hoarding_board","hoarding_area","hoarding_installation_date",
                 "is_petrol_pump","under_ground_area","petrol_pump_completion_date","is_water_harvesting","water_harvesting_date",
                 "land_occupation_date","trust_type","is_gb_saf","gb_building_type_id","gb_building_usage_type_id","is_csaf2_generated","gb_office_name",
-                "gb_application_type","citizen_id"]);
+                "gb_application_type","citizen_id","water_connection_facility_type_id","water_tax_type_id",]);
         $saf = new ActiveSafDetail();
         $saf->fill($allowFields);
         $saf->saf_detail_id = $this->id;
