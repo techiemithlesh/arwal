@@ -14,6 +14,7 @@ use App\Models\Property\RoadType;
 use App\Models\Property\RoadTypeMaster;
 use App\Models\Property\UsageTypeMaster;
 use App\Models\Property\VacantArvRateMaster;
+use App\Models\Property\WaterTaxType;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
 
@@ -48,6 +49,7 @@ class BiharTaxCalculator
     public $_ObjUlbMaster;
     public $_ObjBuildingArvRateMaster;
     public $_ObjVacantArvRateMaster;
+    public $_ObjWaterTaxType;
 
     public $_mOccupancyTypeMaster;
     public $_mConstructionTypeMaster;
@@ -84,6 +86,7 @@ class BiharTaxCalculator
 
         $this->_ObjBuildingArvRateMaster = new BuildingArvRateMaster();
         $this->_ObjVacantArvRateMaster = new VacantArvRateMaster();
+        $this->_ObjWaterTaxType= new WaterTaxType();
 
         $this->setAcctOfLimitation();
         $this->setPropertyType();
@@ -867,11 +870,23 @@ class BiharTaxCalculator
         }
     }
 
+    public function calculateWaterSingleTimePayment(){
+        $this->_GRID["singleTimeWaterTax"] = 0;
+        $singleTimeTax = 0;
+        if($this->_REQUEST->waterTaxTypeId){
+            $singleTimeTax = $this->_ObjWaterTaxType->find($this->_REQUEST->waterTaxTypeId)?->amount;            
+        }
+        if($singleTimeTax){
+            $this->_GRID["singleTimeWaterTax"] =$singleTimeTax;
+        }
+    }
+
 
     public function calculateTax(){
         $this->FloorTaxCalculator();
         $this->FYearTaxCalculator();
         $this->RuleSetTaxCalculator();
         $this->RuleSetVersionTaxCalculator();
+        $this->calculateWaterSingleTimePayment();
     }
 }

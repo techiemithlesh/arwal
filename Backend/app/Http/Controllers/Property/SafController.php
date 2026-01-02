@@ -203,7 +203,7 @@ class SafController extends Controller
 
             $waterFacility = $this->_WaterConnectionFacilityType->getWaterFacilityList();
             $waterTax = $this->_WaterTaxType->getWaterTaxList()->map(function($item){
-                $item->tax_type = $item->taxType." @ ".$item->amount;
+                $item->tax_type = $item->tax_type." @ ".$item->amount;
                 return $item;
             });
 
