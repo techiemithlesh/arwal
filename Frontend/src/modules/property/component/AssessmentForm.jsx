@@ -18,6 +18,7 @@ import { useLoading } from "../../../contexts/LoadingContext";
 import { setFormData } from "../../../store/slices/assessmentSlice";
 import { setOwnerDtl } from "../../../store/slices/ownerSlice";
 import { setFloorDtl } from "../../../store/slices/floorSlice";
+import { setSwmConsumerDtl } from "../../../store/slices/swmConsumerSlice";
 import { applyDefaults } from "../../../utils/initDefaultFormFields";
 import { applyOwnerDefaults } from "../../../utils/initOwnerDefaults";
 import FormError from "../../../components/common/FormError";
@@ -25,6 +26,7 @@ import { extractDateYYMM } from "../../../utils/common";
 import { fetchNewWardByOldWard } from "../../../utils/commonFunc";
 import toast from "react-hot-toast";
 import { getUserDetails } from "../../../utils/auth";
+import SwmConsumerAdd from "./Saf/SwmConsumerAdd";
 
 const AssessmentForm = ({
   mstrData,
@@ -46,11 +48,13 @@ const AssessmentForm = ({
   const floorDtl = useSelector((state) => state.floor.floorDtl);
   const ownerDtl = useSelector((state) => state.owner.OwnerDtl);
   const formData = useSelector((state) => state.assessment.formData);
+  const swmConsumer = useSelector((state)=> state.swmConsumer.swmConsumerDtl);
   const [error, setErrors] = useState({});
   const [newWardList, setNewWardList] = useState([]);
   const [newWardLoading, setNewWardLoading] = useState(false);
   const [apartmentList, setApartmentList] = useState([]);
   const [disabledFields, setDisabledFields] = useState({});
+  const [isFormSubmit,setIsFormSubmit]=useState(false);
 
   const ulbIdL = getUserDetails()?.ulbId;
 
@@ -153,6 +157,10 @@ const AssessmentForm = ({
     dispatch(setOwnerDtl(updated));
   };
 
+  const handleSwmConsumerUpdate = (updated) => {
+    dispatch(setSwmConsumerDtl(updated));
+  };
+
   const getApartment = async () => {
     setIsLoadingGable(true);
     try {
@@ -221,6 +229,9 @@ const AssessmentForm = ({
     }
 
     dispatch(setFormData({ [name]: updatedValue }));
+    if(name=="propTypeMstrId" && updatedValue!=4){
+      dispatch(setFormData({ hasSwm: false }));
+    }
 
     if (name === "wardMstrId") {
       setNewWardLoading(true);
@@ -282,7 +293,7 @@ const AssessmentForm = ({
       ...floor,
       propFloorDetailId: floor.id,
     }));
-
+    setIsLoadingGable(true);
     try {
       if (isEdit) {
         const response = await axios.post(
@@ -307,13 +318,14 @@ const AssessmentForm = ({
       } else {
         // 🟠 NORMAL NEW APPLICATION LOGIC (with preview)
         const previewUrl = `/property/apply/preview`;
-
+        const swmDetails = formData?.hasSwm ? swmConsumer : [];
         const response = await axios.post(
           propertyTestRequestApi,
           {
             ...payload,
             ownerDtl,
             floorDtl: floorPayload,
+            swmConsumer:swmDetails,
             ulbId,
           },
           { headers: { Authorization: `Bearer ${token}` } }
@@ -326,6 +338,7 @@ const AssessmentForm = ({
               formData: payload,
               ownerDtl,
               floorDtl: floorPayload,
+              swmConsumer,
               mstrData,
               newWardList,
               apartmentList,
@@ -344,6 +357,8 @@ const AssessmentForm = ({
     } catch (error) {
       console.error("Error submitting form:", error);
       toast.error("Something went wrong!");
+    }finally{
+      setIsLoadingGable(false);
     }
   };
 
@@ -883,6 +898,35 @@ const AssessmentForm = ({
             />
           )}
         {/* FLOOR DETAILS END HERE */}
+        {/* SWM */}
+        {formType=="New Assessment" && formData?.propTypeMstrId!=4 &&(
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="hasSwm"
+              name="hasSwm"
+              checked={formData.hasSwm}
+              onChange={handleInputChange}
+              className="border-gray-300 rounded w-4 h-4 text-indigo-600"
+            />
+            <label
+              htmlFor="hasSwm"
+              className="block ml-2 text-yellow-600 text-sm"
+            >
+              If Swm Consumer
+            </label>
+          </div>
+        )}
+        {formData.hasSwm &&(
+          <SwmConsumerAdd
+            masterData={mstrData}
+            error={error}
+            setErrors={setErrors}
+            swmConsumer={swmConsumer || []}
+            setSwmConsumer={handleSwmConsumerUpdate}
+          />
+        )}
+        {/* SWM End */}
 
         {/* MOBILE TOWER CONTAINER START HERE */}
         <div className="mobile_petrol_details_container">
@@ -1191,7 +1235,8 @@ const AssessmentForm = ({
         <div className="text-center">
           <button
             type="submit"
-            className="items-center px-4 py-2 rounded text-white btn-primary"
+            className={`items-center px-4 py-2 rounded text-white ${isFormSubmit?"btn-secondary":"btn-primary"}`}
+            isDisabled={isFormSubmit}
           >
             Submit
           </button>

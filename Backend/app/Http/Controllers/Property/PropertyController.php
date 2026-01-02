@@ -792,7 +792,7 @@ class PropertyController extends Controller
                 }
             }
 
-            if($request->swmConsumer){
+            if($request->swmConsumer && $request->propTypeMstrId!=($vacantLand->id??"")){
                 foreach($request->swmConsumer as $swm){
                     $swmNewRequest = new Request($swm);
                     $swmNewRequest->merge(["propertyDetailId"=>$propertyId,"dateOfEffective"=>$swmNewRequest->dateOfEffective."-01"]);

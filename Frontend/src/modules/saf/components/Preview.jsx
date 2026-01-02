@@ -12,6 +12,7 @@ import { clearFloorDtl } from "../../../store/slices/floorSlice";
 import { normalizePayload } from "../../../utils/utils";
 import { useDispatch } from "react-redux";
 import { clearForm } from "../../../store/slices/assessmentSlice";
+import { clearSwmConsumerDtl } from "../../../store/slices/swmConsumerSlice";
 
 export default function Preview() {
   const { state } = useLocation();
@@ -23,8 +24,9 @@ export default function Preview() {
   const [isModalOpen, setModalOpen] = useState(false);
   const [data, setIsData] = useState([]);
 
-  const { formData, ownerDtl, floorDtl, mstrData, newWardList, apartmentList } =
+  const { formData, ownerDtl, floorDtl,swmConsumer, mstrData, newWardList, apartmentList } =
     state || {};
+    console.log("swmConsumerDtl",state);
 
   const buildPayload = () =>
     formData?.propTypeMstrId === 4
@@ -49,6 +51,12 @@ export default function Preview() {
     if (formData) taxPreview();
   }, [formData, ownerDtl, floorDtl]);
 
+  const getName = (list, id, key) => {
+    if (!list || !id) return "N/A";
+    const item = list.find((i) => i.id == id);
+    return item ? item[key] : "N/A";
+  };
+
   if (!formData)
     return (
       <div className="mx-auto my-10 text-center container">
@@ -67,9 +75,10 @@ export default function Preview() {
     const rawPayload = buildPayload();
     // normalize numbers/booleans and dates
     const finalPayload = normalizePayload(rawPayload);
-
+    const swmDetails = formData?.hasSwm ? swmConsumer : [];
+    setIsLoadingGable(true);
     try {
-      const { data: res } = await axios.post(safApplyApi, finalPayload, {
+      const { data: res } = await axios.post(safApplyApi, {...finalPayload,swmConsumer:swmDetails}, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -91,11 +100,14 @@ export default function Preview() {
         dispatch(clearForm());
         dispatch(clearFloorDtl());
         dispatch(clearOwnerDtl());
+        dispatch(clearSwmConsumerDtl());
       } else {
         toast.error(res?.message);
       }
     } catch (err) {
       console.error("Submit error:", err);
+    }finally{
+      setIsLoadingGable(false);
     }
   };
 
@@ -271,6 +283,89 @@ export default function Preview() {
 
         {/* Floor Details */}
         <FloorTable data={floorDtl} mstrData={mstrData} />
+        {/* SWM */}  
+        {formData?.hasSwm &&(
+          <div className="flex flex-col gap-4 bg-white shadow p-6 border-green-500 border-t-4 rounded-lg">
+            <h3 className="font-semibold text-gray-700 text-xl">
+              SWM Details
+            </h3>
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-2 border border-gray-500 font-semibold text-gray-500 text-xs text-left uppercase tracking-wider">
+                      Occupancy Type
+                    </th>
+                    <th className="px-4 py-2 border border-gray-500 font-semibold text-gray-500 text-xs text-left uppercase tracking-wider">
+                      Consumer Name
+                    </th>
+                    <th className="px-4 py-2 border border-gray-500 font-semibold text-gray-500 text-xs text-left uppercase tracking-wider">
+                      Guardian Name
+                    </th>
+                    <th className="px-4 py-2 border border-gray-500 font-semibold text-gray-500 text-xs text-left uppercase tracking-wider">
+                      Relation
+                    </th>
+                    <th className="px-4 py-2 border border-gray-500 font-semibold text-gray-500 text-xs text-left uppercase tracking-wider">
+                      Mobile No
+                    </th>
+                    <th className="px-4 py-2 border border-gray-500 font-semibold text-gray-500 text-xs text-left uppercase tracking-wider">
+                      Consumer Category
+                    </th>
+                    <th className="px-4 py-2 border border-gray-500 font-semibold text-gray-500 text-xs text-left uppercase tracking-wider">
+                      Category
+                    </th>
+                    <th className="px-4 py-2 border border-gray-500 font-semibold text-gray-500 text-xs text-left uppercase tracking-wider">
+                      Consumer Range
+                    </th>
+                    <th className="px-4 py-2 border border-gray-500 font-semibold text-gray-500 text-xs text-left uppercase tracking-wider">
+                      Effective From
+                    </th>
+                    <th className="px-4 py-2 border border-gray-500 font-semibold text-gray-500 text-xs text-left uppercase tracking-wider">
+                      Monthly Rate
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {swmConsumer?.map((app, idx) => (
+                    <tr key={idx}>
+                      <td className="px-4 py-2 border border-gray-500 font-medium text-gray-900 text-sm whitespace-nowrap">
+                        {getName(mstrData?.occupancyType,app?.occupancyTypeMasterId,"occupancyName")}
+                      </td>
+                      <td className="px-4 py-2 border border-gray-500 text-gray-500 text-sm whitespace-nowrap">
+                        {app.ownerName}
+                      </td>
+                      <td className="px-4 py-2 border border-gray-500 text-gray-500 text-sm whitespace-nowrap">
+                        {app.guardianName}
+                      </td>
+                      <td className="px-4 py-2 border border-gray-500 text-gray-500 text-sm whitespace-nowrap">
+                        {app.relationType}
+                      </td>
+                      <td className="px-4 py-2 border border-gray-500 text-gray-500 text-sm whitespace-nowrap">
+                        {app.mobileNo}
+                      </td>
+                      <td className="px-4 py-2 border border-gray-500 text-gray-500 text-sm whitespace-nowrap">
+                        {getName(mstrData?.swmConsumerType, app.categoryTypeMasterId,"categoryType")}
+                      </td>                      
+                      <td className="px-4 py-2 border border-gray-500 text-gray-500 text-sm whitespace-nowrap">
+                        {app.category}
+                      </td>
+                      <td className="px-4 py-2 border border-gray-500 text-gray-500 text-sm whitespace-nowrap">
+                        {getName(app?.subCategoryList, app.subCategoryTypeMasterId,"subCategoryType")}
+                      </td>
+                      <td className="px-4 py-2 border border-gray-500 text-gray-500 text-sm whitespace-nowrap">
+                        {app.dateOfEffective}
+                      </td>
+                      <td className="px-4 py-2 border border-gray-500 text-gray-500 text-sm whitespace-nowrap">
+                        {app?.rate}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        )} 
 
         {/* Additional Details */}
         <AdditionalDetails formData={formData} />
@@ -301,7 +396,7 @@ export default function Preview() {
       {isModalOpen && (
         <SuccessModal
           isOpen={isModalOpen}
-          onClose={() => setModalOpen(false)}
+          onClose={() => {setModalOpen(false);navigate("/saf/list/");}}
           title="Application Submitted"
           message={
             <>

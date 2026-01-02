@@ -1,6 +1,7 @@
 import { combineReducers } from "@reduxjs/toolkit";
 import assessmentReducer from "./slices/assessmentSlice";
 import ownerReducer from "./slices/ownerSlice";
+import swmConsumerReducer from "./slices/swmConsumerSlice";
 import floorReducer from "./slices/floorSlice";
 import wardReducer from "./slices/wardSlice";
 import citizenAuthReducer from "./slices/citizenAuthSlice";
@@ -15,6 +16,7 @@ const rootReducer = combineReducers({
   ward: wardReducer,
   trade: tradeReducer,
   citizenTrade: citizenTradeReducer,
+  swmConsumer:swmConsumerReducer,
 });
 
 export default rootReducer;

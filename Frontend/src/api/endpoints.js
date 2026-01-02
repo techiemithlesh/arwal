@@ -154,6 +154,8 @@ export const modalLogListApi = `${BASE_URL}/api/log/list`;
  */
 
 export const getSafMstrDataApi = `${BASE_URL}/api/property/get-saf-master-data`;
+export const getSwmSubCategoryListApi = `${BASE_URL}/api/property/get-swm-subCategory`;
+export const getSwmRateApi = `${BASE_URL}/api/property/get-swm-rate`;
 export const getNewWardByOldWardApi = `${BASE_URL}/api/property/get-new-ward-by-old`;
 export const getApartmentListByOldWardApi = `${BASE_URL}/api/property/get-apartment-by-old-ward`;
 export const safApplyApi = `${BASE_URL}/api/property/saf-apply`;

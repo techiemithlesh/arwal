@@ -23,6 +23,7 @@ const persistConfig = {
     "floor",
     "ward",
     "trade",
+    "swmConsumer",
   ],
 };
 

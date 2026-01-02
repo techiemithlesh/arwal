@@ -429,7 +429,7 @@ class SafController extends Controller
                     
                 }
             }
-            if($request->swmConsumer){
+            if($request->swmConsumer && $request->propTypeMstrId!=($vacantLand->id??"")){
                 foreach($request->swmConsumer as $swm){
                     $swmNewRequest = new Request($swm);
                     $swmNewRequest->merge(["safDetailId"=>$safId,"dateOfEffective"=>$swmNewRequest->dateOfEffective."-01"]);

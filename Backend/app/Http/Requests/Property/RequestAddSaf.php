@@ -200,7 +200,7 @@ class RequestAddSaf extends ParentRequest
 
             "swmConsumer"=>"nullable|array",//|required_unless:propTypeMstrId,4
             "swmConsumer.*.occupancyTypeMasterId"=>[
-                "nullable",
+                "required",
                 // "required_unless:propTypeMstrId,4",
                 "regex:/^[0-9]+$/",
                 Rule::exists($this->_OccupancyTypeMaster->getConnectionName().".".$this->_OccupancyTypeMaster->getTable(), 'id')
@@ -209,7 +209,7 @@ class RequestAddSaf extends ParentRequest
                 }),
             ],
             "swmConsumer.*.categoryTypeMasterId"=>[
-                "nullable",
+                "required",
                 // "required_unless:propTypeMstrId,4",
                 "regex:/^[0-9]+$/",
                 Rule::exists($this->_SwmCategoryTypeMaster->getConnectionName().".".$this->_SwmCategoryTypeMaster->getTable(), 'id')
@@ -218,7 +218,7 @@ class RequestAddSaf extends ParentRequest
                 }),
             ],
             "swmConsumer.*.subCategoryTypeMasterId"=>[
-                "nullable",
+                "required",
                 // "required_unless:propTypeMstrId,4",
                 "regex:/^[0-9]+$/",
                 Rule::exists($this->_SwmSubCategoryTypeMaster->getConnectionName().".".$this->_SwmSubCategoryTypeMaster->getTable(), 'id')
@@ -226,14 +226,14 @@ class RequestAddSaf extends ParentRequest
                     return $query->where('lock_status', false);
                 }),
             ],
-            "swmConsumer.*.category"=>"nullable|in:APL,BPL",//|required_unless:propTypeMstrId,4
-            "swmConsumer.*.dateOfEffective"=>"nullable|date|date_format:Y-m|before_or_equal:".Carbon::now()->format("Y-m"),//required_unless:propTypeMstrId,4|
+            "swmConsumer.*.category"=>"required|in:APL,BPL",//|required_unless:propTypeMstrId,4
+            "swmConsumer.*.dateOfEffective"=>"required|date|date_format:Y-m|before_or_equal:".Carbon::now()->format("Y-m"),//required_unless:propTypeMstrId,4|
             "swmConsumer.*.ownerName"=>"required",
             "swmConsumer.*.guardianName"=>"nullable",
             "swmConsumer.*.relationType"=>"nullable|required_with:swmConsumer.*.guardianName|in:S/O,D/O,W/O,C/O",
             "swmConsumer.*.mobileNo"=>"required|digits:10|regex:/[0-9]{10}/",
             "swmConsumer.*.email"=>"nullable|email",
-            "swmConsumer.*.gender"=>"required|in:Male,Female,Other",
+            "swmConsumer.*.gender"=>"nullable|in:Male,Female,Other",
         ];
         return $rules;
     }
