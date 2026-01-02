@@ -779,69 +779,6 @@ const CitizenSafAssessment = ({
         />
         {/* PROPERTY DETAILS END HERE HERE */}
 
-        {/* WATER DETAILS START HERE */}
-        {!(formData.propTypeMstrId == 4) &&
-          disabledFields?.propTypeMstrId !== "" && (
-            <div className="flex flex-col gap-2 text-gray-700 text-lg water_connection_details_container">
-              <h1 className="flex items-center gap-2 bg-gradient-to-r from-blue-700 to-blue-400 shadow-md p-3 rounded-md font-bold text-white text-lg uppercase tracking-wide">
-                Water Connection Details
-              </h1>
-              <div className="gap-4 grid grid-cols-1 md:grid-cols-2 bg-gradient-to-br from-white via-blue-50 to-blue-100 shadow-sm p-4 border border-blue-300 rounded-xl">
-                <div className="">
-                  <label
-                    htmlFor="waterConnNo"
-                    className="block font-medium text-sm"
-                  >
-                    Water Connection No
-                  </label>
-                  <input
-                    type="text"
-                    id="waterConnNo"
-                    name="waterConnNo"
-                    value={formData.waterConnNo}
-                    onChange={(e) => {
-                      // Only allow letters and digits
-                      const val = e.target.value.replace(/[^a-zA-Z0-9]/g, "");
-                      handleInputChange({
-                        target: {
-                          name: "waterConnNo",
-                          value: val,
-                          type: "text",
-                        },
-                      });
-                    }}
-                    className="block bg-white shadow-sm px-3 py-2 border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 w-full sm:text-xs"
-                  />
-
-                  {error?.waterConnNo && (
-                    <FormError name="waterConnNo" errors={error} />
-                  )}
-                </div>
-
-                <div className="">
-                  <label
-                    htmlFor="waterConnDate"
-                    className="block font-medium text-sm"
-                  >
-                    Water Connection Date
-                  </label>
-                  <input
-                    type="date"
-                    id="waterConnDate"
-                    name="waterConnDate"
-                    value={formData.waterConnDate}
-                    onChange={handleInputChange}
-                    className="block bg-white shadow-sm px-3 py-2 border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 w-full sm:text-xs"
-                  />
-                  {error?.waterConnDate && (
-                    <FormError name="waterConnDate" errors={error} />
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-        {/* WATER DETAILS END HERE */}
-
         {/* PROPERTY ADDRESS START HERE */}
         <PropAddress
           formData={formData}

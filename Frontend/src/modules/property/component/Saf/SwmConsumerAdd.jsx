@@ -115,7 +115,7 @@ function SwmConsumerAdd({
             </div>
         );
     }
-    console.log("errors111",error[`swmConsumer.${0}.mobileNo`]);
+    // console.log("errors111",error[`swmConsumer.${0}.mobileNo`]);
 
     return (
         <div className="flex flex-col gap-2 text-gray-700 owner_details_container">
