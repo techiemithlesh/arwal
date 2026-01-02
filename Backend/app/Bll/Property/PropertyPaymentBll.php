@@ -195,12 +195,13 @@ class PropertyPaymentBll{
         $demandList = collect($this->_DemandList)->sortBy("fyear");
         $advanceAmount = $this->_Demand["advanceAmount"];
         $OtherPenalty = $this->_Demand["OtherPenalty"];
+        $additionalTax =  $this->_Demand["additionalTax"];
         $rebateAmount = $this->_Demand["rebateAmount"];
         $specialRebate = $this->_Demand["specialRebate"];
         $noticePenalty = $this->_Demand["noticePenalty"];
         $noticeAdditionalPenalty = $this->_Demand["noticeAdditionalPenalty"];
 
-        $remainAmount = ($this->_REQUEST->amount + $advanceAmount + $rebateAmount + $specialRebate ) - ( $OtherPenalty + $noticePenalty + $noticeAdditionalPenalty ) ;
+        $remainAmount = ($this->_REQUEST->amount + $advanceAmount + $rebateAmount + $specialRebate ) - ( $OtherPenalty + $additionalTax + $noticePenalty + $noticeAdditionalPenalty ) ;
         
         foreach($demandList as $demand){            
             if($remainAmount<=0){
@@ -211,6 +212,7 @@ class PropertyPaymentBll{
             $paidDemand[] = $paidTax;
         }
         $OtherPenaltys = collect($this->_Demand["otherPenaltyList"]);
+        $additionalTaxList = collect($this->_Demand["additionalTaxList"]);
         $penalty = collect();
         $rebates = collect();
         $paidTotalMonthlyPenalty = collect($paidDemand)->sum("paid_monthly_penalty");
@@ -338,6 +340,12 @@ class PropertyPaymentBll{
             $p->transaction_id = $tranId;
             $p->paid_status =true;
             $p->update();
+        }
+
+        foreach($additionalTaxList as $tax){
+            $tax->transaction_id = $tranId;
+            $tax->paid_status =true;
+            $tax->update();
         }
         if($noticePenalty>0){
             $newPenaltyRequest = new Request();

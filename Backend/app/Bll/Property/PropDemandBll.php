@@ -3,6 +3,7 @@
 namespace App\Bll\Property;
 
 use App\Models\Property\ActiveSafDetail;
+use App\Models\Property\AdditionalTax;
 use App\Models\Property\AdvanceDetail;
 use App\Models\Property\PenaltyDetail;
 use App\Models\Property\PropertyDemand;
@@ -34,6 +35,7 @@ class PropDemandBll{
     public $_previousDemandList;
     public $_currentDemandList;
     public $_otherPenaltyList;
+    public $_additionalTaxList;
     public $_monthlyPenalty = 0;
     public $_demandFromFyear;
     public $_demandFromQtr;
@@ -44,6 +46,7 @@ class PropDemandBll{
     public $_noticePenalty = 0;
     public $_noticeAdditionPenalty =0;
     public $_otherPenalty = 0;
+    public $_additionalTax=0;
     public $_onlineRebate = 0;
     public $_jskRebate = 0;
     public $_firstQtrRebate = 0;
@@ -107,6 +110,11 @@ class PropDemandBll{
     public function getOtherPenalty(){
         $this->_otherPenaltyList = PenaltyDetail::where("lock_status",false)->where("paid_status",false)->where("property_detail_id",$this->_PROPId)->get();
         $this->_otherPenalty = roundFigure($this->_otherPenaltyList->sum("penalty_amt"));
+    }
+
+    public function getAdditionalTax(){
+        $this->_additionalTaxList = AdditionalTax::where("lock_status",false)->where("paid_status",false)->where("property_detail_id",$this->_PROPId)->get();
+        $this->_additionalTax = roundFigure($this->_additionalTaxList->sum("amount"));
     }
 
     public function noticePenalty(){
@@ -232,11 +240,13 @@ class PropDemandBll{
             "notice"=>$this->_notice,
             "grantTax"=>$this->generateGrantTax($this->_DemandList),
             "otherPenaltyList"=>$this->_otherPenaltyList,
+            "additionalTaxList"=>$this->_additionalTaxList,            
             "demandAmount"=>$this->_demandAmount,
             "rwhAmount"=> $this->_rwhAmount,
             "advanceAmount" => $this->_advanceAmount,
             "lateAssessmentPenalty" => $this->_lateAssessmentPenalty,
             "OtherPenalty"=>$this->_otherPenalty,
+            "additionalTax"=>$this->_additionalTax,
             "monthlyPenalty"=>$this->_monthlyPenalty,
             "noticePenalty"=>$this->_noticePenalty,
             "noticeAdditionalPenalty"=> $this->_noticeAdditionPenalty,
@@ -252,8 +262,8 @@ class PropDemandBll{
             "currentDemandAmount" =>$this->_currentDemandAmount,
             "arrearDemandAmount" => $this->_arrearDemandAmount,
             "arrearDemandMonthlyPenalty"=>$this->_arrearDemandMonthlyPenalty,
-            "payableAmount" => roundFigure(($this->_demandAmount + $this->_lateAssessmentPenalty + $this->_otherPenalty + $this->_monthlyPenalty + $this->_noticePenalty + $this->_noticeAdditionPenalty) - ($this->_quarterlyRebate + $this->_specialRebate + $this->_advanceAmount) ),
-            "arrearPayableAmount" => roundFigure(($this->_arrearDemandAmount + $this->_lateAssessmentPenalty + $this->_otherPenalty + $this->_arrearDemandMonthlyPenalty + $this->_noticePenalty + $this->_noticeAdditionPenalty) - ( $this->_specialRebate + $this->_advanceAmount) ),
+            "payableAmount" => roundFigure(($this->_demandAmount + $this->_lateAssessmentPenalty + $this->_otherPenalty + $this->_additionalTax + $this->_monthlyPenalty + $this->_noticePenalty + $this->_noticeAdditionPenalty) - ($this->_quarterlyRebate + $this->_specialRebate + $this->_advanceAmount) ),
+            "arrearPayableAmount" => roundFigure(($this->_arrearDemandAmount + $this->_lateAssessmentPenalty + $this->_otherPenalty + $this->_additionalTax + $this->_arrearDemandMonthlyPenalty + $this->_noticePenalty + $this->_noticeAdditionPenalty) - ( $this->_specialRebate + $this->_advanceAmount) ),
         ];
         $this->_GRID["payableAmountInWord"] = getIndianCurrency($this->_GRID["payableAmount"]); 
         

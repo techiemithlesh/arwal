@@ -4,6 +4,7 @@ namespace App\Bll\Property;
 
 use App\Models\Property\ActiveSafDetail;
 use App\Models\Property\ActiveSafFloorDetail;
+use App\Models\Property\AdditionalTax;
 use App\Models\Property\PenaltyDetail;
 use App\Models\Property\PropertyDemand;
 use App\Models\Property\PropertyDetail;
@@ -19,6 +20,7 @@ use App\Models\Property\SafOwnerDetail;
 use App\Models\Property\SwmConsumer;
 use App\Models\Property\SwmConsumerDemand;
 use App\Models\Property\SwmConsumerOwner;
+use App\Models\Property\WaterTaxType;
 use App\Trait\Property\PropertyTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -46,6 +48,8 @@ class SafApprovalBll
     public $_isVacantLand = false;
     public $_lateAssessmentPenalty =0;
     public $_SwmConsumerDemand;
+    public $_WaterTaxType;
+    public $_AdditionalTax;
 
     function __construct($safId){
         $this->_SafId = $safId; 
@@ -56,6 +60,8 @@ class SafApprovalBll
         $this->_PropertyOwnerDetail = new PropertyOwnerDetail();
         $this->_PropertyTax = new PropertyTax();
         $this->_PropertyDemand = new PropertyDemand();
+        $this->_WaterTaxType = new WaterTaxType();
+        $this->_AdditionalTax = new AdditionalTax();
         $this->_SwmConsumerDemand = new SwmConsumerDemand();
     }
 
@@ -205,6 +211,7 @@ class SafApprovalBll
         }        
         $this->_PropId = $property->id;
         $this->getLateAssesPenalty();
+        $this->calculateWaterSingleTimePayment();
         
         if(!$property->new_holding_no){
             $property->new_holding_no = $this->_HoldingNo;
@@ -379,6 +386,30 @@ class SafApprovalBll
             }
         }
 
+    }
+
+    public function calculateWaterSingleTimePayment(){
+        $singleTimeTax = 0;
+        if($this->_ReplicateSaf->water_tax_type_id){
+            $singleTimeTax = $this->_WaterTaxType->find($this->_ReplicateSaf->water_tax_type_id)?->amount;            
+        }
+        if($singleTimeTax){
+            $additionalTaxRequest = new Request([
+                "tax_type"=>"Single Time Water Payment",
+                "amount"=>$singleTimeTax,
+                "saf_detail_id"=>$this->_SAF->id,
+                "property_detail_id"=>$this->_PropId,
+            ]);
+
+            $test = $this->_AdditionalTax
+                    ->where("saf_detail_id",$additionalTaxRequest->saf_detail_id)
+                    ->where("property_detail_id",$additionalTaxRequest->property_detail_id)
+                    ->where("lock_status",false)
+                    ->count();
+            if(!$test){
+                $id = $this->_AdditionalTax->store($additionalTaxRequest);
+            }
+        }
     }
 
     public function generateConsumer(){

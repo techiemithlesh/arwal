@@ -4,6 +4,7 @@ namespace App\Bll\Property;
 use App\Models\DBSystem\UlbMaster;
 use App\Models\DBSystem\UlbWardMaster;
 use App\Models\Property\ActiveSafDetail;
+use App\Models\Property\AdditionalTax;
 use App\Models\Property\ChequeDetail;
 use App\Models\Property\PropertyCollection;
 use App\Models\Property\PropertyDetail;
@@ -37,6 +38,7 @@ class PaymentReceiptBll{
     public $_propSafData;
     public $_owners;
     public $_tblRow;
+    public $_AdditionalTaxs;
 
     function __construct($tranId)
     {
@@ -51,6 +53,7 @@ class PaymentReceiptBll{
                             ->orderBy("id","DESC")
                             ->first();
         $this->_FineRebates = TransactionFineRebateDetail::where("lock_status",false)->where("transaction_id",$this->_TranId)->get();
+        $this->_AdditionalTaxs = AdditionalTax::where("lock_status",false)->where("transaction_id",$this->_TranId)->get();
         if($this->_TranDetail->saf_detail_id){
             $this->_CollectionDetail = SafCollection::where("lock_status",false)->where("transaction_id",$this->_TranId)->get();
             $this->_propSafData = ActiveSafDetail::find($this->_TranDetail->saf_detail_id);
@@ -138,6 +141,7 @@ class PaymentReceiptBll{
             "ulbDtl" => $this->_UlbDetail,
             "ownerDtl" => $this->_owners,
             "fineRebate" => $this->_FineRebates,
+            "additionalTax"=>$this->_AdditionalTaxs,
             "userDtl"=> $this->_UserDetail,
         ];
     }

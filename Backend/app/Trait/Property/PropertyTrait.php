@@ -25,6 +25,8 @@ use App\Models\Property\SwmCategoryTypeMaster;
 use App\Models\Property\SwmSubCategoryTypeMaster;
 use App\Models\Property\TransferModeMaster;
 use App\Models\Property\UsageTypeMaster;
+use App\Models\Property\WaterConnectionFacilityType;
+use App\Models\Property\WaterTaxType;
 use App\Models\Property\ZoneMaster;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -94,6 +96,8 @@ trait PropertyTrait{
         $propertyTypeMaster = PropertyTypeMaster::find($saf->prop_type_mstr_id);
         $apartments = ApartmentDetail::find($saf->appartment_details_id);
         $roadType = RoadTypeMaster::find($saf->road_type_mstr_id);
+        $waterConnectionFacilityType = WaterConnectionFacilityType::find($saf->water_connection_facility_type_id);
+        $waterTaxType = WaterTaxType::find($saf->water_tax_type_id);
         $saf->zone = $this->getZone($saf->zone_mstr_id);
         $saf->roadType = $roadType?->road_type;
         $saf->ulb_name = $ulbDtl->ulb_name??"";
@@ -103,6 +107,8 @@ trait PropertyTrait{
         $saf->ownership_type = $ownershipTypeMaster->ownership_type??"";
         $saf->property_type = $propertyTypeMaster->property_type??"";
         $saf->apartment_name = $apartments ? (($apartments->apartment_name??"")."( ". $apartments->apt_code.")") : "" ;
+        $saf->water_connection_facility_type = $waterConnectionFacilityType?->facility_type;
+        $saf->water_tax_type = $waterTaxType ? $waterTaxType?->tax_type." @ ".$waterTaxType->amount : "";
         return $saf;
     }
 
