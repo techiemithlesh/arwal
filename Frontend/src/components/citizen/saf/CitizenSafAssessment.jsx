@@ -24,6 +24,7 @@ import { applyDefaults } from "../../../utils/initDefaultFormFields";
 import FormError from "../../common/FormError";
 import toast from "react-hot-toast";
 import index from "../../../modules/waterConsumer";
+import WaterSafPayment from "../../../modules/property/component/Saf/WaterSafPayment";
 
 const ulbId = import.meta.env.VITE_REACT_APP_ULB_ID;
 
@@ -33,7 +34,6 @@ const CitizenSafAssessment = ({
   propDetails,
   formType,
 }) => {
-
   console.log("data", propDetails);
 
   const token = useSelector((state) => state.citizenAuth.token);
@@ -52,17 +52,16 @@ const CitizenSafAssessment = ({
   const [disabledFields, setDisabledFields] = useState({});
 
   useEffect(() => {
-    
-    if(ulbId){
+    if (ulbId) {
       fetchUlbInfo(ulbId);
     }
-  },[ulbId]);
-  
-   const fetchUlbInfo = async (ulbId) => {
-    if(!ulbId) return;
-     try{
+  }, [ulbId]);
+
+  const fetchUlbInfo = async (ulbId) => {
+    if (!ulbId) return;
+    try {
       const res = await axios.post(UlbApi.replace("{id}", ulbId), {});
-      if(res.data.status){ 
+      if (res.data.status) {
         const { city, district, state } = res.data.data || {};
         const updatedData = {
           ...formData,
@@ -73,12 +72,17 @@ const CitizenSafAssessment = ({
 
         // Pass the OBJECT, not a function
         dispatch(setFormData(updatedData));
-        setDisabledFields((prev) => ({ ...prev, propCity: true, propDist: true, propState: true }) );
+        setDisabledFields((prev) => ({
+          ...prev,
+          propCity: true,
+          propDist: true,
+          propState: true,
+        }));
       }
-     }catch (error) {
+    } catch (error) {
       console.error("Error fetching ULb info:", error);
-     }
-   }
+    }
+  };
 
   useEffect(() => {
     const savedFloorDtl = localStorage.getItem("floorDtl");
@@ -146,6 +150,10 @@ const CitizenSafAssessment = ({
 
   const handleFloorDtlUpdate = (updated) => {
     dispatch(setFloorDtl(updated));
+  };
+
+  const handleSwmConsumerUpdate = (updated) => {
+    dispatch(setSwmConsumerDtl(updated));
   };
 
   const handleOwnerDtlUpdate = (updated) => {
@@ -221,6 +229,11 @@ const CitizenSafAssessment = ({
 
     dispatch(setFormData({ [name]: updatedValue }));
 
+    dispatch(setFormData({ [name]: updatedValue }));
+    if (name == "propTypeMstrId" && updatedValue != 4) {
+      dispatch(setFormData({ hasSwm: false }));
+    }
+
     if (name === "wardMstrId") {
       setNewWardLoading(true);
       dispatch(setFormData({ [name]: updatedValue }));
@@ -292,9 +305,10 @@ const CitizenSafAssessment = ({
     try {
       const response = await axios.post(
         propertyTestRequestApi,
+
         {
           ...payload,
-          newWardMstrId : "",
+          newWardMstrId: "",
           ownerDtl,
           floorDtl: floorPayload,
         },
@@ -304,7 +318,7 @@ const CitizenSafAssessment = ({
       );
 
       if (response.data.status) {
-        toast.success("Data saved successfully", {position: 'top-right'});
+        toast.success("Data saved successfully", { position: "top-right" });
         navigate(previewUrl, {
           state: {
             formData: payload,
@@ -362,6 +376,8 @@ const CitizenSafAssessment = ({
     );
   }
 
+  console.log("Rendering CitizenSafAssessment with formData:", formData);
+
   return (
     <div className="container-fluid">
       <form className="flex flex-col gap-4" onSubmit={handlePreviewFormData}>
@@ -393,7 +409,7 @@ const CitizenSafAssessment = ({
               <FormError name="zoneMstrId" errors={error} />
             )}
           </div>
-         
+
           <div>
             <label htmlFor="wardMstrId" className="block font-medium text-sm">
               Ward No <span className="text-red-500">*</span>
@@ -478,33 +494,33 @@ const CitizenSafAssessment = ({
             <FormError name="propTypeMstrId" errors={error} />
           </div>
 
-          {[3,4].includes(Number(formData?.propTypeMstrId)) && (
-              <div className="">
-                <label
-                  htmlFor="landOccupationDate"
-                  className="block font-medium text-sm"
-                >
-                  Date of Possession / Purchase / Acquisition (Whichever is
-                  earlier){" "}
-                  {formData?.propTypeMstrId == 4 && (
-                    <span className="text-red-500">*</span>
-                  )}
-                </label>
-                <input
-                  type="date"
-                  id="landOccupationDate"
-                  name="landOccupationDate"
-                  placeholder="..."
-                  value={formData.landOccupationDate}
-                  required={formData?.propTypeMstrId == 4}
-                  onChange={handleInputChange}
-                  className="block bg-white shadow-sm px-3 py-2 border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 w-full sm:text-xs"
-                />
-                {error?.landOccupationDate && (
-                  <FormError name="landOccupationDate" errors={error} />
+          {[3, 4].includes(Number(formData?.propTypeMstrId)) && (
+            <div className="">
+              <label
+                htmlFor="landOccupationDate"
+                className="block font-medium text-sm"
+              >
+                Date of Possession / Purchase / Acquisition (Whichever is
+                earlier){" "}
+                {formData?.propTypeMstrId == 4 && (
+                  <span className="text-red-500">*</span>
                 )}
-              </div>
-            )}
+              </label>
+              <input
+                type="date"
+                id="landOccupationDate"
+                name="landOccupationDate"
+                placeholder="..."
+                value={formData.landOccupationDate}
+                required={formData?.propTypeMstrId == 4}
+                onChange={handleInputChange}
+                className="block bg-white shadow-sm px-3 py-2 border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 w-full sm:text-xs"
+              />
+              {error?.landOccupationDate && (
+                <FormError name="landOccupationDate" errors={error} />
+              )}
+            </div>
+          )}
 
           {formData.propTypeMstrId == 1 && (
             <div>
@@ -519,7 +535,7 @@ const CitizenSafAssessment = ({
                 className="block bg-white shadow-sm px-3 py-2 border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 w-full sm:text-xs"
                 name="appartmentDetailsId"
                 value={formData.appartmentDetailsId}
-                required={formData.propTypeMstrId == 3}
+                required={formData.propTypeMstrId == 1}
                 onChange={handleInputChange}
                 disabled={
                   pathname.includes(formType) &&
@@ -662,7 +678,6 @@ const CitizenSafAssessment = ({
                   type="text"
                   id="electConsumerNo"
                   name="electConsumerNo"
-                  
                   placeholder="xxxx xxxx xxxx"
                   value={formData.electConsumerNo}
                   onChange={(e) => {
@@ -770,7 +785,7 @@ const CitizenSafAssessment = ({
 
         {/* PROPERTY DETAILS START HERE */}
         <PropDtl
-        mstrData={mstrData}
+          mstrData={mstrData}
           formData={formData}
           error={error}
           handleInputChange={handleInputChange}
@@ -804,6 +819,43 @@ const CitizenSafAssessment = ({
             />
           )}
         {/* FLOOR DETAILS END HERE */}
+
+        {/* SWM */}
+        {formType == "New Assessment" && formData?.propTypeMstrId != 4 && (
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="hasSwm"
+              name="hasSwm"
+              checked={formData.hasSwm}
+              onChange={handleInputChange}
+              className="border-gray-300 rounded w-4 h-4 text-indigo-600"
+            />
+            <label
+              htmlFor="hasSwm"
+              className="block ml-2 text-yellow-600 text-sm"
+            >
+              If Swm Consumer
+            </label>
+          </div>
+        )}
+        {formData.hasSwm && (
+          <SwmConsumerAdd
+            masterData={mstrData}
+            error={error}
+            setErrors={setErrors}
+            swmConsumer={swmConsumer || []}
+            setSwmConsumer={handleSwmConsumerUpdate}
+          />
+        )}
+        {/* SWM End */}
+
+        <WaterSafPayment
+          mstrData={mstrData}
+          formData={formData}
+          error={error}
+          handleInputChange={handleInputChange}
+        />
 
         {/* MOBILE TOWER CONTAINER START HERE */}
         <div className="mobile_petrol_details_container">

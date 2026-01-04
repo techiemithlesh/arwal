@@ -1,3 +1,4 @@
+import { form } from "@nextui-org/react";
 
 const PropDtl = ({
   mstrData,
@@ -6,7 +7,10 @@ const PropDtl = ({
   handleInputChange,
   isDisabled,
   disabledFields,
-}) => { 
+}) => {
+  console.log("Rendering PropDtl with formData:", formData);
+  console.log("PROPERTY TYPE:", formData.propTypeMstrId == '4');
+  console.log("PROPERTY TYPE VALUE:", formData.propTypeMstrId);
   return (
     <div className="flex flex-col gap-2 text-gray-700 text-lg property_details_container">
       <h2 className="flex items-center gap-2 bg-gradient-to-r from-blue-700 to-blue-400 shadow-md p-3 rounded-md font-bold text-white text-lg uppercase tracking-wide">
@@ -109,7 +113,6 @@ const PropDtl = ({
               placeholder=""
               value={formData.areaOfPlot}
               onChange={(e) => {
-                // Allow only digits and one decimal point
                 const val = e.target.value
                   .replace(/[^0-9.]/g, "")
                   .replace(/^(\d*\.\d{0,2}).*$/, "$1"); // optional: limit to 2 decimals
@@ -129,39 +132,44 @@ const PropDtl = ({
             )}
           </div>
 
-          <div>
-            <label className="block font-medium text-sm">
-              Built Up Area (In Sqft) <span className="text-red-500">*</span>
-            </label>
+          {formData.propTypeMstrId != 4 && (
+            <div>
+              <label className="block font-medium text-sm">
+                Built Up Area (In Sqft) <span className="text-red-500">*</span>
+              </label>
 
-            <input
-              type="text"
-              inputMode="decimal"
-              name="builtupArea"
-              value={formData.builtupArea}
-              placeholder="Enter built-up area"
-              onChange={(e) => {
-                const val = e.target.value
-                  .replace(/[^0-9.]/g, "")
-                  .replace(/(\..*)\./g, "$1")
-                  .replace(/^(\d*\.\d{0,2}).*$/, "$1");
+              <input
+                type="text"
+                inputMode="decimal"
+                name="builtupArea"
+                value={formData.builtupArea}
+                placeholder="Enter built-up area"
+                onChange={(e) => {
+                  const val = e.target.value
+                    .replace(/[^0-9.]/g, "")
+                    .replace(/(\..*)\./g, "$1")
+                    .replace(/^(\d*\.\d{0,2}).*$/, "$1");
 
-                handleInputChange({
-                  target: { name: "builtupArea", value: val },
-                });
-              }}
-              className="block bg-white shadow-sm px-3 py-2 border border-gray-300 rounded-md w-full sm:text-xs"
-              disabled={isDisabled && disabledFields?.builtupArea}
-              required={!isDisabled || !disabledFields?.builtupArea}
-            />
+                  handleInputChange({
+                    target: { name: "builtupArea", value: val },
+                  });
+                }}
+                className="block bg-white shadow-sm px-3 py-2 border border-gray-300 rounded-md w-full sm:text-xs"
+                disabled={isDisabled && disabledFields?.builtupArea}
+                required={!isDisabled || !disabledFields?.builtupArea}
+              />
 
-            {error?.builtupArea && (
-              <span className="text-red-400">{error.builtupArea}</span>
-            )}
-          </div>
+              {error?.builtupArea && (
+                <span className="text-red-400">{error.builtupArea}</span>
+              )}
+            </div>
+          )}
 
           <div className="">
-            <label htmlFor="roadTypeMstrId" className="block font-medium text-sm">
+            <label
+              htmlFor="roadTypeMstrId"
+              className="block font-medium text-sm"
+            >
               Road Type <span className="text-red-500">*</span>
             </label>
             <select
@@ -171,7 +179,6 @@ const PropDtl = ({
               value={formData.roadTypeMstrId}
               required={!isDisabled || !disabledFields?.roadTypeMstrId}
               onChange={handleInputChange}
-              
             >
               <option value="">Select Road Type</option>
               {mstrData?.roadType.map((item, index) => (
@@ -180,7 +187,7 @@ const PropDtl = ({
                 </option>
               ))}
             </select>
-           
+
             {error?.roadWidth && (
               <span className="text-red-400">{error?.roadWidth}</span>
             )}

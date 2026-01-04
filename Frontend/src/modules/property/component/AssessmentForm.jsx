@@ -38,7 +38,7 @@ const AssessmentForm = ({
   isEdit,
   ulbId,
 }) => {
-  console.log("mstr data", mstrData);
+  // console.log("mstr data", mstrData);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -274,12 +274,6 @@ const AssessmentForm = ({
     if (formData.propTypeMstrId == 1) getApartment();
   }, [formData.propTypeMstrId]);
 
-  if (isLoading)
-    return (
-      <div className="loading">
-        <Spinner />
-      </div>
-    );
   // console.log("formData",formData);
   const handlePreviewFormData = async (e) => {
     e.preventDefault();
@@ -393,7 +387,7 @@ const AssessmentForm = ({
     );
   }
 
-  console.log("formData in assessment form:", formData);
+  // console.log("formData in assessment form:", formData);
 
   return (
     <div className="container-fluid">
@@ -584,7 +578,7 @@ const AssessmentForm = ({
                 type="date"
                 id="flatRegistryDate"
                 name="flatRegistryDate"
-                required={formData.propTypeMstrId == 3}
+                required={formData.propTypeMstrId == 1}
                 value={formData.flatRegistryDate}
                 onChange={handleInputChange}
                 className="block bg-white shadow-sm px-3 py-2 border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 w-full sm:text-xs"
