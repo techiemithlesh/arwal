@@ -899,6 +899,60 @@ class BiharTaxCalculator
         }
     }
 
+    public function getLateAssesPenalty()
+    {
+        $applyDate = Carbon::parse($this->_REQUEST->applyDate);
+        $before90Days = $applyDate->copy()->subDays(90);
+
+        $this->_GRID["lateAssessmentPenalty"] = 0;
+        $lateAssessmentPenalty = 0;
+
+        /* ---------------- Vacant Land Case ---------------- */
+        if ($this->_isVacantLand) {
+
+            if (!empty($this->_REQUEST->landOccupationDate)) {
+                $landOccDate = Carbon::parse($this->_REQUEST->landOccupationDate);
+
+                if ($landOccDate->lt($before90Days)) {
+                    $lateAssessmentPenalty =
+                        ($this->_REQUEST->isMobileTower || $this->_REQUEST->isHoardingBoard)
+                            ? 5000
+                            : 2000;
+                }
+            }
+
+        }
+        /* ---------------- Constructed Property Case ---------------- */
+        else {
+
+            $newFloors = collect($this->_REQUEST->floorDtl)
+                ->whereNull("propFloorDetailId")
+                ->filter(function ($floor) use ($before90Days) {
+                    if (empty($floor['dateFrom'])) {
+                        return false;
+                    }
+
+                    $dateFrom = strlen($floor['dateFrom']) === 7
+                        ? $floor['dateFrom'] . '-01'
+                        : $floor['dateFrom'];
+
+                    return Carbon::parse($dateFrom)->lt($before90Days);
+                });
+
+            if ($newFloors->isNotEmpty()) {
+
+                $commercialFloor = $newFloors
+                    ->whereNotIn("usage_type_master_id", [1]);
+
+                $lateAssessmentPenalty = $commercialFloor->isNotEmpty()
+                    ? 5000
+                    : 2000;
+            }
+        }
+
+        $this->_GRID["lateAssessmentPenalty"] = $lateAssessmentPenalty;
+    }
+
 
     public function calculateTax(){
         $this->FloorTaxCalculator();
@@ -906,5 +960,6 @@ class BiharTaxCalculator
         $this->RuleSetTaxCalculator();
         $this->RuleSetVersionTaxCalculator();
         $this->calculateWaterSingleTimePayment();
+        $this->getLateAssesPenalty();
     }
 }

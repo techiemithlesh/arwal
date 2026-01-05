@@ -33,10 +33,22 @@ class RequestFieldVerification extends RequestAddSaf
             "propTypeMstrId"=>"required|int|exists:".$this->_PropertyTypeMaster->getConnectionName().".".$this->_PropertyTypeMaster->getTable().",id",
             "percentageOfPropertyTransfer"=>$saf && in_array($saf->assessment_type,["Mutation"]) ? "required|numeric|min:0.1|max:100":"nullable",
             "zoneMstrId"=>"required|int|exists:".$this->_ZoneMaster->getConnectionName().".".$this->_ZoneMaster->getTable().",id",
-            "roadWidth"=>"required|numeric|min:0",
+            "roadTypeMstrId"=>"required|int|exists:".$this->_RoadTypeMaster->getConnectionName().".".$this->_RoadTypeMaster->getTable().",id",   
+            "roadWidth"=>"nullable|numeric|".($this->propTypeMstrId==4 ? "min:0":"min:0.5")."|max:499",
+            "appartmentDetailsId"=>[
+                "nullable",
+                "required_if:propTypeMstrId,1",
+                "int",
+                "regex:/^[0-9]+$/",
+                Rule::exists($this->_ApartmentDetail->getConnectionName().".".$this->_ApartmentDetail->getTable(), 'id')
+                ->where(function ($query){
+                    return $query->where('ulb_id', $this->ulbId);
+                }),
+            ],
+            "flatRegistryDate"=>"nullable|required_if:propTypeMstrId,1|date|date_format:Y-m-d|before_or_equal:".Carbon::now()->format("Y-m-d"),
             
             "areaOfPlot"=>"required|numeric|min:0.1",
-            "builtupArea"=>"required|numeric|min:0".($this->areaOfPlot ? "|max:".decimalToSqFt($this->areaOfPlot) : ""),
+            "builtupArea"=>"nullable|required_unless:propTypeMstrId,4|numeric|min:0".($this->areaOfPlot ? "|max:".decimalToSqFt($this->areaOfPlot) : ""),
             
             "isMobileTower"=>"required|bool",
             "towerArea"=>"nullable|required_if:isMobileTower,true,1|numeric|min:0.1",

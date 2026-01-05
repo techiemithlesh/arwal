@@ -393,6 +393,9 @@ trait PropertyTrait{
         $saf->road_width = $verification->road_width;
         $saf->area_of_plot = $verification->area_of_plot;
         $saf->builtup_area = $verification->builtup_area;
+        $saf->appartment_details_id = $verification->appartment_details_id;
+        $saf->colony_mstr_id = $verification->colony_mstr_id;
+        $saf->flat_registry_date = $verification->flat_registry_date;
         $saf->hasAttribute("percentage_of_property_transfer") ? $saf->percentage_of_property_transfer = $verification->percentage_of_property_transfer : "";
         $saf->is_mobile_tower = $verification->is_mobile_tower;
         $saf->tower_area = $verification->tower_area;
