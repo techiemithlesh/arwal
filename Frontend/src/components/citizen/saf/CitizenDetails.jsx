@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import {
-  propDueApi,
   propertyDetailsApi,
   safApplicationDetailsApi,
   safDocListApi,
@@ -79,8 +78,7 @@ const CitizenDetails = () => {
         setIsDemandViewPayModal(true);
       },
       icon: <FaCommentDollar />,
-      show:
-        propDetails?.paymentStatus == 0,
+      show: propDetails?.paymentStatus == 0,
     },
     {
       label: "ReAssessment",
@@ -105,7 +103,8 @@ const CitizenDetails = () => {
         (!propDetails?.isDocUpload ||
           propDetails?.isBtc ||
           propDetails?.currentRoleId == propDetails?.initiatorRoleId) &&
-          Boolean(safId) && propDetails?.paymentStatus == 0
+        Boolean(safId) &&
+        propDetails?.paymentStatus == 0,
       // show: Boolean(safId) && propDetails?.paymentStatus == 0,
     },
   ];
@@ -217,11 +216,13 @@ const CitizenDetails = () => {
 
       if (response?.data?.status) {
         toast.success(response?.data?.message, {
-          position: 'top-right'
+          position: "top-right",
         });
         fetchPropertyDetails();
       } else {
-        toast.error(response?.data?.message || "Something went wrong", {position: 'top-right'});
+        toast.error(response?.data?.message || "Something went wrong", {
+          position: "top-right",
+        });
       }
     } catch (error) {
       console.error("Failed to post", error);
@@ -229,6 +230,8 @@ const CitizenDetails = () => {
       setIsFrozen(false);
     }
   };
+
+  // console.log("propDetails", propDetails);
 
   return (
     <div
@@ -429,6 +432,112 @@ const CitizenDetails = () => {
               </tr>
             )}
           />
+
+          {/* SWM CONSUMER DETAILS */}
+
+          {Array.isArray(propDetails?.swmConsumer) &&
+            propDetails.swmConsumer.length > 0 && (
+              <DetailGrid
+                title="SWM Consumer Details"
+                data={propDetails.swmConsumer.map((consumer, index) => (
+                  <div
+                    key={index}
+                    className={`border rounded-lg shadow-sm p-4 space-y-4 ${
+                      index % 2 == 0 ? "bg-white" : "bg-gray-200"
+                    }`}
+                  >
+                    {/* Header */}
+                    <div className="flex justify-between items-center border-b pb-2">
+                      <h3 className="font-semibold text-base">Consumer No.</h3>
+                      <span className="text-sm text-gray-600">
+                        {consumer.consumerNo || "NA"}
+                      </span>
+                    </div>
+
+                    {/* Consumer Details */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                      <div>
+                        <p className="text-gray-500">Occupancy Type</p>
+                        <p className="font-medium">
+                          {consumer.occupancyType || "NA"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Category</p>
+                        <p className="font-medium">
+                          {consumer.category || "NA"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Sub Category</p>
+                        <p className="font-medium">
+                          {consumer.subCategoryType || "NA"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Effective From</p>
+                        <p className="font-medium">
+                          {formatLocalDate(consumer.dateOfEffective)}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Owners */}
+                    <div>
+                      <h4 className="font-semibold text-sm mb-2">Owner(s)</h4>
+
+                      <div className="space-y-2">
+                        <SectionCard
+                          headers={[
+                            "SL",
+                            "Owner",
+                            "Guardian",
+                            "Relation",
+                            "Mobile",
+                          ]}
+                          data={consumer.owners}
+                          renderRow={(owner, idx) => (
+                            <tr key={idx}>
+                              <td className="px-3 py-2 border">{idx + 1}</td>
+                              <td className="px-3 py-2 border">
+                                {owner?.ownerName || "NA"}
+                              </td>
+                              <td className="px-3 py-2 border">
+                                {owner?.guardianName || "NA"}
+                              </td>
+                              <td className="px-3 py-2 border">
+                                {owner?.relationType || "NA"}
+                              </td>
+                              <td className="px-3 py-2 border">
+                                {owner?.mobileNo || "NA"}
+                              </td>
+                            </tr>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              />
+            )}
+
+          {/* WATER ONE TIME DETAILS */}
+          <DetailGrid
+            note={
+              "Note: Water Tax is a one-time tax and is applicable only if you are doing your assessment for the first time or if you have never paid it earlier."
+            }
+            data={[
+              {
+                label: "Water Connection Facility",
+                value: propDetails?.waterConnectionFacilityType || "NA",
+              },
+              {
+                label: "Water Tax Type",
+                value: propDetails?.waterTaxType || "NA",
+              },
+            ]}
+          />
+
           {/* ADDITIONAL INFORMATION */}
           <AditionalDetails data={propDetails} />
           {/* TAX DETAILS */}
