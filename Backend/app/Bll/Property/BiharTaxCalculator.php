@@ -15,11 +15,13 @@ use App\Models\Property\RoadTypeMaster;
 use App\Models\Property\UsageTypeMaster;
 use App\Models\Property\VacantArvRateMaster;
 use App\Models\Property\WaterTaxType;
+use App\Trait\Property\PropertyTrait;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
 
 class BiharTaxCalculator
 {
+    use PropertyTrait;
     /**
      * Create a new class instance.
      */
@@ -197,6 +199,9 @@ class BiharTaxCalculator
                 "occupancyTypeMasterId"=>1,
                 "tax"=>collect(),
             ];
+            $floor["usageType"] = (collect($this->_mUsageTypeMaster)->where("id",$floor["usageTypeMasterId"])->first())->usage_type??"";
+            $floor["constructionType"] = (collect($this->_mConstructionTypeMaster)->where("id",$floor["constructionTypeMasterId"])->first())->construction_type??"";
+            $floor["occupancyType"] = (collect($this->_mOccupancyTypeMaster)->where("id",$floor["occupancyTypeMasterId"])->first())->occupancy_name??"";
             $floor["ruleSets"]=collect($this->setRuleSet($floor["dateFrom"],($floor["dateUpto"]??null),false));
             $this->_FloorWiseTax[] = $floor;
         }
@@ -216,6 +221,9 @@ class BiharTaxCalculator
                         "occupancyTypeMasterId"=>1,
                         "tax"=>collect(),
                     ];
+                    $floor["usageType"] = (collect($this->_mUsageTypeMaster)->where("id",$floor["usageTypeMasterId"])->first())->usage_type??"";
+                    $floor["constructionType"] = (collect($this->_mConstructionTypeMaster)->where("id",$floor["constructionTypeMasterId"])->first())->construction_type??"";
+                    $floor["occupancyType"] = (collect($this->_mOccupancyTypeMaster)->where("id",$floor["occupancyTypeMasterId"])->first())->occupancy_name??"";
                     $floor["ruleSets"]=collect($this->setRuleSet($floor["dateFrom"],($floor["dateUpto"]??null),false));
                     $this->_FloorWiseTax[] = $floor;
                 }
@@ -241,7 +249,10 @@ class BiharTaxCalculator
                 "constructionTypeMasterId"=>2,
                 "occupancyTypeMasterId"=>$this->_isVacantLand ? 2 : 2,
                 "tax"=>collect(),
-            ];            
+            ];    
+            $floor["usageType"] = (collect($this->_mUsageTypeMaster)->where("id",$floor["usageTypeMasterId"])->first())->usage_type??"";
+            $floor["constructionType"] = (collect($this->_mConstructionTypeMaster)->where("id",$floor["constructionTypeMasterId"])->first())->construction_type??"";
+            $floor["occupancyType"] = (collect($this->_mOccupancyTypeMaster)->where("id",$floor["occupancyTypeMasterId"])->first())->occupancy_name??"";        
             $floor["ruleSets"]=collect($this->setRuleSet($floor["dateFrom"],($floor["dateUpto"]??null)));
             if($this->_isVacantLand && $this->_REQUEST["roadWidth"]<=0){
 
@@ -260,7 +271,10 @@ class BiharTaxCalculator
                 "constructionTypeMasterId"=>$this->_isVacantLand ? 2 : 1,
                 "occupancyTypeMasterId"=>2,
                 "tax"=>collect(),
-            ];            
+            ]; 
+            $floor["usageType"] = (collect($this->_mUsageTypeMaster)->where("id",$floor["usageTypeMasterId"])->first())->usage_type??"";
+            $floor["constructionType"] = (collect($this->_mConstructionTypeMaster)->where("id",$floor["constructionTypeMasterId"])->first())->construction_type??"";
+            $floor["occupancyType"] = (collect($this->_mOccupancyTypeMaster)->where("id",$floor["occupancyTypeMasterId"])->first())->occupancy_name??"";           
             $floor["ruleSets"]=collect($this->setRuleSet($floor["dateFrom"],($floor["dateUpto"]??null)));
             if($this->_isVacantLand && $this->_REQUEST["roadWidth"]<=0){
 
@@ -279,7 +293,10 @@ class BiharTaxCalculator
                 "constructionTypeMasterId"=>1,
                 "occupancyTypeMasterId"=>1,
                 "tax"=>collect(),
-            ];            
+            ]; 
+            $floor["usageType"] = (collect($this->_mUsageTypeMaster)->where("id",$floor["usageTypeMasterId"])->first())->usage_type??"";
+            $floor["constructionType"] = (collect($this->_mConstructionTypeMaster)->where("id",$floor["constructionTypeMasterId"])->first())->construction_type??"";
+            $floor["occupancyType"] = (collect($this->_mOccupancyTypeMaster)->where("id",$floor["occupancyTypeMasterId"])->first())->occupancy_name??"";           
             $floor["ruleSets"]=collect($this->setRuleSet($floor["dateFrom"],($floor["dateUpto"]??null)));
             $this->_FloorWiseTax[]=$floor;
         }
@@ -390,6 +407,7 @@ class BiharTaxCalculator
         if($isResidentialUse){
             $taxableArea = $buildupArea * 0.7;
         }
+        // 1-> Resident, 2-> Comm, 3-> other
         $usageTypeRateId = $isResidentialUse ? 1 : 2;
         if($floor["usageTypeMasterId"]==46){
             $usageTypeRateId = 3;
@@ -462,7 +480,7 @@ class BiharTaxCalculator
             "propertyTax"=>$propertyTax,
             "arvRate"=>$arvRate->rate,
             "taxableArea"=>$taxableArea,
-            "usageType"=>$usageTypeRateId==1 ? "Resident" : ($usageTypeRateId==2?"Commercial":"Other"),
+            "usageType"=> $this->floorResCommOtherUsage($usageTypeRateId),//;$usageTypeRateId==1 ? "Resident" : ($usageTypeRateId==2?"Commercial":"Other"),
             "occupancyRate"=>$occupancyRate->mult_factor,
             "HoldingTaxPercent" => $HoldingTaxPercent *100,
             "HoldingTax" => $HoldingTax,

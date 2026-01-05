@@ -501,4 +501,8 @@ trait PropertyTrait{
         $consumer->sub_category_type = $subCategoryType?->sub_category_type;
         return $consumer;
     }
+
+    public function floorResCommOtherUsage($usageTypeRateId){
+        return $usageTypeRateId==1 ? "Resident" : ($usageTypeRateId==2?"Commercial":"Other");
+    }
 }
