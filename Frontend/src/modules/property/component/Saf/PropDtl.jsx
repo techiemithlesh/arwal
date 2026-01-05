@@ -142,7 +142,7 @@ const PropDtl = ({
                 type="text"
                 inputMode="decimal"
                 name="builtupArea"
-                value={formData.builtupArea}
+                value={formData.builtupArea || ""}
                 placeholder="Enter built-up area"
                 onChange={(e) => {
                   const val = e.target.value

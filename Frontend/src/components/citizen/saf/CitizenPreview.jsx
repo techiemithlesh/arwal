@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import TaxViewTab from "../../../modules/property/component/Saf/TaxViewTab";
 import { normalizePayload } from "../../../utils/utils";
 import SuccessModal from "../holding/SuccessModal";
+import { clearForm } from "../../../store/slices/assessmentSlice";
 
 const ulbId = import.meta.env.VITE_REACT_APP_ULB_ID;
 
@@ -22,10 +23,15 @@ export default function CitizenPreview() {
   const [isModalOpen, setModalOpen] = useState(false);
   const [data, setIsData] = useState([]);
 
-  const { formData, ownerDtl, floorDtl, mstrData, newWardList, apartmentList } =
-    state || {};
-
-  // console.log("tax details", taxDtl);
+  const {
+    formData,
+    ownerDtl,
+    floorDtl,
+    swmConsumer,
+    mstrData,
+    newWardList,
+    apartmentList,
+  } = state || {};
 
   const buildPayload = () =>
     formData?.propTypeMstrId === 4
@@ -63,6 +69,7 @@ export default function CitizenPreview() {
         </button>
       </div>
     );
+
 
   const handleSubmitForm = async () => {
     // build payload first
@@ -120,11 +127,14 @@ export default function CitizenPreview() {
               label="Assessment Type"
               value={formData?.assessmentType || "New Assessment"}
             />
-            <DetailCard label="Circle" value={findName(
+            <DetailCard
+              label="Circle"
+              value={findName(
                 mstrData.zoneType,
                 formData?.zoneMstrId,
                 "zoneName"
-              )}/>
+              )}
+            />
             <DetailCard
               label="Ward No"
               value={findName(
@@ -149,7 +159,7 @@ export default function CitizenPreview() {
                 "propertyType"
               )}
             />
-            {[3,4].includes(Number(formData?.propTypeMstrId)) && (
+            {[3, 4].includes(Number(formData?.propTypeMstrId)) && (
               <DetailCard
                 label="Date of Possession"
                 value={formData?.landOccupationDate}
@@ -279,6 +289,136 @@ export default function CitizenPreview() {
         {/* Floor Details */}
         <FloorTable data={floorDtl} mstrData={mstrData} />
 
+        {/* SWM */}
+        {formData?.hasSwm && (
+          <div className="flex flex-col gap-4 bg-white shadow p-6 border-green-500 border-t-4 rounded-lg">
+            <h3 className="font-semibold text-gray-700 text-xl">SWM Details</h3>
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-2 border border-gray-500 font-semibold text-gray-500 text-xs text-left uppercase tracking-wider">
+                      Occupancy Type
+                    </th>
+                    <th className="px-4 py-2 border border-gray-500 font-semibold text-gray-500 text-xs text-left uppercase tracking-wider">
+                      Consumer Name
+                    </th>
+                    <th className="px-4 py-2 border border-gray-500 font-semibold text-gray-500 text-xs text-left uppercase tracking-wider">
+                      Guardian Name
+                    </th>
+                    <th className="px-4 py-2 border border-gray-500 font-semibold text-gray-500 text-xs text-left uppercase tracking-wider">
+                      Relation
+                    </th>
+                    <th className="px-4 py-2 border border-gray-500 font-semibold text-gray-500 text-xs text-left uppercase tracking-wider">
+                      Mobile No
+                    </th>
+                    <th className="px-4 py-2 border border-gray-500 font-semibold text-gray-500 text-xs text-left uppercase tracking-wider">
+                      Consumer Category
+                    </th>
+                    <th className="px-4 py-2 border border-gray-500 font-semibold text-gray-500 text-xs text-left uppercase tracking-wider">
+                      Category
+                    </th>
+                    <th className="px-4 py-2 border border-gray-500 font-semibold text-gray-500 text-xs text-left uppercase tracking-wider">
+                      Consumer Range
+                    </th>
+                    <th className="px-4 py-2 border border-gray-500 font-semibold text-gray-500 text-xs text-left uppercase tracking-wider">
+                      Effective From
+                    </th>
+                    <th className="px-4 py-2 border border-gray-500 font-semibold text-gray-500 text-xs text-left uppercase tracking-wider">
+                      Monthly Rate
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {swmConsumer?.map((app, idx) => (
+                    <tr key={idx}>
+                      <td className="px-4 py-2 border border-gray-500 font-medium text-gray-900 text-sm whitespace-nowrap">
+                        {findName(
+                          mstrData?.occupancyType,
+                          app?.occupancyTypeMasterId,
+                          "occupancyName"
+                        )}
+                      </td>
+                      <td className="px-4 py-2 border border-gray-500 text-gray-500 text-sm whitespace-nowrap">
+                        {app.ownerName}
+                      </td>
+                      <td className="px-4 py-2 border border-gray-500 text-gray-500 text-sm whitespace-nowrap">
+                        {app.guardianName}
+                      </td>
+                      <td className="px-4 py-2 border border-gray-500 text-gray-500 text-sm whitespace-nowrap">
+                        {app.relationType}
+                      </td>
+                      <td className="px-4 py-2 border border-gray-500 text-gray-500 text-sm whitespace-nowrap">
+                        {app.mobileNo}
+                      </td>
+                      <td className="px-4 py-2 border border-gray-500 text-gray-500 text-sm whitespace-nowrap">
+                        {findName(
+                          mstrData?.swmConsumerType,
+                          app.categoryTypeMasterId,
+                          "categoryType"
+                        )}
+                      </td>
+                      <td className="px-4 py-2 border border-gray-500 text-gray-500 text-sm whitespace-nowrap">
+                        {app.category}
+                      </td>
+                      <td className="px-4 py-2 border border-gray-500 text-gray-500 text-sm whitespace-nowrap">
+                        {findName(
+                          app?.subCategoryList,
+                          app.subCategoryTypeMasterId,
+                          "subCategoryType"
+                        )}
+                      </td>
+                      <td className="px-4 py-2 border border-gray-500 text-gray-500 text-sm whitespace-nowrap">
+                        {app.dateOfEffective}
+                      </td>
+                      <td className="px-4 py-2 border border-gray-500 text-gray-500 text-sm whitespace-nowrap">
+                        {app?.rate}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Water Tax Details */}
+        <section className="flex flex-col gap-4 bg-gray-50 p-4 border rounded">
+          <h2 className="font-semibold text-xl">Water One Time Payment</h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <DetailCard
+              label="Water Connection Facility"
+              value={findName(
+                mstrData.waterFacility,
+                formData?.waterConnectionFacilityTypeId,
+                "facilityType"
+              )}
+            />
+
+            <DetailCard
+              label="Water Tax Type"
+              value={findName(
+                mstrData.waterTax,
+                formData?.waterTaxTypeId,
+                "taxType"
+              )}
+            />
+
+            {/* NOTE */}
+            <div className="col-span-full mt-2">
+              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded-md">
+                <p className="text-xs text-gray-700 leading-relaxed">
+                  <span className="font-semibold">Note:</span> Water Tax is a
+                  one-time tax and is applicable only if you are doing your
+                  assessment for the first time or if you have never paid it
+                  earlier.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Additional Details */}
         <AdditionalDetails formData={formData} />
 
@@ -318,11 +458,6 @@ export default function CitizenPreview() {
           }
           buttonText="OK"
           onConfirm={() => navigate("/citizen/application")}
-          // showSecondaryButton
-          // secondaryButtonText="Upload Documents"
-          // onSecondaryAction={() =>
-          //   navigate(`/property/saf/documents/${data.safId}`)
-          // }
         />
       )}
     </>

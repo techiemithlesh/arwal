@@ -1,7 +1,6 @@
 import React from "react";
 
 const DetailGrid = ({ title, note, data = [] }) => {
-  console.log("DetailGrid data:", data);
   const isJSXData = React.isValidElement(data[0]);
 
   return (

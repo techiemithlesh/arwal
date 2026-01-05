@@ -23,8 +23,9 @@ import { setFormData } from "../../../store/slices/assessmentSlice";
 import { applyDefaults } from "../../../utils/initDefaultFormFields";
 import FormError from "../../common/FormError";
 import toast from "react-hot-toast";
-import index from "../../../modules/waterConsumer";
 import WaterSafPayment from "../../../modules/property/component/Saf/WaterSafPayment";
+import SwmConsumerAdd from "../../../modules/property/component/Saf/SwmConsumerAdd";
+import { setSwmConsumerDtl } from "../../../store/slices/swmConsumerSlice";
 
 const ulbId = import.meta.env.VITE_REACT_APP_ULB_ID;
 
@@ -34,8 +35,6 @@ const CitizenSafAssessment = ({
   propDetails,
   formType,
 }) => {
-  console.log("data", propDetails);
-
   const token = useSelector((state) => state.citizenAuth.token);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -45,6 +44,7 @@ const CitizenSafAssessment = ({
   const floorDtl = useSelector((state) => state.floor.floorDtl);
   const ownerDtl = useSelector((state) => state.owner.OwnerDtl);
   const formData = useSelector((state) => state.assessment.formData);
+  const swmConsumer = useSelector((state) => state.swmConsumer.swmConsumerDtl);
   const [error, setErrors] = useState({});
   const [newWardList, setNewWardList] = useState([]);
   const [newWardLoading, setNewWardLoading] = useState(false);
@@ -327,6 +327,7 @@ const CitizenSafAssessment = ({
             mstrData,
             newWardList,
             apartmentList,
+            swmConsumer,
             formType: formType,
           },
         });
@@ -821,7 +822,7 @@ const CitizenSafAssessment = ({
         {/* FLOOR DETAILS END HERE */}
 
         {/* SWM */}
-        {formType == "New Assessment" && formData?.propTypeMstrId != 4 && (
+        {formType == "new assessment" && formData?.propTypeMstrId != 4 && (
           <div className="flex items-center">
             <input
               type="checkbox"
