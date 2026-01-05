@@ -231,7 +231,7 @@ const CitizenDetails = () => {
     }
   };
 
-  console.log("propDetails", propDetails);
+  // console.log("propDetails", propDetails);
 
   return (
     <div
