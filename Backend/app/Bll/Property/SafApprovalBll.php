@@ -357,7 +357,10 @@ class SafApprovalBll
             }
         }
         else{
-            $newFloors = collect($this->_ReplicateFloor)->whereNull("prop_floor_detail_id")->where("date_from","<",$before90Days);
+            $newFloors = collect($this->_ReplicateFloor)->where("date_from","<",$before90Days);
+            if(in_array($this->_SAF->assessment_type,["New Assessment"])){
+                $newFloors = $newFloors->whereNull("prop_floor_detail_id");
+            }
             $commercialFloor = collect($newFloors)->whereNotIn("usage_type_master_id",[1]);
             if($newFloors->isNotEmpty()){
                 $this->_lateAssessmentPenalty = 2000;

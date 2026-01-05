@@ -926,7 +926,6 @@ class BiharTaxCalculator
         else {
 
             $newFloors = collect($this->_REQUEST->floorDtl)
-                ->whereNull("propFloorDetailId")
                 ->filter(function ($floor) use ($before90Days) {
                     if (empty($floor['dateFrom'])) {
                         return false;
@@ -938,7 +937,9 @@ class BiharTaxCalculator
 
                     return Carbon::parse($dateFrom)->lt($before90Days);
                 });
-
+            if(in_array($this->_REQUEST->assessmentType,["New Assessment"])){
+                $newFloors = $newFloors->whereNull("prop_floor_detail_id");
+            }
             if ($newFloors->isNotEmpty()) {
 
                 $commercialFloor = $newFloors
