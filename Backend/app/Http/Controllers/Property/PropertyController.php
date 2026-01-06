@@ -773,7 +773,6 @@ class PropertyController extends Controller
             
             $this->begin();
             $propertyId = $this->_PropertyDetail->store($request);
-            
             foreach($tax["RuleSetVersionTax"] as $key=>$safTax){  
                 if($safTax["Fyearlytax"]) {
                     $taxRequest = new Request($safTax);  

@@ -415,7 +415,7 @@ const Details = () => {
                       : "NA"}
                   </td>
                   <td className="px-3 py-2 border">{tax?.holdingTax || ""}</td>
-                  <td className="px-3 py-2 border">{tax?.rwhTax || ""}</td>
+                  <td className="px-3 py-2 border">{tax?.waterTax || ""}</td>
                   <td className="px-3 py-2 border">{tax?.latrineTax || ""}</td>
                   <td className="px-3 py-2 border">
                     {tax?.educationCess ?? "NA"}

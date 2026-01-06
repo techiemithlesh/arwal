@@ -864,7 +864,7 @@ class BiharTaxCalculator
                     "fromQtr"=>$tax->min("fromQtr"),
                     "uptoFYear"=>$tax->max("uptoFYear"),
                     "uptoQtr"=>$tax->max("uptoQtr"),
-                    "ALV"=>roundFigure($tax->sum("ALV")),
+                    "ARV"=>roundFigure($tax->sum("ARV")),
                     "propertyTax"=>roundFigure($tax->sum("propertyTax")),
                     "HoldingTax"=>roundFigure($tax->sum("HoldingTax")),
                     "HoldingTaxQuarterly"=>roundFigure($tax->sum("HoldingTaxQuarterly")),
