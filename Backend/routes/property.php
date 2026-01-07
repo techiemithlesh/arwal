@@ -38,6 +38,7 @@ Route::middleware(['auth:sanctum',"expireBearerToken","setUlb"])->group(function
         Route::post('prop-property-type-edit', 'editPropPropertyType');
         Route::post('prop-property-type-lock-unlock', 'activeDeactivatePropPropertyType');
 
+        Route::post("prop-road-mst-list","getRoadTypeMaster");
         Route::post('prop-road-type', 'propRoadType');
         Route::post('prop-road-type-dtl', 'propRoadTypeDtl');
         Route::post('prop-road-type-add', 'addPropRoadType');

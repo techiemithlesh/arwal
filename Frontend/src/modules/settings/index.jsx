@@ -19,6 +19,7 @@ import RolePermission from "./pages/RolePermission";
 import UlbNoticeList from "./pages/UlbNoticeList";
 import UlbOfficerList from "./pages/UlbOfficerList";
 import QueryEditorUI from "./pages/QueryEditorUI";
+import ApartmentList from "./pages/ApartmentList";
 
 function SettingRoutes() {
   return (
@@ -110,6 +111,14 @@ function SettingRoutes() {
             element={
               <ProtectedRoute>
                 <PropertyOwnershipTypeList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/property/apartment/list"
+            element={
+              <ProtectedRoute>
+                <ApartmentList />
               </ProtectedRoute>
             }
           />

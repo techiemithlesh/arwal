@@ -240,7 +240,7 @@ class MasterController extends Controller
             return responseMsg(true,"Construction Type Updated","");
         }catch(CustomException $e){
             return responseMsg(false,$e->getMessage(),"");
-        }catch(Exception $e){dd($e);
+        }catch(Exception $e){
             return responseMsg(false,"Server Error!!",'');
         }
     }
@@ -426,6 +426,23 @@ class MasterController extends Controller
     }
 
     //road type
+    public function getRoadTypeMaster(Request $request){
+        try{
+            $list = $this->_RoadTypeMaster->select("*")->where("lock_status",false);
+            if($request->all){
+                $data = $list->get();
+            }else{
+                $data = paginator($list,$request);
+            }
+            return responseMsg(true,"Road Type List",camelCase(remove_null($data)));
+
+
+        }catch(CustomException $e){
+            return responseMsg(false,$e->getMessage(),"");
+        }catch(Exception $e){
+            return responseMsg(false,"Server Error!!",'');
+        }
+    }
     public function propRoadType(Request $request)
     {
         try{
@@ -735,7 +752,9 @@ class MasterController extends Controller
             }     
             $data = $this->_ApartmentDetail->find($request->id);
             $data->ward_no   = $this->_UlbWardMaster->find($data->ward_mstr_id)->ward_no??"";
-            $data->ulb_name   = $this->_UlbMaster->find($data->ulb_id)->ulb_name??"";          
+            $data->ulb_name   = $this->_UlbMaster->find($data->ulb_id)->ulb_name??"";
+            $data->apartment_image = $data->apartment_image ? url("/")."/".$data->apartment_image : null;
+            $data->water_harvesting_image = $data->water_harvesting_image ? url("/")."/".$data->water_harvesting_image : null;           
             return responseMsg(true,"Apartment Details",camelCase(remove_null($data)));
         }catch(CustomException $e){
             return responseMsg(false,$e->getMessage(),"");
@@ -748,17 +767,23 @@ class MasterController extends Controller
         try{
             $user = Auth::user();
             $ulbId = $user->ulb_id;
-            $request->merge(["ulbId"=>$ulbId,"userId"=>$user->id]);
+            $request->merge([
+                "ulbId"=>$ulbId,
+                "userId"=>$user->id,
+                'hasBlocks' => filter_var($request->hasBlocks, FILTER_VALIDATE_BOOLEAN),
+                'isWaterHarvesting' => filter_var($request->isWaterHarvesting, FILTER_VALIDATE_BOOLEAN),
+            ]);
             $rules = [
                 "wardMstrId"=>"required|integer|exists:".$this->_UlbWardMaster->getConnectionName().".".$this->_UlbWardMaster->getTable().",id,ulb_id,$ulbId",
-                "roadWidth"=>"required|numeric|min:1",
-                "aptCode"=>"required|unique:".$this->_ApartmentDetail->getConnectionName().".".$this->_ApartmentDetail->getTable().",apt_code,ulb_id,$ulbId",
+                // "roadWidth"=>"required|numeric|min:1",
+                "roadTypeMstrId"=>"required|integer|exists:".$this->_RoadTypeMaster->getConnectionName().".".$this->_RoadTypeMaster->getTable().",id",
+                "aptCode" => "required|string|unique:" .$this->_ApartmentDetail->getConnectionName() . "." .$this->_ApartmentDetail->getTable() .",apt_code,NULL,id,ulb_id,$ulbId",
                 "apartmentName"=>"required|string",
                 "apartmentAddress"=>"required|string",
-                "hasBlocks"=>"required|bool",
-                "noOfBlock"=>"required_if:hasBlocks,true|integer",
-                "isWaterHarvesting"=>"required|bool",
-                "waterHarvestingDate"=>"required_if:isWaterHarvesting,true|date|before_or_equal:".Carbon::now()->format("Y-m-d"),
+                "hasBlocks"=>"required|boolean",
+                "noOfBlock"=>"nullable|required_if:hasBlocks,true|integer",
+                "isWaterHarvesting"=>"required|boolean",
+                "waterHarvestingDate"=>"nullable|required_if:isWaterHarvesting,true|date|before_or_equal:".Carbon::now()->format("Y-m-d"),
                 "waterHarvestingImageDoc"=>[
                     "required_if:isWaterHarvesting,true",
                     "mimes:bmp,jpeg,jpg,png",
@@ -793,7 +818,7 @@ class MasterController extends Controller
             }
             $imageName = "apartment_".app('requestToken')."_".(Str::slug(Carbon::now()->toDateTimeString())).".".$request->apartmentImageDoc->getClientOriginalExtension(); 
             $relativePath = $this->_SYSTEM_CONST["DOC-RELATIVE-PATHS"]["APARTMENT_DOC"];
-            $request->document->move($relativePath, $imageName);
+            $request->apartmentImageDoc->move($relativePath, $imageName);
             $request->merge([
                 "apartmentImage"=>$relativePath."/".$imageName,
             ]);
@@ -801,7 +826,7 @@ class MasterController extends Controller
             if($request->waterHarvestingImageDoc){
                 $imageName = "waterHarvesting_".app('requestToken')."_".(Str::slug(Carbon::now()->toDateTimeString())).".".$request->waterHarvestingImageDoc->getClientOriginalExtension(); 
                 $relativePath = $this->_SYSTEM_CONST["DOC-RELATIVE-PATHS"]["APARTMENT_DOC"];
-                $request->document->move($relativePath, $imageName);
+                $request->waterHarvestingImageDoc->move($relativePath, $imageName);
                 $request->merge([
                     "waterHarvestingImage"=>$relativePath."/".$imageName,
                 ]); 
@@ -820,18 +845,23 @@ class MasterController extends Controller
         try{
             $user = Auth::user();
             $ulbId = $user->ulb_id;
-            $request->merge(["ulbId"=>$ulbId,"userId"=>$user->id]);
+            $request->merge([
+                "ulbId"=>$ulbId,
+                "userId"=>$user->id,                
+                'hasBlocks' => filter_var($request->hasBlocks, FILTER_VALIDATE_BOOLEAN),
+                'isWaterHarvesting' => filter_var($request->isWaterHarvesting, FILTER_VALIDATE_BOOLEAN),
+            ]);
             $rules = [
                 "id"=>"required|integer|exists:".$this->_ApartmentDetail->getConnectionName().".".$this->_ApartmentDetail->getTable().",id",
                 "wardMstrId"=>"required|integer|exists:".$this->_UlbWardMaster->getConnectionName().".".$this->_UlbWardMaster->getTable().",id,ulb_id,$ulbId",
-                "roadWidth"=>"required|numeric|min:1",
-                "aptCode"=>"required|unique:".$this->_ApartmentDetail->getConnectionName().".".$this->_ApartmentDetail->getTable().",apt_code,ulb_id,$ulbId,".$request->id,
+                "roadTypeMstrId"=>"required|integer|exists:".$this->_RoadTypeMaster->getConnectionName().".".$this->_RoadTypeMaster->getTable().",id",
+                "aptCode"=>"required|unique:".$this->_ApartmentDetail->getConnectionName().".".$this->_ApartmentDetail->getTable().",apt_code,".$request->id.",id,ulb_id,$ulbId",
                 "apartmentName"=>"required|string",
                 "apartmentAddress"=>"required|string",
-                "hasBlocks"=>"required|bool",
-                "noOfBlock"=>"required_if:hasBlocks,true|integer",
-                "isWaterHarvesting"=>"required|bool",
-                "waterHarvestingDate"=>"required_if:isWaterHarvesting,true|date|before_or_equal:".Carbon::now()->format("Y-m-d"),
+                "hasBlocks"=>"required|boolean",
+                "noOfBlock"=>"nullable|required_if:hasBlocks,true|integer",
+                "isWaterHarvesting"=>"required|boolean",
+                "waterHarvestingDate"=>"nullable|required_if:isWaterHarvesting,true|date|before_or_equal:".Carbon::now()->format("Y-m-d"),
                 "waterHarvestingImageDoc" => [
                     function ($attribute, $value, $fail) use ($request) {
                         // Apply only if isWaterHarvesting is true
@@ -890,22 +920,31 @@ class MasterController extends Controller
             if($validator->fails()){
                 return validationError($validator);
             }  
+            $apartment = $this->_ApartmentDetail->find($request->id);
             if($request->apartmentImageDoc){
                 $imageName = "apartment_".app('requestToken')."_".(Str::slug(Carbon::now()->toDateTimeString())).".".$request->apartmentImageDoc->getClientOriginalExtension(); 
                 $relativePath = $this->_SYSTEM_CONST["DOC-RELATIVE-PATHS"]["APARTMENT_DOC"];
-                $request->document->move($relativePath, $imageName);
+                $request->apartmentImageDoc->move($relativePath, $imageName);
                 $request->merge([
                     "apartmentImage"=>$relativePath."/".$imageName,
+                ]);
+            }else{
+                $request->merge([
+                    "apartmentImage"=>$apartment->apartment_image,
                 ]);
             }
 
             if($request->waterHarvestingImageDoc){
                 $imageName = "waterHarvesting_".app('requestToken')."_".(Str::slug(Carbon::now()->toDateTimeString())).".".$request->waterHarvestingImageDoc->getClientOriginalExtension(); 
                 $relativePath = $this->_SYSTEM_CONST["DOC-RELATIVE-PATHS"]["APARTMENT_DOC"];
-                $request->document->move($relativePath, $imageName);
+                $request->waterHarvestingImageDoc->move($relativePath, $imageName);
                 $request->merge([
                     "waterHarvestingImage"=>$relativePath."/".$imageName,
                 ]); 
+            }else{
+                $request->merge([
+                    "waterHarvestingImage"=>$apartment->water_harvesting_image,
+                ]);
             }
             $this->_ApartmentDetail->edit($request);
             return responseMsg(true,"Apartment Updated","");

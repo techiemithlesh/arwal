@@ -95,6 +95,12 @@ export const getOccupancyTypeAddApi = `${BASE_URL}/api/property/prop-occupancy-t
 export const getOccupancyTypeEditApi = `${BASE_URL}/api/property/prop-occupancy-type-edit`;
 export const getOccupancyTypeLockUnlockApi = `${BASE_URL}/api/property/prop-occupancy-type-lock-unlock`;
 
+export const getApartmentListApi = `${BASE_URL}/api/property/prop-apartment-list`;
+export const getApartmentDtlApi = `${BASE_URL}/api/property/prop-apartment-dtl`;
+export const getApartmentAddApi = `${BASE_URL}/api/property/prop-apartment-add`;
+export const getApartmentEditApi = `${BASE_URL}/api/property/prop-apartment-edit`;
+export const getApartmentLockUnlockApi = `${BASE_URL}/api/property/prop-apartment-lock-unlock`;
+
 export const getConstructionTypeListApi = `${BASE_URL}/api/property/prop-const-type`;
 export const getConstructionTypeDtlApi = `${BASE_URL}/api/property/prop-const-type-dtl`;
 export const getConstructionTypeAddApi = `${BASE_URL}/api/property/prop-const-type-add`;
@@ -107,6 +113,7 @@ export const getPropertyTypeAddApi = `${BASE_URL}/api/property/prop-property-typ
 export const getPropertyTypeEditApi = `${BASE_URL}/api/property/prop-property-type-edit`;
 export const getPropertyTypeLockUnlockApi = `${BASE_URL}/api/property/prop-property-type-lock-unlock`;
 
+export const getRoadMasterListApi = `${BASE_URL}/api/property/prop-road-mst-list`;
 export const getRoadTypeListApi = `${BASE_URL}/api/property/prop-road-type`;
 export const getRoadTypeDtlApi = `${BASE_URL}/api/property/prop-road-type-dtl`;
 export const getRoadTypeAddApi = `${BASE_URL}/api/property/prop-road-type-add`;
