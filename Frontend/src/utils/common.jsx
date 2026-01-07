@@ -127,13 +127,13 @@ export const statusColor=(status="")=>{
     return "text-[#282628b3]" ;
 }
 
-export const handleGeneratePdf = async (printRef) => {
+export const handleGeneratePdf = async (printRef,name="payment-receipt") => {
   if (!printRef.current) return;
 
   // Use a prompt to ask the user for a filename
   const filename = prompt(
     "Enter a filename for your receipt:",
-    "payment-receipt"
+    name
   );
 
   // If the user cancels the prompt, exit the function

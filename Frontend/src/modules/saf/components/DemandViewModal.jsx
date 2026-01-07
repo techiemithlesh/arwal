@@ -10,6 +10,7 @@ import PaymentModal from "./PaymentModal";
 import toast from "react-hot-toast";
 import PaymentReceiptModal from "./PaymentReceiptModal";
 import { isArray } from "lodash";
+import DemandPrintModal from "./DemandPrintModal";
 
 function DemandViewModal({
   id,
@@ -27,6 +28,8 @@ function DemandViewModal({
   const [isShowPaymentModal, setIsShowPaymentModal] = useState(false);
   const [isShowPaymentReceiptModal, setIsShowPaymentReceiptModal] =
     useState(false);
+
+  const [isDemandPrintModal, setIsDemandPrintModal] = useState(false);
   const [paymentReceiptId, setPaymentReceiptId] = useState(null);
 
   useEffect(() => {
@@ -88,15 +91,30 @@ function DemandViewModal({
         className="flex flex-col bg-white shadow-lg p-6 rounded-lg w-full max-w-6xl max-h-[90vh]"
       >
         {/* Header */}
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="font-semibold text-blue-900 text-xl">View Demand</h2>
-          <button
-            className="text-gray-600 hover:text-red-600"
-            onClick={onClose}
-          >
-            <FaTimes size={20} />
-          </button>
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-3">
+          <h2 className="font-semibold text-blue-900 text-xl">
+            View Demand
+          </h2>
+
+          <div className="flex items-center gap-3">
+            {demandData?.totalPayableAmount > 0 && (
+              <button
+                onClick={() => setIsDemandPrintModal(true)}
+                className="bg-blue-300 hover:bg-blue-400 px-6 py-2 rounded text-white"
+              >
+                Print Demand
+              </button>
+            )}
+
+            <button
+              className="text-gray-600 hover:text-red-600"
+              onClick={onClose}
+            >
+              <FaTimes size={20} />
+            </button>
+          </div>
         </div>
+
 
         {/* Table Content */}
         <div className="relative flex-grow overflow-y-auto">
@@ -419,6 +437,12 @@ function DemandViewModal({
               demandData={demandData}
               onSubmit={handlePaymentSubmit}
               onCancel={() => setIsShowPaymentModal(false)}
+            />
+          )}
+          {isDemandPrintModal &&(
+            <DemandPrintModal 
+              id={id}
+              onClose={()=>setIsDemandPrintModal(false)}
             />
           )}
 

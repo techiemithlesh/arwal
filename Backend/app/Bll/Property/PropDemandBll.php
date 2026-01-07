@@ -2,6 +2,7 @@
 
 namespace App\Bll\Property;
 
+use App\Models\DBSystem\UlbMaster;
 use App\Models\Property\ActiveSafDetail;
 use App\Models\Property\AdditionalTax;
 use App\Models\Property\AdvanceDetail;
@@ -12,14 +13,19 @@ use App\Models\Property\PropertyNotice;
 use App\Models\Property\PropertyTypeMaster;
 use App\Models\Property\SafDemand;
 use App\Models\Property\SafDetail;
+use App\Trait\Property\PropertyTrait;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class PropDemandBll{
+
+    use PropertyTrait;
+
     public $_GRID;
     public $_PROPId;
     public $_PROPERTY;
+    public $_owners;
     public $_SwmConsumers;
     public $_SwmGRID;
     public $_tranDate;
@@ -31,6 +37,7 @@ class PropDemandBll{
     public $_arrearDemandAmount = 0;
     public $_currentDemandMonthlyPenalty = 0 ;
     public $_arrearDemandMonthlyPenalty = 0;
+    public $_UlbDetail;
     public $_DemandList;
     public $_previousDemandList;
     public $_currentDemandList;
@@ -63,8 +70,14 @@ class PropDemandBll{
         $this->_PROPId = $propId;
         $this->_tranDate = Carbon::parse($tranDate);
         $this->_tranDateFyear = getFY($this->_tranDate->copy()->format("Y-m-d"));
-        $this->_PROPERTY = PropertyDetail::find($this->_PROPId);  
+        $this->_PROPERTY = PropertyDetail::find($this->_PROPId);
+        $this->_PROPERTY = $this->adjustSafValue($this->_PROPERTY);
+         $this->_owners = collect($this->_PROPERTY->getOwners())->sortBy("id");
         $this->_SwmConsumers = $this->_PROPERTY->getSwmConsumer();
+        $this->_UlbDetail = UlbMaster::find($this->_PROPERTY->ulb_id);
+        if($this->_UlbDetail){
+            $this->_UlbDetail->logo_img = $this->_UlbDetail->logo_img ? url('/'.$this->_UlbDetail->logo_img) : "";
+        }
         $this->setDemandList();
         $this->testLastTran();
     }
@@ -233,10 +246,26 @@ class PropDemandBll{
 
     public function generateDemand(){
         $this->_GRID = [
+            "description"=>"Property Tax Demand",
+            "department" => "Revenue Section",
+            "accountDescription" => "Holding Tax & Others",
+            "date"=>$this->_tranDate->clone()->format("Y-m-d"),
+            "ulbDtl" => $this->_UlbDetail,
+            "propertyDtl"=>$this->_PROPERTY,
+            "wardNo" =>$this->_PROPERTY->ward_no??"N/A",
+            "newWardNo" =>$this->_PROPERTY->new_ward_no??"N/A",
+            "zone" =>$this->_PROPERTY->zone??"N/A",
+            "holdingNo" => $this->_PROPERTY->holding_no??"",
+            "newHoldingNo" => $this->_PROPERTY->new_holding_no??"",
+            "address" => $this->_PROPERTY->prop_address??"",
+            "ownerName" =>$this->_owners->implode("owner_name",", "),
+            "mobileNo"=>$this->_owners->implode("mobile_no",", "),
             "lastPaymentClear" => $this->_lastPaymentIsClear,
             "demandList"=>$this->_DemandList,
             "previousDemand"=> $this->_previousDemandList,
             "currentDemand"=> $this->_currentDemandList,
+            "previousDemandReceipt"=>$this->generateDemandReceipt($this->_previousDemandList),
+            "currentDemandReceipt"=>$this->generateDemandReceipt($this->_currentDemandList),           
             "notice"=>$this->_notice,
             "grantTax"=>$this->generateGrantTax($this->_DemandList),
             "otherPenaltyList"=>$this->_otherPenaltyList,
@@ -272,7 +301,7 @@ class PropDemandBll{
         $totalPaybleAmount = $this->_SwmGRID->sum("payableAmount");
         $this->_GRID["totalPayableAmount"] = roundFigure($this->_GRID["payableAmount"] + $totalPaybleAmount);
         $this->_GRID["swmPayableAmount"] = roundFigure($totalPaybleAmount);
-        $this->_GRID["totalPayableAmountInWord"] = getIndianCurrency($this->_GRID["totalPayableAmount"]); 
+        $this->_GRID["totalPayableAmountInWord"] = getIndianCurrency($this->_GRID["totalPayableAmount"]);
     }
 
     public function generateGrantTax($demandList){
@@ -297,6 +326,32 @@ class PropDemandBll{
             "monthlyPenalty"=> roundFigure($demandList->sum("monthlyPenalty")),
         ];
         return collect($returnData);
+    }
+
+    public function generateDemandReceipt($demandList){
+        $fromYear = collect($demandList)->min("fyear");
+        $uptoYear = collect($demandList)->max("fyear");
+        $fromQtr = collect($demandList)->where('fyear',$fromYear)->min("qtr");
+        $uptoQtr = collect($demandList)->where('fyear',$uptoYear)->max("qtr");
+        $totalRwhDue = roundFigure(collect($demandList)->sum("due_rwh_tax"));
+        $totalDue = roundFigure(collect($demandList)->sum("balance_tax"));
+        $totalHoldingDue = roundFigure($totalDue - $totalRwhDue);
+        $totalQtr = collect($demandList)->count();
+        $qtrTax = roundFigure($totalHoldingDue / ($totalQtr ? $totalQtr : 1));
+        $qtrRwh = roundFigure($totalRwhDue / ($totalQtr ? $totalQtr : 1));
+        // dd($totalRwhDue,$totalHoldingDue,$totalDue,$totalQtr,$qtrTax,$qtrRwh,$demandList);
+        return[
+            "fromYear"=>$fromYear,
+            "fromQtr"=>$fromQtr,
+            "uptoYear"=>$uptoYear,
+            "uptoQtr"=>$uptoQtr,
+            "qtrTax"=>$qtrTax,
+            "qtrRwh"=>$qtrRwh,
+            "totalQtr"=>$totalQtr,
+            "totalQtrTax"=>roundFigure($qtrTax + $qtrRwh) ,
+            "totalDue"=>$totalDue,
+        ];
+
     }
 
     public function getPropDue(){
