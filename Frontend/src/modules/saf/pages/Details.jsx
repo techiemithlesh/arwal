@@ -211,6 +211,7 @@ const Details = () => {
     postNextLevel();
     setIsRemarksModalOpen(false);
   };
+  
   const postNextLevel = async () => {
     setIsFrozen(true);
     try {
