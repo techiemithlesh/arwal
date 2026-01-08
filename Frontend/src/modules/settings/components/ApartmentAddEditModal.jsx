@@ -29,7 +29,7 @@ function ApartmentAddEditModal({ item, onClose, onSuccess }) {
                 await fetchRoadList();
                 await fetchWardList();
                 if (token && item?.id) {
-                    fetchInitialData();
+                    await fetchInitialData();
                 }
             }catch (error) {
                 console.error("Error during initial data fetch:", error);
@@ -82,7 +82,6 @@ function ApartmentAddEditModal({ item, onClose, onSuccess }) {
 
 
     const fetchInitialData = async () => {
-        setIsLoading(true);
         try {
             const response = await axios.post(
                 getApartmentDtlApi,
@@ -102,8 +101,6 @@ function ApartmentAddEditModal({ item, onClose, onSuccess }) {
             }
         } catch (err) {
             console.error("Error loading data", err);
-        } finally {
-            setIsLoading(false);
         }
     };
 
