@@ -345,7 +345,7 @@ trait PropertyTrait{
             $item->list = $item->getDocList()->get();
             $item->doc_list_names = $item->list->implode("doc_name",",");
             $item->uploaded_doc_name = $testDoc ? $testDoc["doc_name"] : "";
-            $item->uploaded_doc = $testDoc ? trim(Config::get("app.url"),"\\/")."/".$testDoc["doc_path"]:"";
+            $item->uploaded_doc = $testDoc ? url("/documents")."/".$testDoc["doc_path"]:"";
             return $item;
         });
         return["appDoc"=>$lists,"ownerDoc"=>$this->getOwnerDocList($saf)];
@@ -376,7 +376,7 @@ trait PropertyTrait{
                 $item->list = $item->getDocList()->get();
                 $item->doc_list_names = $item->list->implode("doc_name",",");
                 $item->uploaded_doc_name = $testDoc ? $testDoc["doc_name"] : "";
-                $item->uploaded_doc = $testDoc ? trim(Config::get("app.url"),"\\/")."/".$testDoc["doc_path"]:"";
+                $item->uploaded_doc = $testDoc ? url("/documents")."/".$testDoc["doc_path"]:"";
                 return $item;
             });
             return $item;

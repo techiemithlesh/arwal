@@ -44,6 +44,12 @@ return [
             'throw' => false,
         ],
 
+        'documents_driver' => [
+            'driver' => 'local',
+            'root' => env('DOCUMENT_STORAGE_PATH',storage_path('app/public')),
+            'visibility' => 'private', // keep outside public
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

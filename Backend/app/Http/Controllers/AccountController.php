@@ -898,10 +898,11 @@ class AccountController extends Controller
             }
 
             $imageName = (string) Str::uuid().".".$request->document->getClientOriginalExtension();
-            $request->document->move($relativePath, $imageName);
+            // $request->document->move($relativePath, $imageName);
+            $path = $request->document->storeAs($relativePath,$imageName, $this->disk);
             $request->merge([
                 "transactionId"=>$request->tranId,
-                "docPath"=>$relativePath."/".$imageName,
+                "docPath"=>$path,
                 "userId"=>$user->id
             ]);
             $this->begin();

@@ -138,7 +138,7 @@ class ConsumerController extends Controller
                 $lastReading = $connectionDtl->getLastReading();
                 $connectionDtl->current_reading_date = $lastReading?->created_at;
                 $connectionDtl->current_reading = $lastReading?->reading;
-                $connectionDtl->doc_path = $lastReading?->doc_path ? trim(Config::get("app.url"),'\\/')."/".$lastReading?->doc_path:"";
+                $connectionDtl->doc_path = $lastReading?->doc_path ? url("/documents")."/".$lastReading?->doc_path:"";
                 $connectionDtl->userName = $lastReading?->user_id ? $lastReading->getUser()->first()?->name:"";
             }
             $application->connectionDtl = $connectionDtl;
@@ -176,7 +176,7 @@ class ConsumerController extends Controller
             $data["data"] = collect($data["data"])->map(function($val){
                 $readingImage = $val->getMeterReading()->first();
                 $meterStatus = $readingImage?->getMeterStatus()->first();
-                $val->doc_path = $readingImage?->doc_path ? trim(Config::get("app.url"),'\\/')."/".$readingImage?->doc_path:"";
+                $val->doc_path = $readingImage?->doc_path ? url("/documents")."/".$readingImage?->doc_path:"";
                 $val->meter_no = $meterStatus?->meter_no;
                 return $val;
             });
@@ -227,11 +227,12 @@ class ConsumerController extends Controller
             $lastConnection = $consumer->getCurrentConnection;
             $relativePath = "Uploads/WaterMeterConnection";
             $imageName = $consumer->id."_".((string) Str::uuid()).".".$request->document->getClientOriginalExtension();
-            $request->document->move($relativePath, $imageName);
+            // $request->document->move($relativePath, $imageName);
+            $path = $request->document->storeAs($relativePath,$imageName, $this->disk);
             $newMeterStatusRequest = new Request($request->all());
             $newMeterStatusRequest->merge([
                 "consumerId"=>$consumer->id,                
-                "docPath"=>$relativePath."/".$imageName,
+                "docPath"=>$path,
             ]);  
             $this->begin();          
             if($lastConnection){
@@ -315,9 +316,10 @@ class ConsumerController extends Controller
             $relativePath = "Uploads/WaterMeterReading";
             if ($request->hasFile('meterImg')) {
                 $imageName = $consumer->id . "_" . Str::uuid() . "." . $request->meterImg->getClientOriginalExtension();
-                $request->file('meterImg')->move(public_path($relativePath), $imageName);
+                // $request->file('meterImg')->move(public_path($relativePath), $imageName);
+                $path = $request->meterImg->storeAs($relativePath,$imageName, $this->disk);
                 $request->merge([
-                    "docPath" => $relativePath . "/" . $imageName,
+                    "docPath" => $path,
                 ]);
             }
             

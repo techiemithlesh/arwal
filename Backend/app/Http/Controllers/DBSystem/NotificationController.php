@@ -30,6 +30,7 @@ use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -297,9 +298,10 @@ class NotificationController extends Controller
             $relativePath = "Uploads/UlbNotice";
             if ($request->hasFile('doc')) {
                 $imageName = $user->ulb_id . "_" . Str::uuid() . "." . $request->doc->getClientOriginalExtension();
-                $request->file('doc')->move(public_path($relativePath), $imageName);
+                // $request->file('doc')->move(public_path($relativePath), $imageName);
+                $path = $request->doc->storeAs($relativePath,$imageName, $this->disk);
                 $request->merge([
-                    "docPath" => $relativePath . "/" . $imageName,
+                    "docPath" => $path,
                 ]);
             }
 
@@ -330,15 +332,19 @@ class NotificationController extends Controller
             $notice = $this->_modelUlbNotice->find($request->id);
             $request->merge(["docPath"=>$notice->doc_path]);
             if ($request->hasFile('doc')) {
-                $filePath = public_path( $notice->doc_path);
-                if (file_exists($filePath)) {
-                    // Delete the file
-                    @unlink($filePath);
+                // $filePath = public_path( $notice->doc_path);
+                // if (file_exists($filePath)) {
+                //     // Delete the file
+                //     @unlink($filePath);
+                // }
+                if (!empty($notice->doc_path) && Storage::disk($this->disk)->exists($notice->doc_path)) {
+                    Storage::disk($this->disk)->delete($notice->doc_path);
                 }
                 $imageName = $user->ulb_id . "_" . Str::uuid() . "." . $request->doc->getClientOriginalExtension();
-                $request->file('doc')->move(public_path($relativePath), $imageName);
+                // $request->file('doc')->move(public_path($relativePath), $imageName);
+                $path = $request->doc->storeAs($relativePath,$imageName, $this->disk);
                 $request->merge([
-                    "docPath" => $relativePath . "/" . $imageName,
+                    "docPath" => $path,
                 ]);
             }
 
@@ -406,7 +412,7 @@ class NotificationController extends Controller
 
             if($request->all){
                 $data = $data->get()->map(function($val){
-                    $val->doc_path = $val->doc_path ? url("/")."/".$val->doc_path : null;              
+                    $val->doc_path = $val->doc_path ? url("/documents")."/".$val->doc_path : null;              
                     return $val;
                 });
                 return responseMsg(true,"All Notice List",camelCase(remove_null($data)));
@@ -417,7 +423,7 @@ class NotificationController extends Controller
             }
             $data = paginator($data,$request);
             $data["data"]= collect($data["data"])->map(function($val){
-                $val->doc_path = $val->doc_path ? url("/")."/".$val->doc_path : null;              
+                $val->doc_path = $val->doc_path ? url("/documents")."/".$val->doc_path : null;              
                 return $val;
             });
             return responseMsg(true,"Notice Fetched",camelCase(remove_null($data)));
@@ -439,7 +445,7 @@ class NotificationController extends Controller
             }
             
             $data = $this->_modelUlbNotice->find($request->id);
-            $data->doc_path = $data->doc_path ? url("/")."/".$data->doc_path : null; 
+            $data->doc_path = $data->doc_path ? url("/documents")."/".$data->doc_path : null; 
            
             return responseMsg(true,"Notice Dtl",camelCase(remove_null($data)));
             

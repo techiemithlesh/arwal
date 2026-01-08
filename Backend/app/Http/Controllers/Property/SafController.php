@@ -68,6 +68,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -1232,7 +1233,7 @@ class SafController extends Controller
         }catch(CustomException $e){
             return responseMsg(false,$e->getMessage(),"");
         }
-        catch(Exception $e){dd($e);
+        catch(Exception $e){
             return responseMsg(false,"Internal Server Error","");
         }
     }
@@ -1330,15 +1331,19 @@ class SafController extends Controller
             $sms = "Document Uploaded";            
             #reupload
             if($oldDoc){
-                $filePath = public_path($oldDoc->doc_path);
-                if (file_exists($filePath)) {
-                    // Delete the file
-                    @unlink($filePath);
+                // $filePath = public_path($oldDoc->doc_path);
+                // if (file_exists($filePath)) {
+                //     // Delete the file
+                //     @unlink($filePath);
+                // }
+                if (!empty($oldDoc->doc_path) && Storage::disk($this->disk)->exists($oldDoc->doc_path)) {
+                    Storage::disk($this->disk)->delete($oldDoc->doc_path);
                 }
 
                 $imageName = $saf->id."_".$request->docCode.".".$request->document->getClientOriginalExtension();
-                $request->document->move($relativePath, $imageName);
-                $request->merge(["docPath"=>$relativePath."/".$imageName]);
+                // $request->document->move($relativePath, $imageName);
+                $path = $request->document->storeAs($relativePath,$imageName, $this->disk);
+                $request->merge(["docPath"=>$path]);
                        
                 $oldDoc->doc_name = $request->docName;          
                 $oldDoc->doc_path = $request->docPath;
@@ -1347,8 +1352,9 @@ class SafController extends Controller
                 $sms ="Document Updated";
             }else{
                 $imageName = $saf->id."_".$request->docCode.".".$request->document->getClientOriginalExtension();
-                $request->document->move($relativePath, $imageName);
-                $request->merge(["docPath"=>$relativePath."/".$imageName]);
+                // $request->document->move($relativePath, $imageName);
+                $path = $request->document->storeAs($relativePath,$imageName, $this->disk);
+                $request->merge(["docPath"=>$path]);
 
                 $this->_SafDocDetail->saf_detail_id = $saf->id;                
                 $this->_SafDocDetail->saf_owner_detail_id = $request->ownerId;             
@@ -1396,7 +1402,7 @@ class SafController extends Controller
                 $val->docCode =$docMaster ? Str::title(implode(" ",explode("_",$docMaster->doc_type))) : "";
                 $cOwner = $owner->where("id",$val->saf_owner_detail_id)->first();
                 $val->owner_name = $cOwner ? $cOwner->owner_name : "";
-                $val->doc_path = $val->doc_path ? trim(Config::get("app.url"),'\\/')."/".$val->doc_path:"";
+                $val->doc_path = $val->doc_path ? url("/documents")."/".$val->doc_path:"";
                 $val->uploaded_by = $uploadedUser ? $uploadedUser->name : "";
                 $val->verify_by = $verifyUser ? $verifyUser->name : "";
                 return $val;
@@ -1467,15 +1473,20 @@ class SafController extends Controller
             foreach($request->geoTag as $val){ 
                 $oldDoc = $this->_GeotagDetail->where("saf_detail_id",$request->id)->where("direction_type",$val["direction"])->where("lock_status",false)->first();
                 if($oldDoc){
-                    $filePath = public_path($oldDoc->image_path);
-                    if (file_exists($filePath)) {
-                        // Delete the file
-                        @unlink($filePath);
+                    // $filePath = public_path($oldDoc->image_path);
+                    // if (file_exists($filePath)) {
+                    //     // Delete the file
+                    //     @unlink($filePath);
+                    // }
+
+                    if (!empty($oldDoc->image_path) && Storage::disk($this->disk)->exists($oldDoc->image_path)) {
+                        Storage::disk($this->disk)->delete($oldDoc->image_path);
                     }
     
                     $imageName = $request->id."_".$val["direction"].".".$val["document"]->getClientOriginalExtension();
-                    $val["document"]->move($relativePath, $imageName);
-                    $request->merge(["docPath"=>$relativePath."/".$imageName]);
+                    // $val["document"]->move($relativePath, $imageName);
+                    $path = $val["document"]->storeAs($relativePath,$imageName, $this->disk);
+                    $request->merge(["docPath"=>$path]);
                            
                     $oldDoc->direction_type = $val["direction"];          
                     $oldDoc->image_path = $request->docPath;
@@ -1486,8 +1497,9 @@ class SafController extends Controller
                     $sms ="Document Updated";
                 }else{
                     $imageName =  $request->id."_".$val["direction"].".".$val["document"]->getClientOriginalExtension();
-                    $val["document"]->move($relativePath, $imageName);
-                    $request->merge(["docPath"=>$relativePath."/".$imageName]);  
+                    // $val["document"]->move($relativePath, $imageName);
+                    $path = $val["document"]->storeAs($relativePath,$imageName, $this->disk);
+                    $request->merge(["docPath"=>$path]);  
                     $doc = new GeotagDetail();
                     $doc->saf_detail_id = $request->id;             
                     $doc->direction_type = $val["direction"];          
@@ -1624,7 +1636,7 @@ class SafController extends Controller
             $saf = $this->adjustSafValue($saf);
             $user = User::find($verificationDtl->user_id);
             $getGeoTag = $saf->getGeoTag()->get()->map(function($item){
-                $item->image_path = $item->image_path?(trim(Config::get("app.url"),'\\/')."/".$item->image_path):$item->image_path;
+                $item->image_path = $item->image_path?(url("/documents")."/".$item->image_path):$item->image_path;
                 return $item;
             });
             $owner = $saf->getOwners();

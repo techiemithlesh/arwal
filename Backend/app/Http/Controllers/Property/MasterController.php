@@ -727,9 +727,9 @@ class MasterController extends Controller
                 ->orderBy("apartment_details.id","ASC");
             $data = paginator($list,$request);
             $data["data"]= collect($data["data"])->map(function($val){
-                $val->apartment_image = $val->apartment_image ? trim(Config::get("app.url"),'\\/')."/".$val->apartment_image :"";
-                $val->water_harvesting_image = $val->water_harvesting_image ? trim(Config::get("app.url"),'\\/')."/".$val->water_harvesting_image :"";
-                $val->logo_img = $val->logo_img ? trim(Config::get("app.url"),'\\/')."/".$val->logo_img :"";
+                $val->apartment_image = $val->apartment_image ? url("/documents")."/".$val->apartment_image :"";
+                $val->water_harvesting_image = $val->water_harvesting_image ? url("/documents")."/".$val->water_harvesting_image :"";
+                $val->logo_img = $val->logo_img ? url("/")."/".$val->logo_img :"";
                 return $val;
             });
             
@@ -753,8 +753,8 @@ class MasterController extends Controller
             $data = $this->_ApartmentDetail->find($request->id);
             $data->ward_no   = $this->_UlbWardMaster->find($data->ward_mstr_id)->ward_no??"";
             $data->ulb_name   = $this->_UlbMaster->find($data->ulb_id)->ulb_name??"";
-            $data->apartment_image = $data->apartment_image ? url("/")."/".$data->apartment_image : null;
-            $data->water_harvesting_image = $data->water_harvesting_image ? url("/")."/".$data->water_harvesting_image : null;           
+            $data->apartment_image = $data->apartment_image ? url("/documents")."/".$data->apartment_image : null;
+            $data->water_harvesting_image = $data->water_harvesting_image ? url("/documents")."/".$data->water_harvesting_image : null;           
             return responseMsg(true,"Apartment Details",camelCase(remove_null($data)));
         }catch(CustomException $e){
             return responseMsg(false,$e->getMessage(),"");
@@ -818,17 +818,19 @@ class MasterController extends Controller
             }
             $imageName = "apartment_".app('requestToken')."_".(Str::slug(Carbon::now()->toDateTimeString())).".".$request->apartmentImageDoc->getClientOriginalExtension(); 
             $relativePath = $this->_SYSTEM_CONST["DOC-RELATIVE-PATHS"]["APARTMENT_DOC"];
-            $request->apartmentImageDoc->move($relativePath, $imageName);
+            // $request->apartmentImageDoc->move($relativePath, $imageName);
+            $path = $request->apartmentImageDoc->storeAs($relativePath,$imageName, $this->disk);
             $request->merge([
-                "apartmentImage"=>$relativePath."/".$imageName,
+                "apartmentImage"=>$path,
             ]);
 
             if($request->waterHarvestingImageDoc){
                 $imageName = "waterHarvesting_".app('requestToken')."_".(Str::slug(Carbon::now()->toDateTimeString())).".".$request->waterHarvestingImageDoc->getClientOriginalExtension(); 
                 $relativePath = $this->_SYSTEM_CONST["DOC-RELATIVE-PATHS"]["APARTMENT_DOC"];
-                $request->waterHarvestingImageDoc->move($relativePath, $imageName);
+                // $request->waterHarvestingImageDoc->move($relativePath, $imageName);
+                $path = $request->waterHarvestingImageDoc->storeAs($relativePath,$imageName, $this->disk);
                 $request->merge([
-                    "waterHarvestingImage"=>$relativePath."/".$imageName,
+                    "waterHarvestingImage"=>$path,
                 ]); 
             }
             
@@ -924,9 +926,10 @@ class MasterController extends Controller
             if($request->apartmentImageDoc){
                 $imageName = "apartment_".app('requestToken')."_".(Str::slug(Carbon::now()->toDateTimeString())).".".$request->apartmentImageDoc->getClientOriginalExtension(); 
                 $relativePath = $this->_SYSTEM_CONST["DOC-RELATIVE-PATHS"]["APARTMENT_DOC"];
-                $request->apartmentImageDoc->move($relativePath, $imageName);
+                // $request->apartmentImageDoc->move($relativePath, $imageName);
+                $path = $request->apartmentImageDoc->storeAs($relativePath,$imageName, $this->disk);
                 $request->merge([
-                    "apartmentImage"=>$relativePath."/".$imageName,
+                    "apartmentImage"=>$path,
                 ]);
             }else{
                 $request->merge([
@@ -937,9 +940,10 @@ class MasterController extends Controller
             if($request->waterHarvestingImageDoc){
                 $imageName = "waterHarvesting_".app('requestToken')."_".(Str::slug(Carbon::now()->toDateTimeString())).".".$request->waterHarvestingImageDoc->getClientOriginalExtension(); 
                 $relativePath = $this->_SYSTEM_CONST["DOC-RELATIVE-PATHS"]["APARTMENT_DOC"];
-                $request->waterHarvestingImageDoc->move($relativePath, $imageName);
+                // $request->waterHarvestingImageDoc->move($relativePath, $imageName);
+                $path = $request->apartmentImageDoc->storeAs($relativePath,$imageName, $this->disk);
                 $request->merge([
-                    "waterHarvestingImage"=>$relativePath."/".$imageName,
+                    "waterHarvestingImage"=>$path,
                 ]); 
             }else{
                 $request->merge([

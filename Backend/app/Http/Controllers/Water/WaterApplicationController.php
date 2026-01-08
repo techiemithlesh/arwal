@@ -56,6 +56,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -1179,15 +1180,19 @@ class WaterApplicationController extends Controller
             $sms = "Document Uploaded";            
             #reupload
             if($oldDoc){
-                $filePath = public_path($oldDoc->doc_path);
-                if (file_exists($filePath)) {
-                    // Delete the file
-                    @unlink($filePath);
+                // $filePath = public_path($oldDoc->doc_path);
+                // if (file_exists($filePath)) {
+                //     // Delete the file
+                //     @unlink($filePath);
+                // }
+                if (!empty($oldDoc->doc_path) && Storage::disk($this->disk)->exists($oldDoc->doc_path)) {
+                    Storage::disk($this->disk)->delete($oldDoc->doc_path);
                 }
 
                 $imageName = $water->id."_".$request->docCode.".".$request->document->getClientOriginalExtension();
-                $request->document->move($relativePath, $imageName);
-                $request->merge(["docPath"=>$relativePath."/".$imageName]);
+                // $request->document->move($relativePath, $imageName);
+                $path = $request->document->storeAs($relativePath,$imageName, $this->disk);
+                $request->merge(["docPath"=>$path]);
                        
                 $oldDoc->doc_name = $request->docName;          
                 $oldDoc->doc_path = $request->docPath;
@@ -1196,8 +1201,9 @@ class WaterApplicationController extends Controller
                 $sms ="Document Updated";
             }else{
                 $imageName = $water->id."_".$request->docCode.".".$request->document->getClientOriginalExtension();
-                $request->document->move($relativePath, $imageName);
-                $request->merge(["docPath"=>$relativePath."/".$imageName]);
+                // $request->document->move($relativePath, $imageName);
+                $path = $request->document->storeAs($relativePath,$imageName, $this->disk);
+                $request->merge(["docPath"=>$path]);
 
                 $this->_WaterApplicationDocDetail->application_id = $water->id;                
                 $this->_WaterApplicationDocDetail->owner_detail_id = $request->ownerId;             
@@ -1245,7 +1251,7 @@ class WaterApplicationController extends Controller
                 $val->docCode =$docMaster ? Str::title(implode(" ",explode("_",$docMaster->doc_type))) : "";
                 $cOwner = $owner->where("id",$val->owner_detail_id)->first();
                 $val->owner_name = $cOwner ? $cOwner->owner_name : "";
-                $val->doc_path = $val->doc_path ? trim(Config::get("app.url"),'\\/')."/".$val->doc_path:"";
+                $val->doc_path = $val->doc_path ? url("/documents")."/".$val->doc_path:"";
                 $val->uploaded_by = $uploadedUser ? $uploadedUser->name : "";
                 $val->verify_by = $verifyUser ? $verifyUser->name : "";
                 return $val;

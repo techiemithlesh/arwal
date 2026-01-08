@@ -262,10 +262,11 @@ class PropertyController extends Controller
 
             $imageName = $property->id."_".$user->id."_".(Str::slug(Carbon::now()->toDateTimeString())).".".$request->document->getClientOriginalExtension(); 
             $relativePath = $this->_SYSTEM_CONST["DOC-RELATIVE-PATHS"]["PROPERTY_BASIC_EDIT"];
-            $request->document->move($relativePath, $imageName);
+            // $request->document->move($relativePath, $imageName);
+            $path = $request->document->storeAs($relativePath,$imageName, $this->disk);
             $request->merge([
                 "deactivationType"=>1,
-                "docPath"=>$relativePath."/".$imageName,
+                "docPath"=>$path,
                 "propertyDetailId"=>$property->id,
             ]);
             // --- Detect changes before saving ---
@@ -294,10 +295,11 @@ class PropertyController extends Controller
 
             $imageName = $owner->id."_".$user->id."_".(Str::slug(Carbon::now()->toDateTimeString())).".".$request->document->getClientOriginalExtension(); 
             $relativePath = $this->_SYSTEM_CONST["DOC-RELATIVE-PATHS"]["PROPERTY_BASIC_EDIT"];
-            $request->document->move($relativePath, $imageName);
+            // $request->document->move($relativePath, $imageName);
+            $path = $request->document->storeAs($relativePath,$imageName, $this->disk);
             $request->merge([
                 "deactivationType"=>1,
-                "docPath"=>$relativePath."/".$imageName,
+                "docPath"=>$path,
                 "propertyDetailId"=>$owner->property_detail_id,
                 "ownerId"=>$owner->id,
             ]);
@@ -474,10 +476,11 @@ class PropertyController extends Controller
             }
             $imageName = $property->id."_".$user->id."_".(Str::slug(Carbon::now()->toDateTimeString())).".".$request->document->getClientOriginalExtension(); 
             $relativePath = $this->_SYSTEM_CONST["DOC-RELATIVE-PATHS"]["PROPERTY_DEACTIVATE"];
-            $request->document->move($relativePath, $imageName);
+            // $request->document->move($relativePath, $imageName);
+            $path = $request->document->storeAs($relativePath,$imageName, $this->disk);
             $request->merge([
                 "deactivationType"=>1,
-                "docPath"=>$relativePath."/".$imageName,
+                "docPath"=>$path,
                 "propertyDetailId"=>$property->id,
             ]);
             $property->lock_status= true;

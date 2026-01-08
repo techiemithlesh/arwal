@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 
 Route::get('/', function () {
     return view('welcome');
@@ -17,3 +18,16 @@ Route::get('/logo/{path}', function ($path) {
 
     return $response;
 })->where('path', '.*\.(jpg|jpeg|png|gif|svg|pdf|css|js|woff2?|ttf|ico)$');
+
+Route::match(["get","post"],'/documents/{path}', function($path){
+    $disk ="documents_driver";
+    $path = Storage::disk($disk)->path($path);
+    if (!file_exists($path) || is_dir($path)) {
+        abort(404);
+    }
+
+    $mime = mime_content_type($path);
+
+    $response = Response::file($path, ['Content-Type' => $mime]);
+    return $response;
+})->where('path', '.*');
