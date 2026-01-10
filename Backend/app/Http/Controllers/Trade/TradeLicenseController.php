@@ -518,7 +518,9 @@ class TradeLicenseController extends Controller
                 "firmEstablishmentDate"=>"required|date|date_format:Y-m-d",
                 "licenseForYears"=>"required|int|between:1,10",
                 "areaInSqft"=>"required|numeric|min:0.1",
-                "isTobaccoLicense"=>"required:bool"
+                "isTobaccoLicense"=>"required:bool",
+                "natureOfBusiness"=>"required|array",            
+                "natureOfBusiness.*.tradeItemTypeId"=>"required|exists:".$this->_TradeItemTypeMaster->getConnectionName().".".$this->_TradeItemTypeMaster->getTable().",id",
             ];
             $validator = Validator::make($request->all(),$rules);
             if($validator->fails()){
@@ -535,7 +537,7 @@ class TradeLicenseController extends Controller
         }catch(CustomException $e){
             return responseMsg(false,$e->getMessage(),"");
         }
-        catch(Exception $e){dd($e);
+        catch(Exception $e){
             return responseMsg(false,"Internal Server Error","");
         }
 

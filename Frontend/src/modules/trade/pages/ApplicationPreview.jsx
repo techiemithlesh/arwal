@@ -185,7 +185,7 @@ export default function ApplicationPreview() {
   }
 
   return (
-    <AdminLayout>
+    <>
       <div className="flex flex-col gap-4 bg-gray-100">
         {fieldGroups.map((group) => (
           <PreviewFormData
@@ -280,6 +280,6 @@ export default function ApplicationPreview() {
           </ModalContent>
         </Modal>
       </div>
-    </AdminLayout>
+    </>
   );
 }
