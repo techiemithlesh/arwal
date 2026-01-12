@@ -102,6 +102,7 @@ Route::middleware(['auth:sanctum',"expireBearerToken","setUlb"])->group(function
         Route::post('logout', 'logout');
         Route::post("user-profile","profile");
         Route::post("edit-login-user/{id}","updateLoginUserProfile");
+        Route::post("login-user-change-pass","changePass");
         Route::post('user-login-sendOtp', 'userLoginSendOtp')->withoutMiddleware(["auth:sanctum","setUlb"]);
         Route::post('user-login-verifyOtp', 'userLoginVerifyOtp')->withoutMiddleware(["auth:sanctum","setUlb"]);
         Route::post('user-hashPassword', 'hashPassword')->withoutMiddleware(["auth:sanctum","setUlb"]);

@@ -68,10 +68,10 @@ const AdminLayout = ({ children }) => {
         setIsSidebarOpen(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
+    // document.addEventListener("mousedown", handleClickOutside);
 
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+    // return () =>
+    //   document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // === Disable body scroll when mobile sidebar open ===
