@@ -68,7 +68,9 @@ return [
         "DEPUTY MUNICIPAL COMMISSIONER"=>"DMC",
         "DMC"               => "DMC",
         "FIELD ENGINEER"    => "FE", #TC
-        "FE"                => "FE" #TC
+        "FE"                => "FE", #TC
+        "AMIN"              => "AMN",
+        "AMN"               => "AMN"
 
     ],
     "MOBILE-ROLE"=>[

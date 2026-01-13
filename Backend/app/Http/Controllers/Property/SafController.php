@@ -1583,7 +1583,7 @@ class SafController extends Controller
                 $saf->field_verify_date =Carbon::now();
                 $saf->field_verify_user_id =$user->id;
             }
-            if($shortName=="UTC"){
+            if(in_array($shortName,["UTC","AMN"])){
                 $request->merge(["verified_by"=>"ULB TC"]);
                 $saf->is_utc_field_verify =true;
                 $saf->utc_field_verify_date =Carbon::now();
