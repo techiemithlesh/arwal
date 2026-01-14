@@ -87,20 +87,22 @@ trait PropertyTrait{
     }
 
     public function adjustSafValue($saf){
-        
-        $ulbDtl = UlbMaster::find($saf->ulb_id);
-        $transferModeMaster = TransferModeMaster::find($saf->transfer_mode_mstr_id);
-        $oldWard = UlbWardMaster::find($saf->ward_mstr_id);
-        $newWard = UlbWardMaster::find($saf->new_ward_mstr_id);
-        $ownershipTypeMaster = OwnershipTypeMaster::find($saf->ownership_type_mstr_id);
-        $propertyTypeMaster = PropertyTypeMaster::find($saf->prop_type_mstr_id);
-        $apartments = ApartmentDetail::find($saf->appartment_details_id);
-        $roadType = RoadTypeMaster::find($saf->road_type_mstr_id);
-        $waterConnectionFacilityType = WaterConnectionFacilityType::find($saf->water_connection_facility_type_id);
-        $waterTaxType = WaterTaxType::find($saf->water_tax_type_id);
-        $saf->zone = $this->getZone($saf->zone_mstr_id);
+        if(!$saf){
+            return $saf;
+        }
+        $ulbDtl = UlbMaster::find($saf?->ulb_id);
+        $transferModeMaster = TransferModeMaster::find($saf?->transfer_mode_mstr_id);
+        $oldWard = UlbWardMaster::find($saf?->ward_mstr_id);
+        $newWard = UlbWardMaster::find($saf?->new_ward_mstr_id);
+        $ownershipTypeMaster = OwnershipTypeMaster::find($saf?->ownership_type_mstr_id);
+        $propertyTypeMaster = PropertyTypeMaster::find($saf?->prop_type_mstr_id);
+        $apartments = ApartmentDetail::find($saf?->appartment_details_id);
+        $roadType = RoadTypeMaster::find($saf?->road_type_mstr_id);
+        $waterConnectionFacilityType = WaterConnectionFacilityType::find($saf?->water_connection_facility_type_id);
+        $waterTaxType = WaterTaxType::find($saf?->water_tax_type_id);
+        $saf->zone = $this->getZone($saf?->zone_mstr_id);
         $saf->roadType = $roadType?->road_type;
-        $saf->ulb_name = $ulbDtl->ulb_name??"";
+        $saf->ulb_name = $ulbDtl?->ulb_name??"";
         $saf->transfer_mode = $transferModeMaster->transfer_mode??"";
         $saf->ward_no = $oldWard->ward_no??"";
         $saf->new_ward_no = $newWard->ward_no??"";
@@ -317,10 +319,6 @@ trait PropertyTrait{
         $user = Auth()->user();
         if($saf->prop_type_mstr_id==1)	// super structure
 		{
-			$docList[]='super_structure_doc';
-		}
-		if ($saf->prop_type_mstr_id==3) //FLATS / UNIT IN MULTI STORIED BUILDING
-		{
 			$docList[]='flat_doc';
 		}
 
@@ -357,16 +355,16 @@ trait PropertyTrait{
             $docList=[];
             $docList[] = "applicant_image";
             if($item->is_armed_force){
-                $docList[] = "armed_force_document";
+                // $docList[] = "armed_force_document";
             } 
             if($item->is_specially_abled){
-                $docList[] = "handicaped_document";
+                // $docList[] = "handicaped_document";
             }
             if($item->gender=="Other"){
-                $docList[] = "gender_document";
+                // $docList[] = "gender_document";
             }
             if($item->dob && Carbon::parse($item->dob)->diffInYears(Carbon::now())>=60){
-                $docList[] = "dob_document";
+                // $docList[] = "dob_document";
             }
             $list = DocTypeMaster::whereIn("doc_type",$docList)->where("lock_status",false)->get();
             $uploadedDoc = $item->getDocList()->get();

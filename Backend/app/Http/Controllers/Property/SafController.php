@@ -333,11 +333,49 @@ class SafController extends Controller
     }
 
     public function testAddRequest(RequestAddSaf $request){
+        $user = Auth()->user(); 
+        if($user->getTable()=="users"){
+            $role = $user->getRoleDetailsByUserId()->first();
+            if($role && in_array($role->id,[5])){
+                $request->merge(["skip_tc_level"=>true]);
+                $rules=[
+                    "geoTag"=>"required|array|min:3",
+                    "geoTag.*.direction"=>"required|in:right side,left side,front side,Water Harvesting",
+                    "geoTag.*.document"=>"required|mimes:bmp,jpeg,jpg,png",
+                    "geoTag.*.latitude"=>"required",
+                    "geoTag.*.longitude"=>"required"
+                ];
+                $validator = Validator::make($request->all(),$rules);
+                if($validator->fails()){
+                    return validationError($validator);
+                }
+            }
+
+        }
         return responseMsg(true,"Valid Request",""); 
     }
 
     public function AddSaf(RequestAddSaf $request){
         try{
+            $user = Auth()->user(); 
+            if($user->getTable()=="users"){
+                $role = $user->getRoleDetailsByUserId()->first();
+                if($role && in_array($role->id,[5])){
+                    $request->merge(["skip_tc_level"=>true]);
+                    $rules=[
+                        "geoTag"=>"required|array|min:3",
+                        "geoTag.*.direction"=>"required|in:right side,left side,front side,Water Harvesting",
+                        "geoTag.*.document"=>"required|mimes:bmp,jpeg,jpg,png",
+                        "geoTag.*.latitude"=>"required",
+                        "geoTag.*.longitude"=>"required"
+                    ];
+                    $validator = Validator::make($request->all(),$rules);
+                    if($validator->fails()){
+                        return validationError($validator);
+                    }
+                }
+
+            }
             if(!$request->isCorrAddDiffer){
                 $request->merge([
                     "isCorrAddDiffer"=>false,
@@ -348,7 +386,6 @@ class SafController extends Controller
                     "corrState"=>$request->propState,
                 ]);
             }
-            $user = Auth()->user(); 
             $additionData = []; 
             if($user && $user->getTable()=='users'){
                 $additionData["userId"]=$user->id;
@@ -459,6 +496,48 @@ class SafController extends Controller
             $saf->payment_status =1;
             $saf->update();
             $safNo = $saf->saf_no??"";
+
+            if($request->skip_tc_level){
+                $safRequest = camelCase($saf)->toArray();
+                $safRequest["safDetailId"]=$saf->id;
+                $safRequest["floorDtl"] = camelCase($saf->getFloors()->map(function($item){
+                    $item->safFloorDetailId = $item->id;
+                    $item->date_from = $item->date_from ? Carbon::parse($item->date_from)->format("Y-m"):$item->date_from;
+                    $item->date_upto = $item->date_upto ? Carbon::parse($item->date_upto)->format("Y-m"):$item->date_upto;
+                    return $item;
+                }))->toArray();
+
+                // 1️⃣ Create a base Illuminate Request
+                $baseRequest = Request::create(
+                    uri: '',
+                    method: 'POST',
+                    parameters: $safRequest
+                );
+
+                // 2️⃣ Convert to FormRequest
+                $formRequest = RequestFieldVerification::createFrom($baseRequest);
+
+                // 3️⃣ REQUIRED bindings
+                $formRequest->setContainer(app())
+                            ->setRedirector(app('redirect'))
+                            ->setUserResolver(fn () => auth()->user());
+
+                // // 4️⃣ Trigger validation + authorize()
+                $formRequest->validateResolved();
+
+                // 5️⃣ Call destination method
+                $res = $this->fieldVerification($formRequest);
+                if(!$res->original["status"]){
+                    throw new CustomException("Field Verification Not Done Pleas Contact Admin");
+                }
+                $geoTagRequest = new Request();
+                $geoTagRequest->merge(["geoTag"=>$request->geoTag,"id"=>$saf->id]);
+                $geoTagRes = $this->uploadGeoTag($geoTagRequest);
+                if(!$geoTagRes->original["status"]){
+                    return $geoTagRes;
+                }
+
+            }
             $this->commit();
             return responseMsg(true,"Application Submitted ",remove_null(camelCase(["safId"=>$safId,"safNo"=>$safNo])));
         }catch(CustomException $e){
@@ -466,7 +545,7 @@ class SafController extends Controller
             return responseMsg(false,$e->getMessage(),"");
         }
         catch(Exception $e){ 
-            $this->rollBack();dd($e);
+            $this->rollBack();
             return responseMsg(false,"Internal Server Error","");
         }
     }
@@ -999,8 +1078,13 @@ class SafController extends Controller
             if($request->status=="FORWARD"){
                 #=========forward===============
                 if(!$saf->is_btc){
+                    if($saf->skip_tc_level && $role->id==6){
+                        $WfPermission = $workflowMater->getWorkFlowRoles()->where("ulb_id",$user->ulb_id)->where("role_id",$WfPermission->forward_role_id)->first();
+                        $saf->skip_tc_level = false;
+                    }
                     $saf->current_role_id = $WfPermission->forward_role_id;
                     $saf->max_level_attempt = $saf->max_level_attempt< $WfPermission->serial_no ? $WfPermission->serial_no : $saf->max_level_attempt;
+
                 }else{
                     $saf->is_btc = false;
                 }
@@ -1611,7 +1695,7 @@ class SafController extends Controller
             $this->rollBack();
             return responseMsg(false,$e->getMessage(),"");
         }
-        catch(Exception $e){dd($e);
+        catch(Exception $e){
             $this->rollBack();
             return responseMsg(false,"Internal Server Error","");
         }

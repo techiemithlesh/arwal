@@ -541,7 +541,64 @@ if (!function_exists('roundFigure')) {
 // }
 
 if (!function_exists('getIndianCurrency')) {
-    function getIndianCurrency(float $amount)
+    function getIndianCurrency(float $number)
+    {
+        $no = (int)floor($number);
+        $decimal = (int)round(($number - $no) * 100);
+        $hundred = null;
+        $digits_length = strlen($no);
+        $i = 0;
+        $str = array();
+        $words = array(
+            0 => '', 1 => 'One', 2 => 'Two',
+            3 => 'Three', 4 => 'Four', 5 => 'Five', 6 => 'Six',
+            7 => 'Seven', 8 => 'Eight', 9 => 'Nine',
+            10 => 'Ten', 11 => 'Eleven', 12 => 'Twelve',
+            13 => 'Thirteen', 14 => 'Fourteen', 15 => 'Fifteen',
+            16 => 'Sixteen', 17 => 'Seventeen', 18 => 'Eighteen',
+            19 => 'Nineteen', 20 => 'Twenty', 30 => 'Thirty',
+            40 => 'Forty', 50 => 'Fifty', 60 => 'Sixty',
+            70 => 'Seventy', 80 => 'Eighty', 90 => 'Ninety'
+        );
+        $digits = array('', 'Hundred', 'Thousand', 'Lakh', 'Crore');
+        
+        while ($i < $digits_length) {
+            $divider = ($i == 2) ? 10 : 100;
+            $chunk = floor($no % $divider);
+            $no = floor($no / $divider);
+            $i += ($divider == 10) ? 1 : 2;
+            
+            if ($chunk) {
+                $counter = count($str);
+                $hundred = ($counter == 1 && $str[0]) ? ' ' : null;
+                
+                $str[] = ($chunk < 21) 
+                    ? $words[$chunk] . ' ' . $digits[$counter] . ' ' . $hundred 
+                    : $words[floor($chunk / 10) * 10] . ' ' . $words[$chunk % 10] . ' ' . $digits[$counter] . ' ' . $hundred;
+            } else {
+                $str[] = null;
+            }
+        }
+
+        $Rupees = trim(implode('', array_reverse($str)));
+        
+        // Handle Paise Logic
+        $paise = '';
+        if ($decimal > 0) {
+            if ($decimal < 21) {
+                $paise = " and " . $words[$decimal] . " Paise";
+            } else {
+                $paise = " and " . $words[floor($decimal / 10) * 10] . " " . $words[$decimal % 10] . " Paise";
+            }
+        }
+
+        $main_currency = ($Rupees) ? $Rupees : 'Zero';
+        return "Rupees " . $main_currency . $paise . " Only";
+    }
+}
+
+if (!function_exists('getIndianCurrency1')) {
+    function getIndianCurrency1(float $amount)
     {
         $amount = round($amount, 2);
 

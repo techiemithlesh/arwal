@@ -88,6 +88,7 @@ class ActiveSafDetail extends ParamModel
         'citizen_id',
         "water_connection_facility_type_id",
         "water_tax_type_id",
+        "skip_tc_level",
         "lock_status",
     ];
 

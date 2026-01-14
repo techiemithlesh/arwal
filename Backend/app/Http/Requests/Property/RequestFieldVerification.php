@@ -34,7 +34,7 @@ class RequestFieldVerification extends RequestAddSaf
             "percentageOfPropertyTransfer"=>$saf && in_array($saf->assessment_type,["Mutation"]) ? "required|numeric|min:0.1|max:100":"nullable",
             "zoneMstrId"=>"required|int|exists:".$this->_ZoneMaster->getConnectionName().".".$this->_ZoneMaster->getTable().",id",
             "roadTypeMstrId"=>"required|int|exists:".$this->_RoadTypeMaster->getConnectionName().".".$this->_RoadTypeMaster->getTable().",id",   
-            "roadWidth"=>"nullable|numeric|".($this->propTypeMstrId==4 ? "min:0":"min:0.5")."|max:499",
+            // "roadWidth"=>"nullable|numeric|".($this->propTypeMstrId==4 ? "min:0":"min:0.5")."|max:499",
             "appartmentDetailsId"=>[
                 "nullable",
                 "required_if:propTypeMstrId,1",
