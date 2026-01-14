@@ -49,6 +49,18 @@ export const formatReadableDate = (dateStr) => {
 
   return `${day} ${month} ${year}`;
 };
+export const formatReadableYearMonth = (dateStr) => {
+  if (!dateStr) return "N/A";
+
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return "Invalid Date";
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = date.toLocaleString("en-US", { month: "short" });
+  const year = date.getFullYear();
+
+  return `${month}-${year}`;
+};
 
 
 export const toTitleCase = (str) => {

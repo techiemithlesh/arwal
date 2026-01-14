@@ -543,11 +543,13 @@ if (!function_exists('roundFigure')) {
 if (!function_exists('getIndianCurrency')) {
     function getIndianCurrency(float $amount)
     {
-        $no = floor($amount);
-        $decimal = round(($amount - $no) * 100);
+        $amount = round($amount, 2);
+
+        $no = (int)$amount;
+        $decimal = (int)round(($amount - $no) * 100);
 
         $words = [
-            0 => '', 1 => 'One', 2 => 'Two', 3 => 'Three', 4 => 'Four',
+            0 => 'Zero', 1 => 'One', 2 => 'Two', 3 => 'Three', 4 => 'Four',
             5 => 'Five', 6 => 'Six', 7 => 'Seven', 8 => 'Eight', 9 => 'Nine',
             10 => 'Ten', 11 => 'Eleven', 12 => 'Twelve', 13 => 'Thirteen',
             14 => 'Fourteen', 15 => 'Fifteen', 16 => 'Sixteen',
@@ -559,26 +561,31 @@ if (!function_exists('getIndianCurrency')) {
 
         $digits = ['', 'Hundred', 'Thousand', 'Lakh', 'Crore'];
         $str = [];
-        $i = 0;
 
+        // Handle Hundreds
+        if ($no >= 100) {
+            $str[] = $words[intdiv($no, 100)] . ' Hundred';
+            $no %= 100;
+        }
+
+        // Handle remaining (Indian format)
+        $i = 1;
         while ($no > 0) {
-            $divider = ($i == 2) ? 10 : 100;
-            $number = $no % $divider;
-            $no = intdiv($no, $divider);
-            $i += ($divider == 10) ? 1 : 2;
+            $divider = ($i == 1) ? 100 : 100;
+            $number = $no % 100;
+            $no = intdiv($no, 100);
 
             if ($number) {
-                $counter = count($str);
                 $text = ($number < 21)
                     ? $words[$number]
                     : $words[intdiv($number, 10) * 10] . ' ' . $words[$number % 10];
 
-                $str[] = $text . ' ' . $digits[$counter];
+                $str[] = $text . ' ' . ($digits[$i + 1] ?? '');
             }
+            $i++;
         }
 
-        $rupees = trim(implode(' ', array_reverse($str)));
-        $rupeesText = $rupees !== '' ? $rupees : 'Zero';
+        $rupeesText = trim(implode(' ', array_reverse($str)));
 
         $paiseText = '';
         if ($decimal > 0) {
@@ -589,7 +596,7 @@ if (!function_exists('getIndianCurrency')) {
                 ) . ' Paise';
         }
 
-        return 'Rupees ' . $rupeesText . $paiseText . ' Only';
+        return 'Rupees ' . ($rupeesText ?: 'Zero') . $paiseText . ' Only';
     }
 }
 

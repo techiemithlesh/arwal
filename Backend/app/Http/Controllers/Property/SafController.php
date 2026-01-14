@@ -485,8 +485,8 @@ class SafController extends Controller
             }
             $rules = [
                 "id"=>"required|int|exists:".$this->_ActiveSafDetail->getConnectionName().".".$this->_ActiveSafDetail->getTable().",id",                
-                "khataNo"=>"required",
-                "plotNo"=>"required",
+                "khataNo"=>"nullable",
+                "plotNo"=>"nullable",
                 "villageMaujaName"=>"required",
                 "areaOfPlot"=>"required|numeric|min:0.1",
                 "builtupArea"=>"required|numeric|min:0".($request->areaOfPlot ? "|max:".decimalToSqFt($request->areaOfPlot) : ""),
