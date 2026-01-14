@@ -239,6 +239,11 @@ class PropDemandBll{
             $monthDiff = floor(Carbon::parse(FyearQutUptoDate(getFY(),2))->diffInMonths($this->_tranDate));
             $penalty = roundFigure(($demandList->balance_tax * $monthDiff * 1.5)/100);
         }
+
+        if(in_array(getFY(),["2025-2026"])){
+            $penalty = 0 ;
+            $monthDiff = 0;
+        }
         $demandList->monthDiff = $monthDiff;
         $demandList->monthlyPenalty = $penalty;
         return $demandList;
