@@ -20,6 +20,7 @@ class TradeTransaction extends ParamModel
         "demand_amt",
         "penalty_amt",
         "discount_amt",
+        "rate",
         "remarks",
         "user_id",
         "user_type",

@@ -19,8 +19,12 @@ use App\Models\Property\SwmConsumerTransactionFineRebateDetail;
 use App\Models\Property\SwmRejectedConsumer;
 use App\Models\Property\TransactionFineRebateDetail;
 use App\Models\User;
+use App\Trait\Property\PropertyTrait;
+use Illuminate\Support\Carbon;
 
-class PaymentReceiptBll{
+class PaymentReceiptBll{ 
+
+    use PropertyTrait;
 
     public $_GRID;
     public $_TranId;
@@ -37,8 +41,12 @@ class PaymentReceiptBll{
     public $_newWard;
     public $_propSafData;
     public $_owners;
+    public $_floor;
     public $_tblRow;
     public $_AdditionalTaxs;
+    public $_tranDateFyear ;
+    public $_currentDemandList;
+    public $_previousDemandList;
 
     function __construct($tranId)
     {
@@ -52,6 +60,7 @@ class PaymentReceiptBll{
                             ->where("lock_status",false)
                             ->orderBy("id","DESC")
                             ->first();
+        $this->_tranDateFyear = getFy($this->_TranDetail->tran_date);
         $this->_FineRebates = TransactionFineRebateDetail::where("lock_status",false)->where("transaction_id",$this->_TranId)->get();
         $this->_AdditionalTaxs = AdditionalTax::where("lock_status",false)->where("transaction_id",$this->_TranId)->get();
         if($this->_TranDetail->saf_detail_id){
@@ -79,9 +88,11 @@ class PaymentReceiptBll{
         if($this->_UlbDetail){
             $this->_UlbDetail->logo_img = $this->_UlbDetail->logo_img ? url('/'.$this->_UlbDetail->logo_img) : "";
         }
+        $this->_propSafData = $this->adjustSafValue($this->_propSafData);
         $this->_oldWard = UlbWardMaster::find($this->_propSafData->ward_mstr_id);
         $this->_newWard = UlbWardMaster::find($this->_propSafData->new_ward_mstr_id);
-        $this->_owners = collect($this->_propSafData->getOwners())->sortBy("id");        
+        $this->_owners = collect($this->_propSafData->getOwners())->sortBy("id");
+        $this->_floor = $this->adjustFloorValue($this->_propSafData->getFloors());       
         $this->_SwmTran = $this->_TranDetail->getSwmTrans()->map(function($item){
             $consumers = SwmConsumer::find($item->consumer_id);
             if(!$consumers){
@@ -99,9 +110,51 @@ class PaymentReceiptBll{
         });
     }
 
+    public function generateDemandReceipt($demandList){
+        $fromYear = collect($demandList)->min("fyear");
+        $uptoYear = collect($demandList)->max("fyear");
+        $fromQtr = collect($demandList)->where('fyear',$fromYear)->min("qtr");
+        $uptoQtr = collect($demandList)->where('fyear',$uptoYear)->max("qtr");
+        $totalRwhDue = roundFigure(collect($demandList)->sum("rwh_tax"));
+        $totalDue = roundFigure(collect($demandList)->sum("total_tax"));
+        $totalHoldingDue = roundFigure($totalDue - $totalRwhDue);
+        $totalQtr = collect($demandList)->count();
+        $qtrTax = roundFigure($totalHoldingDue / ($totalQtr ? $totalQtr : 1));
+        $qtrRwh = roundFigure($totalRwhDue / ($totalQtr ? $totalQtr : 1));
+        return[
+            "fromYear"=>$fromYear,
+            "fromQtr"=>$fromQtr,
+            "uptoYear"=>$uptoYear,
+            "uptoQtr"=>$uptoQtr,
+            "qtrTax"=>$qtrTax,
+            "qtrRwh"=>$qtrRwh,
+            "totalQtr"=>$totalQtr,
+            "totalQtrTax"=>roundFigure($qtrTax + $qtrRwh) ,
+            "totalDue"=>$totalDue,
+        ];
+
+    }
+
+    public function generateSwmReceipt($tranList){
+        $fromDate = collect($tranList)->min("from_date");
+        $uptoDate = collect($tranList)->max("upto_date");
+        $totalDue = roundFigure(collect($tranList)->sum("payable_amt"));
+        return[
+            "fromDate"=>$fromDate,
+            "uptoDate"=>$uptoDate,
+            "totalAmount"=>$totalDue,
+        ];
+
+    }
+
     public function generateReceipt(){
         $this->loadParam();
+
+        $this->_currentDemandList = $this->_CollectionDetail->where("fyear",$this->_tranDateFyear);
+        $this->_previousDemandList = $this->_CollectionDetail->where("fyear","<",$this->_tranDateFyear);
+
         $this->_GRID=[
+            "printingDate"=>Carbon::now()->format("Y-m-d H:i:s"),
             "description"=>"HOLDING TAX RECEIPT",
             "tranNo"=>$this->_TranDetail->tran_no,
             "tranDate"=>$this->_TranDetail->tran_date,
@@ -111,9 +164,12 @@ class PaymentReceiptBll{
             "accountDescription" => "Holding Tax & Others",
             "holdingNo" => $this->_propSafData->holding_no??"",
             "newHoldingNo" => $this->_propSafData->new_holding_no??"",
+            "usageType" => $this->_floor ? $this->_floor->unique("usage_type")->pluck("usage_type")->implode(", "): "Resident",
             "saf_no" => $this->_propSafData->saf_no??"",
             "address" => $this->_propSafData->prop_address??"",
             "ownerName" =>$this->_owners->implode("owner_name",", "),
+            "guardianName" =>$this->_owners->implode("guardian_name",", "),
+            "mobileNo"=>$this->_owners->implode("mobile_no",", "),
             "amount" => $this->_TranDetail->payable_amt,
             "amountInWords" => getIndianCurrency($this->_TranDetail->payable_amt),
             "paymentMode" => $this->_TranDetail->payment_mode,
@@ -133,10 +189,14 @@ class PaymentReceiptBll{
             "healthCessTax" =>roundFigure(collect($this->_CollectionDetail)->sum("health_cess_tax")??0),
             "educationCessTax" =>roundFigure(collect($this->_CollectionDetail)->sum("education_cess_tax")??0),            
             "rwhTax" =>roundFigure(collect($this->_CollectionDetail)->sum("rwh_tax")??0),
+
+            "previousPaymentReceipt"=>$this->generateDemandReceipt($this->_previousDemandList),
+            "currentPaymentReceipt"=>$this->generateDemandReceipt($this->_currentDemandList),
             
             "propertyDtl"=>$this->_propSafData,
             "tranDtl" => $this->_TranDetail,
             "swmTranDtl"=>$this->_SwmTran,
+            "swmTranReceipt"=>$this->generateSwmReceipt($this->_SwmTran),
             "chequeDtl" => $this->_ChequeDtl,
             "ulbDtl" => $this->_UlbDetail,
             "ownerDtl" => $this->_owners,

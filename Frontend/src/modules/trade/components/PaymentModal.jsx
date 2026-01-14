@@ -159,7 +159,7 @@ function PaymentModeModal({ open, onClose, onSubmit, loading }) {
   );
 }
 
-export default function PaymentModal({ id, open, onClose, apiUrl, token }) {
+export default function PaymentModal({ id, open, onClose,onSuccess, apiUrl, token }) {
   if (!open) return null;
 
   const [demandData, setDemandData] = useState({});
@@ -222,6 +222,7 @@ export default function PaymentModal({ id, open, onClose, apiUrl, token }) {
       loading: "Processing payment...",
       success: (res) => {
         if (res?.data?.status) {
+          if(onSuccess)onSuccess();
           if (onClose) onClose();
           return "Payment successful!";
         }

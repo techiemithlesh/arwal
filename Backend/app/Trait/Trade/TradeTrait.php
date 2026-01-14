@@ -89,6 +89,10 @@ trait TradeTrait{
 
     public function generateTradeRequestForCharge($id){
         $license = ActiveTradeLicense::find($id);
+        $natureOfBusiness = $license->getTradeItems()->get()->map(function($item){
+            $item->tradeItemTypeId = $item->id;
+            return $item;
+        });
         return[
             "currentDate"=>$license->apply_date,
             "applicationId"=>$license->application_type_id,
@@ -96,6 +100,7 @@ trait TradeTrait{
             "licenseForYears"=>$license->license_for_years,
             "areaInSqft"=>$license->area_in_sqft,
             "isTobaccoLicense"=>$license->is_tobacco_license,
+            "natureOfBusiness"=>$natureOfBusiness,
         ];
     }
 

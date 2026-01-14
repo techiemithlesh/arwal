@@ -209,12 +209,12 @@ const WorkflowDetail = () => {
 
   if (loading)
     return (
-      <AdminLayout>
+      <>
         <div className="py-20 text-center">
           <span className="inline-block w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
           <p className="mt-3 text-gray-600">Loading details...</p>
         </div>
-      </AdminLayout>
+      </>
     );
 
   const viewData = [
@@ -271,7 +271,7 @@ const WorkflowDetail = () => {
   ];
 
   return (
-    <AdminLayout>
+    <>
       <div className="mx-auto container py-4">
         {/* APPLICATION INFO */}
         <ApplicationInfo fields={viewData} />
@@ -391,7 +391,7 @@ const WorkflowDetail = () => {
           </div>
         </div>
       )}
-    </AdminLayout>
+    </>
   );
 };
 

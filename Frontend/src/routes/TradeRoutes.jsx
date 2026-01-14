@@ -10,6 +10,7 @@ import WorkflowDetail from "../modules/trade/pages/WorkflowDetail";
 import RenewApplication from "../modules/trade/pages/RenewApplication";
 import SurrendarApplication from "../modules/trade/pages/SurrendarApplication";
 import AmedmentApplication from "../modules/trade/pages/AmedmentApplication";
+import AdminLayout from "../layout/AdminLayout";
 
 const TradeRoutes = () => {
   return (
@@ -22,31 +23,33 @@ const TradeRoutes = () => {
           </div>
         }
       />
-      <Routes>
-        <Route path="/apply-license" element={<ProtectedRoute>
-            <NewApplication/>
-        </ProtectedRoute>}/>
-        <Route path="/renew-license/:id" element={<ProtectedRoute>
-          <RenewApplication/>
-        </ProtectedRoute>}/>
-        <Route path="/surrender-license/:id" element={<ProtectedRoute>
-          <SurrendarApplication/>
-        </ProtectedRoute>}/>
-        <Route path="/amendment-license/:id" element={<ProtectedRoute>
-          <AmedmentApplication/>
-        </ProtectedRoute>}/>
-        <Route path="/application-preview" element={<ProtectedRoute><ApplicationPreview/></ProtectedRoute>}/>
-        <Route path="/search" element={<ProtectedRoute><ApplicationSearch/></ProtectedRoute>}/>
-        <Route path="/details/:id" element={<ProtectedRoute>
-          <ApplicationDetails/>
-        </ProtectedRoute>}/>
-        <Route path="/inbox" element={<ProtectedRoute>
-          <TradeInbox/>
-        </ProtectedRoute>}/>
-        <Route path="/wf/:from/:itemId" element={<ProtectedRoute>
-          <WorkflowDetail/>
-        </ProtectedRoute>}/>
-      </Routes>
+      <AdminLayout title="Nagar Prishad Arval - SAF Module">
+        <Routes>
+          <Route path="/apply-license" element={<ProtectedRoute>
+              <NewApplication/>
+          </ProtectedRoute>}/>
+          <Route path="/renew-license/:id" element={<ProtectedRoute>
+            <RenewApplication/>
+          </ProtectedRoute>}/>
+          <Route path="/surrender-license/:id" element={<ProtectedRoute>
+            <SurrendarApplication/>
+          </ProtectedRoute>}/>
+          <Route path="/amendment-license/:id" element={<ProtectedRoute>
+            <AmedmentApplication/>
+          </ProtectedRoute>}/>
+          <Route path="/application-preview" element={<ProtectedRoute><ApplicationPreview/></ProtectedRoute>}/>
+          <Route path="/search" element={<ProtectedRoute><ApplicationSearch/></ProtectedRoute>}/>
+          <Route path="/details/:id" element={<ProtectedRoute>
+            <ApplicationDetails/>
+          </ProtectedRoute>}/>
+          <Route path="/inbox" element={<ProtectedRoute>
+            <TradeInbox/>
+          </ProtectedRoute>}/>
+          <Route path="/wf/:from/:itemId" element={<ProtectedRoute>
+            <WorkflowDetail/>
+          </ProtectedRoute>}/>
+        </Routes>
+      </AdminLayout>
     </>
   );
 };

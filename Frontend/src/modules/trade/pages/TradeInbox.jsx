@@ -122,7 +122,7 @@ export default function TradeInbox() {
       {isLoading ? (
         <Spinner />
       ) : (
-        <AdminLayout>
+        <>
           <CommonTable
             data={dataList}
             headers={headers}
@@ -139,7 +139,7 @@ export default function TradeInbox() {
             onSearch={handleSearch}
             fetchAllData={fetchAllData}
           />
-        </AdminLayout>
+        </>
       )}
     </>
   );

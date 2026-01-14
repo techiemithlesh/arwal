@@ -72,7 +72,7 @@ const ApplicationSearch = () => {
   }, [currentPage, itemsPerPage]);
 
   return (
-    <AdminLayout>
+    <>
       <SearchWithTable
         title="Search Applicant"
         itemsPerPage={itemsPerPage}
@@ -146,7 +146,7 @@ const ApplicationSearch = () => {
           </tr>
         )}
       />
-    </AdminLayout>
+    </>
   );
 };
 

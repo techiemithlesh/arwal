@@ -33,7 +33,6 @@ export default function ApplicationForm({ applicationType = "NEW LICENSE" , mstr
   const [validationError, setValidationError] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
-
   const [formData, setFormData] = useState(() => {
     const savedData = fromPriv ? getWithExpiry("tradeConnectionFormData"):null;
     if (savedData) {      
@@ -136,6 +135,7 @@ export default function ApplicationForm({ applicationType = "NEW LICENSE" , mstr
       formData.areaInSqft &&
       formData.firmEstablishmentDate &&
       formData.licenseForYears &&
+      formData.natureOfBusiness.length>0 &&
       token
     ) {
       fetchTaxDetails();
@@ -145,6 +145,7 @@ export default function ApplicationForm({ applicationType = "NEW LICENSE" , mstr
     formData.firmEstablishmentDate,
     formData.licenseForYears,
     formData.applicationType,
+    formData.natureOfBusiness,
     token,
   ]);
 
@@ -270,6 +271,7 @@ export default function ApplicationForm({ applicationType = "NEW LICENSE" , mstr
         firmEstablishmentDate: formData.firmEstablishmentDate,
         areaInSqft: formData.areaInSqft,
         licenseForYears: formData.licenseForYears,
+        natureOfBusiness:formData?.natureOfBusiness,
         isTobaccoLicense: 0,
       };
       if (["RENEWAL", "SURRENDER","AMENDMENT"].includes(formData.applicationType)) {
@@ -802,7 +804,7 @@ export default function ApplicationForm({ applicationType = "NEW LICENSE" , mstr
   };
 // console.log("formData",formData);
   return (
-    <AdminLayout>
+  <>
       <form
         onSubmit={handleSubmit}
         className="flex flex-col gap-6 text-gray-700 text-lg"
@@ -881,6 +883,6 @@ export default function ApplicationForm({ applicationType = "NEW LICENSE" , mstr
           </button>
         </div>
       </form>
-    </AdminLayout>
+  </>
   );
 }

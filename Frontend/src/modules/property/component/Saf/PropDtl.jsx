@@ -20,13 +20,12 @@ const PropDtl = ({
         <div className="gap-4 grid grid-cols-1 md:grid-cols-3">
           <div className="">
             <label htmlFor="khataNo" className="block font-medium text-sm">
-              Khata No. <span className="text-red-500">*</span>
+              Khata No.
             </label>
             <input
               type="text"
               id="khataNo"
               name="khataNo"
-              required
               placeholder=""
               value={formData.khataNo}
               onChange={(e) => {
@@ -50,13 +49,12 @@ const PropDtl = ({
 
           <div className="">
             <label htmlFor="plotNo" className="block font-medium text-sm">
-              Plot No. <span className="text-red-500">*</span>
+              Plot No.
             </label>
             <input
               type="text"
               id="plotNo"
               name="plotNo"
-              required
               value={formData.plotNo}
               placeholder=""
               onChange={(e) => {

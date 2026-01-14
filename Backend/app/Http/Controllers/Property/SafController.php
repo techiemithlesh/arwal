@@ -485,8 +485,8 @@ class SafController extends Controller
             }
             $rules = [
                 "id"=>"required|int|exists:".$this->_ActiveSafDetail->getConnectionName().".".$this->_ActiveSafDetail->getTable().",id",                
-                "khataNo"=>"required",
-                "plotNo"=>"required",
+                "khataNo"=>"nullable",
+                "plotNo"=>"nullable",
                 "villageMaujaName"=>"required",
                 "areaOfPlot"=>"required|numeric|min:0.1",
                 "builtupArea"=>"required|numeric|min:0".($request->areaOfPlot ? "|max:".decimalToSqFt($request->areaOfPlot) : ""),
@@ -1583,7 +1583,7 @@ class SafController extends Controller
                 $saf->field_verify_date =Carbon::now();
                 $saf->field_verify_user_id =$user->id;
             }
-            if($shortName=="UTC"){
+            if(in_array($shortName,["UTC","AMN"])){
                 $request->merge(["verified_by"=>"ULB TC"]);
                 $saf->is_utc_field_verify =true;
                 $saf->utc_field_verify_date =Carbon::now();

@@ -552,6 +552,52 @@ class UserController extends Controller
         }
     }
 
+    public function changePass(Request $request){
+        try{
+            $rules = [
+                "oldPassword"=>"required",
+                'newPassword' => [
+                    'required',
+                    'min:6',
+                    'max:255',
+                    'regex:/[a-z]/',      // must contain at least one lowercase letter
+                    'regex:/[A-Z]/',      // must contain at least one uppercase letter
+                    'regex:/[0-9]/',      // must contain at least one digit
+                    'regex:/[@$!%*#?&]/'  // must contain a special character
+                ],
+                "conformPassword"=>"required|same:newPassword",
+            ];
+            $validator = Validator::make($request->all(),$rules);
+            if($validator->fails()){
+                return validationError($validator);
+            }
+            $loginUser = Auth()->user();
+            $muser = $this->_modelUser->find($loginUser->id);
+            if(!(Hash::check($request->oldPassword, $muser->password))){
+                throw new CustomException("Old Password Not Matched");
+            }
+            if($muser->getTable()!="users"){
+                throw new CustomException("You can not change password");
+            }
+            $muser->password = Hash::make($request->newPassword);
+            $muser->update();
+            foreach($muser->tokens->sortBy("id")->values() as  $key =>$token){
+                $userType = $muser->getTable();
+                $redisKey  = "ulb_id:" . $userType . ":" . $muser->id . ":" . $token->id;
+                Redis::del($redisKey );
+                $token->expires_at = Carbon::now();
+                $token->update();
+                $token->forceDelete();
+            }
+            return responseMsg(true,"User Password Update","");
+        }catch(CustomException $e){
+            return responseMsg(false,$e->getMessage(),"");
+        }
+        catch (Exception $e) {
+            return responseMsg(false,"Internal Server Error","");
+        }
+    }
+
     public function getUserWardMap(Request $request){
         try{
             $user = Auth()->user();
