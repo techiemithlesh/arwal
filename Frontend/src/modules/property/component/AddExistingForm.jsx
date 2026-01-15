@@ -41,7 +41,6 @@ const AddExistingForm = ({
   isEdit,
   ulbId,
 }) => {
-  console.log("mstr data", mstrData);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
