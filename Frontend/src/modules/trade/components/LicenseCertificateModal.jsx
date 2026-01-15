@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { handleGeneratePdf } from "../../../utils/common";
+import { handleGeneratePdf, usePrint } from "../../../utils/common";
 import { motion } from "framer-motion";
 import { modalVariants } from "../../../utils/motionVariable";
 import { FaTimes } from "react-icons/fa";
@@ -9,11 +9,13 @@ function LicenseCertificateModal({ id, onClose }) {
   const [isFrozen, setIsFrozen] = useState(false);
   const printRef = useRef();
 
-  const handlePrint = async () => {
-    setIsFrozen(true);
-    await handleGeneratePdf(printRef);
-    setIsFrozen(false);
-  };
+  // const handlePrint = async () => {
+  //   setIsFrozen(true);
+  //   await handleGeneratePdf(printRef);
+  //   setIsFrozen(false);
+  // };
+
+  const handlePrint = usePrint(printRef,`${"Payment Receipt" || ""}`);
 
   return (
     <div

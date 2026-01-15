@@ -47,6 +47,7 @@
     "react-router-dom": "^6.24.1",
     "react-select": "^5.10.1",
     "react-slick": "^0.30.3",
+    "react-to-print": "^3.2.0",
     "recharts": "^3.1.0",
     "redux-persist": "^6.0.0",
     "slick-carousel": "^1.8.1",

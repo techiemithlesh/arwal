@@ -3,17 +3,19 @@ import { FaTimes } from 'react-icons/fa';
 import { motion } from "framer-motion";
 import { modalVariants } from "../../../utils/motionVariable";
 import NoticeDtl from './NoticeDtl';
-import { handleGeneratePdf } from '../../../utils/common';
+import { handleGeneratePdf, usePrint } from '../../../utils/common';
 
 function NoticeViewModal({ id, onClose }) {
     const [isFrozen, setIsFrozen] = useState(false);
     const printRef = useRef();
 
-    const handlePrint = async () => {
-        setIsFrozen(true);
-        await handleGeneratePdf(printRef);
-        setIsFrozen(false);
-    };
+    // const handlePrint = async () => {
+    //     setIsFrozen(true);
+    //     await handleGeneratePdf(printRef);
+    //     setIsFrozen(false);
+    // };
+
+    const handlePrint = usePrint(printRef,`${"Notice" || ""}`);
     return (
         <div className="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 p-4">
             <motion.div

@@ -71,7 +71,7 @@ function LicenseCertificateDtl({ data=null,id, setIsFrozen }) {
   }
 
   return (
-    <div className="bg-white p-6 print:p-2 border-4 border-red-600 border-dotted font-sans text-sm leading-6">
+    <div className="bg-white p-6 border-4 border-red-600 border-dotted font-sans text-sm leading-6">
 
       {/* HEADER */}
       <div className="text-center mb-4 relative">

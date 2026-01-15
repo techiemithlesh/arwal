@@ -71,7 +71,7 @@ function PaymentReceiptDtl({ data = null, id,  setIsFrozen = () => { } }) {
     };
     return (
         // <div className="bg-white p-6 print:p-2 border-2 border-red-500 border-dotted print:border-none font-sans text-xs">
-        <div className="relative bg-white p-6 print:p-2 border-2 border-red-500 border-dotted print:border-none font-sans text-xs overflow-hidden">
+        <div className="relative bg-white p-2 border-2 border-red-500 border-dotted font-sans text-xs overflow-hidden">
             {logoBase64 && (
                 <div className="pointer-events-none absolute inset-0 flex items-center justify-center z-0 print:flex">
                     <img

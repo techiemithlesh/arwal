@@ -2,7 +2,7 @@
 import { useNavigate, useParams } from 'react-router-dom'
 import LicenseCertificateDtl from '../components/LicenseCertificateDtl';
 import { useRef, useState } from 'react';
-import { handleGeneratePdf } from '../../../utils/common';
+import { handleGeneratePdf, usePrint } from '../../../utils/common';
 import { motion } from "framer-motion";
 import { modalVariants } from "../../../utils/motionVariable";
 import { FaTimes } from "react-icons/fa";
@@ -13,11 +13,13 @@ function LicenseCertificateReceipt() {
  const printRef = useRef();
  const navigator = useNavigate();
  
-const handlePrint = async () => {
-    setIsFrozen(true);
-    await handleGeneratePdf(printRef);
-    setIsFrozen(false);
-};
+// const handlePrint = async () => {
+//     setIsFrozen(true);
+//     await handleGeneratePdf(printRef);
+//     setIsFrozen(false);
+// };
+
+const handlePrint = usePrint(printRef,`${"License Receipt" || ""}`);
 
 const onClose = ()=>{
     navigator("/");
