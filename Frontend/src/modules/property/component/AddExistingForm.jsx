@@ -406,7 +406,7 @@ const AddExistingForm = ({
     );
   }
 
-  console.log("formData in assessment form:", formData);
+  // console.log("formData in assessment form:", formData);
 
   return (
     <div className="container-fluid">
@@ -418,7 +418,7 @@ const AddExistingForm = ({
                 htmlFor="holdingNo"
                 className="block font-medium text-sm"
               >
-                Holding No
+                Old Holding No
                 <span className="text-red-400 text-sm">*</span>
               </label>
               <input
