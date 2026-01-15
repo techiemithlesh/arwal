@@ -1,6 +1,7 @@
 import axios from "axios";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { useReactToPrint } from 'react-to-print';
 
 export const formatTimeAMPM = (dateStr) => {
   const date = new Date(dateStr);
@@ -183,6 +184,23 @@ export const handleGeneratePdf = async (printRef,name="payment-receipt") => {
 
   // Save the PDF with the user-provided filename
   pdf.save(`${filename}.pdf`);
+};
+
+export const usePrint = (receiptRef, name = "payment-receipt") => {
+  const print = useReactToPrint({
+    contentRef: receiptRef,
+    documentTitle: name,
+  });
+
+  const handlePrintSafe = () => {
+    if (!receiptRef?.current) {
+      console.error("Nothing to print – receipt DOM not mounted");
+      return;
+    }
+    print();
+  };
+
+  return handlePrintSafe;
 };
 
 

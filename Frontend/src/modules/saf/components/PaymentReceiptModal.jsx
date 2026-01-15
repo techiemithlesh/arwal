@@ -6,6 +6,7 @@ import {
   formatLocalDate,
   toTitleCase,
   handleGeneratePdf,
+  usePrint,
 } from "../../../utils/common";
 import QRCodeComponent from "../../../components/common/QRCodeComponent";
 import { motion } from "framer-motion";
@@ -20,11 +21,13 @@ function PaymentReceiptModal({ id, onClose }) {
   const [isFrozen, setIsFrozen] = useState(false);
   const printRef = useRef();
 
-  const handlePrint = async () => {
-    setIsFrozen(true);
-    await handleGeneratePdf(printRef);
-    setIsFrozen(false);
-  };
+  // const handlePrint = async () => {
+  //   setIsFrozen(true);
+  //   await handleGeneratePdf(printRef);
+  //   setIsFrozen(false);
+  // };
+
+  const handlePrint = usePrint(printRef,`${"Payment Receipt" || ""}`);
 
   return (
     <div className="z-50 print:static fixed inset-0 flex justify-center items-center bg-black print:bg-transparent bg-opacity-50 p-4 print:p-0">

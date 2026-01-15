@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import {
   handleGeneratePdf,
+  usePrint,
 } from "../../../utils/common";
 import { motion } from "framer-motion";
 import { modalVariants } from "../../../utils/motionVariable";
@@ -14,11 +15,13 @@ function PaymentReceiptModal({ id, onClose }) {
   // const { generatePdf, FileNameModal } = usePdfGenerator(printRef);
 
   // Print in same tab (no new window)
-  const handlePrint = async () => {
-    setIsFrozen(true);
-    await handleGeneratePdf(printRef);
-    setIsFrozen(false);
-  };
+  // const handlePrint = async () => {
+  //   setIsFrozen(true);
+  //   await handleGeneratePdf(printRef);
+  //   setIsFrozen(false);
+  // };
+
+  const handlePrint = usePrint(printRef,`${"Payment Receipt" || ""}`);
 
   return (
     <div className="z-50 print:static fixed inset-0 flex justify-center items-center bg-black print:bg-transparent bg-opacity-50 p-4 print:p-0">
