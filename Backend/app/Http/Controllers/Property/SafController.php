@@ -536,7 +536,10 @@ class SafController extends Controller
                 if(!$geoTagRes->original["status"]){
                     return $geoTagRes;
                 }
-
+                $workflowMater = $this->_WorkflowMaster->find($saf->workflow_id);
+                $WfPermission = $workflowMater->getWorkFlowRoles()->where("ulb_id",$user->ulb_id)->where("role_id",$role->id)->first();
+                $saf->current_role_id = $WfPermission->forward_role_id;
+                $saf->update();
             }
             $this->commit();
             return responseMsg(true,"Application Submitted ",remove_null(camelCase(["safId"=>$safId,"safNo"=>$safNo])));
@@ -1078,13 +1081,20 @@ class SafController extends Controller
             if($request->status=="FORWARD"){
                 #=========forward===============
                 if(!$saf->is_btc){
-                    if($saf->skip_tc_level && $role->id==6){
-                        $WfPermission = $workflowMater->getWorkFlowRoles()->where("ulb_id",$user->ulb_id)->where("role_id",$WfPermission->forward_role_id)->first();
-                        $saf->skip_tc_level = false;
-                    }
                     $saf->current_role_id = $WfPermission->forward_role_id;
                     $saf->max_level_attempt = $saf->max_level_attempt< $WfPermission->serial_no ? $WfPermission->serial_no : $saf->max_level_attempt;
-
+                    if($saf->skip_tc_level && $role->id==6){
+                        #tc
+                        $newWfPermission = $workflowMater->getWorkFlowRoles()->where("ulb_id",$user->ulb_id)->where("role_id",$WfPermission->forward_role_id)->first();
+                        #ulb TC
+                        $newWfPermission = $workflowMater->getWorkFlowRoles()->where("ulb_id",$user->ulb_id)->where("role_id",$newWfPermission->forward_role_id)->first();
+                        $saf->skip_tc_level = false;
+                        $saf->current_role_id = $newWfPermission->forward_role_id;
+                    }
+                    elseif($saf->skip_tc_level && $role->id==7){
+                        // $newWfPermission = $workflowMater->getWorkFlowRoles()->where("ulb_id",$user->ulb_id)->where("role_id",$saf->initiator_role_id)->first();
+                        $saf->current_role_id = $saf->initiator_role_id;
+                    }
                 }else{
                     $saf->is_btc = false;
                 }
