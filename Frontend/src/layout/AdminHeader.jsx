@@ -9,6 +9,7 @@ import { logoutApi } from "../api/endpoints";
 import { FaBars } from "react-icons/fa";
 import ProfileViewCard from "../components/specific/ProfileViewCard";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@nextui-org/react";
+import ChangePassword from "../components/specific/ChangePassword";
 
 const defaultAvatar = "https://via.placeholder.com/100";
 
@@ -16,6 +17,7 @@ const AdminHeader = ({ setIsSidebarOpen, isSidebarOpen, ulbData }) => {
 
   const token = getToken();
   const [isModelOpen, setIsModelOpen] = useState(false);
+  const [isChangePassModelOpen, setIsChangePassModelOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false); // 👈 new state
   const closeModal = () => setIsModelOpen(false);
   const openModal = () => setIsModelOpen(true);
@@ -67,6 +69,11 @@ const AdminHeader = ({ setIsSidebarOpen, isSidebarOpen, ulbData }) => {
       key: "Edit Profile",
       label: "Edit Profile",
       action: handleViewDetails,
+    },
+    {
+      key: "Change Password",
+      label: "Change Password",
+      action: ()=>setIsChangePassModelOpen(true),
     },
     {
       key: "Logout",
@@ -129,7 +136,7 @@ const AdminHeader = ({ setIsSidebarOpen, isSidebarOpen, ulbData }) => {
                 <DropdownItem
                   key={item.key}
                   color={item.key === "Logout" ? "danger" : "default"}
-                  className={item.key === "Logout" ? "text-danger" : ""}
+                  className={item.key === "Logout" ? "text-danger" : (item.key=="Change Password" ? "text-blue-300" : "")}
                   onClick={item.action}
                 >
                   {item.label}
@@ -148,6 +155,15 @@ const AdminHeader = ({ setIsSidebarOpen, isSidebarOpen, ulbData }) => {
               isOpen={isModelOpen}
               onClose={closeModal}
               user={profile}
+            />
+          </div>
+        </div>
+      )}
+      {isChangePassModelOpen &&(
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
+          <div className="bg-white shadow-md p-4 sm:p-6 border border-gray-200 rounded-lg max-w-full sm:max-w-sm h-fit text-black">
+            <ChangePassword
+              onClose={()=>setIsChangePassModelOpen(false)}
             />
           </div>
         </div>

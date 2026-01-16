@@ -204,7 +204,8 @@ class AccountController extends Controller
                             $item->verified_by_user_name = $allUser->where("id",$item->verified_by)->first()?->name;
                             $item->app_no =null;
                             if($item->property_detail_id){
-                                $item->app_no = $this->_PropertyDetail->find($item->property_detail_id)?->new_holding_no;
+                                $property = $this->_PropertyDetail->find($item->property_detail_id);
+                                $item->app_no = $property ? ($property->new_holding_no ? $property->new_holding_no : $property->holding_no) : null;
                             }else{
                                 $saf = $this->_ActiveSafDetail->find($item->saf_detail_id);
                                 if(!$saf){
