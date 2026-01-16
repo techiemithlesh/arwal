@@ -5,6 +5,7 @@ export const heartBeatApi = `${BASE_URL}/api/heartbeat`;
 export const cacheClearApi = `${BASE_URL}/api/cache-clear`;
 export const UlbApi = `${BASE_URL}/api/ulb/show/{id}`;
 export const loginApi = `${BASE_URL}/api/login`;
+export const loginChangePassApi = `${BASE_URL}/api/login-user-change-pass`;
 export const logoutApi = `${BASE_URL}/api/logout`;
 export const userApi = `${BASE_URL}/api/user`;
 export const userByIdApi = `${BASE_URL}/api/user`;
