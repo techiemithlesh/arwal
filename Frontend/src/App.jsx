@@ -95,6 +95,10 @@ function App() {
               path="/saf/payment-receipt/:id"
               element={<SafPaymentReceipt />}
             />
+            <Route
+              path="/property/payment-receipt/:id"
+              element={<SafPaymentReceipt />}
+            />
             <Route path="/saf/sam-memo/:id/:lag" element={<SafMemoReceipt />} />
             <Route
               path="/dashboard"
