@@ -185,7 +185,7 @@ trait PropertyTrait{
         }elseif($saf->is_btc){
             $role = RoleTypeMstr::find($saf->current_role_id);
             $status ="Application Back To Citizen ".($role ? "From ".$role->role_name??"" : " ");
-        }elseif(!$saf->is_doc_upload){
+        }elseif(!$saf->is_doc_upload && !$saf->skip_tc_level){
             $status ="Document Not Uploaded";
         }else{
             $role = RoleTypeMstr::find($saf->current_role_id);

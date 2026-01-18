@@ -397,6 +397,7 @@ const Details = () => {
                 "SL",
                 "ARV",
                 "Effect From",
+                "Property Tax",
                 "Holding Tax",
                 "Water Tax",
                 "Conservancy/Latrine Tax",
@@ -414,6 +415,7 @@ const Details = () => {
                       ? `${tax.qtr} / ${tax.fyear}`
                       : "NA"}
                   </td>
+                  <td className="px-3 py-2 border">{tax?.propertyTax || ""}</td>
                   <td className="px-3 py-2 border">{tax?.holdingTax || ""}</td>
                   <td className="px-3 py-2 border">{tax?.waterTax || ""}</td>
                   <td className="px-3 py-2 border">{tax?.latrineTax || ""}</td>
