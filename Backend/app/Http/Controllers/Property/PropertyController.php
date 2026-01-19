@@ -755,6 +755,9 @@ class PropertyController extends Controller
                     "corrState"=>$request->propState,
                 ]);
             }
+            if($request->demandPaidUpto){
+                $request->merge(["demandPaidUpto"=>Carbon::parse($request->demandPaidUpto)->format("Y-m-d")]);
+            }
             $user = Auth()->user(); 
             $additionData = []; 
             if($user && $user->getTable()=='users'){
