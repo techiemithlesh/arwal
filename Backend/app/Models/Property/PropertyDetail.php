@@ -79,6 +79,7 @@ class PropertyDetail extends ParamModel
         'prive_saf_detail_ids',
         "water_connection_facility_type_id",
         "water_tax_type_id",
+        "demand_paid_upto",
         "lock_status",
     ];
 

@@ -287,6 +287,13 @@ class SafApprovalBll
             ->where("fyear",">",$firstFyear)
             ->update(["lock_status"=>true]);
 
+        $lastPaidUpto = $this->_PropertyDetail->find($this->_PropId)?->demand_paid_upto;
+        $paidFy = $paidQtr = null;
+
+        if($lastPaidUpto){
+            $paidFy  = getFy($lastPaidUpto);
+            $paidQtr = getQtr($lastPaidUpto);
+        }
         // generate new demand
         foreach($this->_TAX["RuleSetVersionTax"] as $Tax){ 
             if(!$Tax["Fyearlytax"]) {
@@ -300,7 +307,16 @@ class SafApprovalBll
             $taxRequest->merge(["Fyear"=>$minFyear,"Qtr"=>$minQtr]);
             $taxId = $this->_PropertyTax->store($taxRequest);
             foreach($Tax["Fyearlytax"] as $yearTax){
-                foreach($yearTax["quarterly"] as $quarterlyTax){
+                $qtrTax = $yearTax["quarterly"];
+                if ($paidFy) {
+                    $qtrTax = collect($yearTax['quarterly'])
+                        ->filter(function ($item) use ($paidFy, $paidQtr) {
+                            return $item['fyear'] > $paidFy || ($item['fyear'] == $paidFy && $item['qtr'] > $paidQtr);
+                        })
+                        ->values()   
+                        ->toArray();
+                }
+                foreach($qtrTax as $quarterlyTax){
                     $newDemandRequest = new Request($quarterlyTax);
                     $newDemandRequest->merge(["propertyDetailId"=>$this->_PropId,"propertyTaxId"=>$taxId,"wardMstrId"=>$this->_REQUEST->wardMstrId]);                        
                     $demandId = $this->_PropertyDemand->store($newDemandRequest);                    
