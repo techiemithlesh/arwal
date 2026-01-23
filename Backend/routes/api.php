@@ -13,6 +13,7 @@ use App\Http\Controllers\DBSystem\UserController;
 use App\Http\Controllers\DBSystem\WardController;
 use App\Http\Controllers\DBSystem\WorkflowController;
 use App\Http\Controllers\LogController;
+use App\Http\Controllers\OnlinePaymentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -22,6 +23,7 @@ Route::get('/user', function (Request $request) {
 Route::get("/getInfo",function(){
     echo phpinfo();die;
 });
+Route::post('/payment/ntt/callback', [OnlinePaymentController::class,"NttDataCallback"]);
 
 Route::match(["get","post"],"fyear/list",function(){
     $data = FyListdesc();

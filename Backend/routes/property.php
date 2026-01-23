@@ -101,6 +101,7 @@ Route::middleware(['auth:sanctum',"expireBearerToken","setUlb"])->group(function
         Route::post("get-prop-demand","getPropDue");
         Route::post("get-prop-demand-history","getPropDemandHistory");
         Route::post("pay-prop-demand","propOfflinePayment");
+        Route::post("pay-prop-demand-nttData-init","propOnlineNttDataInitPayment");
         Route::post("prop-payment-receipt","getPropPaymentReceipt")->withoutMiddleware(["auth:sanctum","setUlb"]);
         Route::post("prop-deactivate","propDeactivate");
         Route::post("validate-holding","validateHoldingNo")->withoutMiddleware(["auth:sanctum"]);

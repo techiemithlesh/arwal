@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Property;
 
 use App\Bll\Common;
+use App\Bll\Payment\NttData;
 use App\Bll\Property\BiharSwmTaxCalculator;
 use App\Bll\Property\BiharTaxCalculator;
 use App\Bll\Property\NoticeReceiptBll;
@@ -22,6 +23,7 @@ use App\Models\Property\ActiveSafDetail;
 use App\Models\Property\AppBasicUpdate;
 use App\Models\Property\AppOwnerUpdate;
 use App\Models\Property\DeactivateAppDetail;
+use App\Models\Property\NttPaymentRequest;
 use App\Models\Property\PropertyDemand;
 use App\Models\Property\PropertyDetail;
 use App\Models\Property\PropertyFloorDetail;
@@ -80,6 +82,7 @@ class PropertyController extends Controller
     private $_SwmActiveConsumer;
     private $_SwmActiveConsumerOwner;
     private $_SwmConsumerDemand;
+    private $_NttPaymentRequest;
     function __construct()
     {
         $this->_PropertyTypeMaster = new PropertyTypeMaster();
@@ -93,6 +96,7 @@ class PropertyController extends Controller
         $this->_AppBasicUpdate = new AppBasicUpdate();
         $this->_AppOwnerUpdate = new AppOwnerUpdate();
         $this->_PropertyNotice = new PropertyNotice();
+        $this->_NttPaymentRequest = new NttPaymentRequest();
 
         $this->_SwmActiveConsumer = new SwmActiveConsumer();
         $this->_SwmActiveConsumerOwner = new SwmActiveConsumerOwner();
@@ -410,6 +414,141 @@ class PropertyController extends Controller
             $propertyPaymentBll = new PropertyPaymentBll($request);
             $this->begin();           
             $responseData = ($propertyPaymentBll->payNow());           
+            $this->commit();
+            return responseMsg(true,"Payment Successfully Done",$responseData);
+        }catch(CustomException $e){
+            $this->rollBack();
+            return responseMsg(false,$e->getMessage(),"");
+        }
+        catch(Exception $e){
+            $this->rollBack();
+            return responseMsg(false,"Internal Server Error","");
+        }
+    }
+
+    public function propOnlineNttDataInitPayment(Request $request){
+        try{
+            $rule=[
+                "id"=>"required|digits_between:1,9223372036854775807",
+                "paymentType"=>"required|in:FULL,PART,ARREAR",
+                "amount"=>"nullable|required_if:paymentType,==,PART|numeric|min:0",
+                "successUrl"=>"required|url",
+                "failUrl"=>"required|url",
+            ];
+            $validator = Validator::make($request->all(),$rule);
+            if($validator->fails()){
+                return validationError($validator);
+            }
+            $user = Auth()->user();
+            $property = $this->_PropertyDetail->find($request->id);
+            if(!$property){
+               throw new CustomException("Property Not Found"); 
+            }
+            $testSafPending = $this->_ActiveSafDetail->find($property->saf_detail_id);
+            if($testSafPending){
+                throw new CustomException("Saf Not Is Not Approved. Please Wait For Approval");
+            }
+            $propertyDemandBLL = new PropDemandBll($property->id);
+            $propertyDemandBLL->getPropDue();
+            $demandPayableAmount = $propertyDemandBLL->_GRID["payableAmount"];
+            $isLastPaymentClear = $propertyDemandBLL->_GRID["lastPaymentClear"];
+            if($demandPayableAmount <=0){
+                throw new CustomException("All Demand Are Clear");
+            }
+            if(!$isLastPaymentClear){
+                throw new CustomException("Last Payment Is Not Clear Please Wait For Clearance");
+            } 
+            if($propertyDemandBLL->_GRID["notice"]??false && $request->paymentType=="PART"){
+                throw new CustomException("If Notice Generated Then Not Pay Part Payment");
+            }
+            $paymentRequest = collect($request->all());
+            $paymentRequest = $paymentRequest->merge($propertyDemandBLL->_GRID);
+            $paymentRequest = new Request($paymentRequest->toArray());
+            $paymentRequest->merge(
+                [
+                    "moduleId"=>$this->_MODULE_ID,
+                    "successUrl"=>$request->successUrl,
+                    "failUrl"=>$request->failUrl,
+                    "id"=>$request->id,
+                    "amount"=>$propertyDemandBLL->_GRID["totalPayableAmount"]
+                ]
+            );
+            $objNTT = new NttData();
+            $oderData = $objNTT->initiatePayment($paymentRequest);
+            if((!$oderData["status"]) || (!$oderData["atomTokenId"])){
+                throw new CustomException("Payment Order Not Created");
+            }
+            $paymentRequest->merge([
+                "atom_token_id"=>$oderData["atomTokenId"],
+                "order_id"=>$oderData["orderId"],
+                "merch_id"=>$oderData["merchId"],
+                "status"=>"PENDING",
+                "module"=>"PROPERTY",
+                "app_id"=>$request->id,
+                "payment_type"=>$request->paymentType,
+                "payable_amt"=>$propertyDemandBLL->_GRID["totalPayableAmount"],
+                "demand_data"=>json_encode($propertyDemandBLL->_GRID, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                "request_data"=>json_encode($request->all(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                "payload"=>json_encode($oderData["payload"], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                "payload_hash_value"=>$oderData["payload_hash_value"],
+                "user_id"=>$user->id,
+                "user_type"=>$user->getTable(),
+            ]);
+            $this->_NttPaymentRequest->store($paymentRequest);
+            $response=collect($oderData)->only([
+                'status',
+                "requestId",
+                "atomTokenId",
+                "merchId",
+                "custEmail",
+                "custMobile",
+                "returnUrl",
+                "amount",
+                "orderId",
+                ]);
+            return responseMsg(true,"Payment Initiated",camelCase(remove_null($response)));
+        }catch(CustomException $e){
+            $this->rollBack();
+            return responseMsg(false,$e->getMessage(),"");
+        }
+        catch(Exception $e){
+            $this->rollBack();
+            return responseMsg(false,"Internal Server Error","");
+        }
+    }
+
+    public function propOnlineNttDataHandelPayment(Request $request){
+        try{
+            $rule=[
+                "orderId"=>"required|exists:".$this->_NttPaymentRequest->getConnectionName().".".$this->_NttPaymentRequest->getTable()."order_id,status,PENDING",
+                "id"=>"required|digits_between:1,9223372036854775807",
+                "paymentType"=>"required|in:FULL,PART,ARREAR",
+                "amount"=>"nullable|required_if:paymentType,==,PART|numeric|min:0",
+            ];
+
+            $rule = [
+                "orderId" => "required|exists:".$this->_NttPaymentRequest->getConnectionName().".".$this->_NttPaymentRequest->getTable().",order_id,status,PENDING",
+
+                "id" => "required|integer|min:1",
+
+                "paymentType" => "required|in:FULL,PART,ARREAR",
+
+                "amount" => "nullable|required_if:paymentType,PART|numeric|min:0",
+            ];
+
+            $validator = Validator::make($request->all(),$rule);
+            if($validator->fails()){
+                return validationError($validator);
+            }
+            $requestData = $this->_NttPaymentRequest
+                            ->where("order_id",$request->orderId)
+                            ->where("app_id",$request->id)
+                            ->where("module","PROPERTY")
+                            ->first();
+            $request->merge(["paymentMode"=>"ONLINE","userId"=>$requestData->user_id,"typeOfUser"=>$requestData->user_type]);
+            $propertyPaymentBll = new PropertyPaymentBll($request);
+            $this->begin();           
+            $responseData = ($propertyPaymentBll->payNow());         
             $this->commit();
             return responseMsg(true,"Payment Successfully Done",$responseData);
         }catch(CustomException $e){
@@ -877,7 +1016,7 @@ class PropertyController extends Controller
         }catch(CustomException $e){
             return responseMsg(false,$e->getMessage(),"");
         }
-        catch(Exception $e){dd($e);
+        catch(Exception $e){
             return responseMsg(false,"Internal Server Error","");
         }
     }

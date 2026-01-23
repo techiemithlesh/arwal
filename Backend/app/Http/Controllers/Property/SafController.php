@@ -1083,7 +1083,7 @@ class SafController extends Controller
                 if(!$saf->is_btc){
                     $saf->current_role_id = $WfPermission->forward_role_id;
                     $saf->max_level_attempt = $saf->max_level_attempt< $WfPermission->serial_no ? $WfPermission->serial_no : $saf->max_level_attempt;
-                    if($saf->skip_tc_level && $role->id==6){
+                    if($saf->skip_tc_level && $role->id==$saf->initiator_role_id){
                         #tc
                         $newWfPermission = $workflowMater->getWorkFlowRoles()->where("ulb_id",$user->ulb_id)->where("role_id",$WfPermission->forward_role_id)->first();
                         #ulb TC

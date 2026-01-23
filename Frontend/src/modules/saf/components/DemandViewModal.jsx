@@ -11,6 +11,7 @@ import toast from "react-hot-toast";
 import PaymentReceiptModal from "./PaymentReceiptModal";
 import { isArray } from "lodash";
 import DemandPrintModal from "./DemandPrintModal";
+import NttDataPayment from "./NttDataPayment";
 
 function DemandViewModal({
   id,
@@ -26,6 +27,7 @@ function DemandViewModal({
   const [demandData, setDemandData] = useState({});
   const [isFrozen, setIsFrozen] = useState(false);
   const [isShowPaymentModal, setIsShowPaymentModal] = useState(false);
+  const [isShowOnlinePaymentModal, setIsShowOnlinePaymentModal] = useState(false);
   const [isShowPaymentReceiptModal, setIsShowPaymentReceiptModal] =
     useState(false);
 
@@ -428,6 +430,12 @@ function DemandViewModal({
                 >
                   Pay Now
                 </button>
+                {/* <button
+                  onClick={() => setIsShowOnlinePaymentModal(true)}
+                  className="bg-green-600 hover:bg-green-700 px-6 py-2 rounded text-white"
+                >
+                  Pay Online
+                </button> */}
               </div>
             )}
           </div>
@@ -437,6 +445,14 @@ function DemandViewModal({
               demandData={demandData}
               onSubmit={handlePaymentSubmit}
               onCancel={() => setIsShowPaymentModal(false)}
+            />
+          )}
+          {isShowOnlinePaymentModal &&(
+            <NttDataPayment
+              id={id}
+              demandData={demandData}
+              onSubmit={handlePaymentSubmit}
+              onCancel={() => setIsShowOnlinePaymentModal(false)}
             />
           )}
           {isDemandPrintModal &&(

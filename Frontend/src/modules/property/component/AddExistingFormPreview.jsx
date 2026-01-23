@@ -42,7 +42,9 @@ export default function AddExistingFormPreview() {
   const taxPreview = async () => {
     setIsLoadingGable(true);
     try {
-      const { data } = await axios.post(reviewTaxApi, {...buildPayload(),assessmentType:"New Assessment"}, {
+      const finalPayload = buildPayload();
+      const swmDetails = formData?.hasSwm ? swmConsumer : [];
+      const { data } = await axios.post(reviewTaxApi, {...finalPayload,swmConsumer: swmDetails,assessmentType:"New Assessment"}, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setTaxDtl(data?.data || {});
@@ -86,7 +88,7 @@ export default function AddExistingFormPreview() {
     try {
       const { data: res } = await axios.post(
         addExistingPropertyApi,
-        { ...finalPayload, swmConsumer: swmDetails },
+        { ...finalPayload, swmConsumer: swmDetails,assessmentType:"" },
         {
           headers: { Authorization: `Bearer ${token}` },
         }

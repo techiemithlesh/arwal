@@ -43,7 +43,9 @@ export default function Preview() {
   const taxPreview = async () => {
     setIsLoadingGable(true);
     try {
-      const { data } = await axios.post(reviewTaxApi, buildPayload(), {
+      const finalPayload = buildPayload();
+      const swmDetails = formData?.hasSwm ? swmConsumer : [];
+      const { data } = await axios.post(reviewTaxApi, { ...finalPayload, swmConsumer: swmDetails }, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setTaxDtl(data?.data || {});
