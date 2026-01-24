@@ -50,7 +50,7 @@ export default function BasicEdit({ propDetails, onClose, token }) {
       { label: "Khata No", type: "input", name: "khataNo",error:validationError?.khataNo||"", },
       { label: "Plot No", type: "input", name: "plotNo",error:validationError?.plotNo||"", },
       { label: "Village Mauja Name", type: "input", name: "villageMaujaName" ,error:validationError?.villageMaujaName||"", },
-      { label: "Area Of Plot (In Dismil)", type: "input", name: "areaOfPlot" ,error:validationError?.areaOfPlot||"",},
+      { label: "Area Of Plot (In Sqft)", type: "input", name: "areaOfPlot" ,error:validationError?.areaOfPlot||"",},
       { label: "Built Up Area (In Sqft)", type: "input", name: "builtupArea" ,error:validationError?.builtupArea||"",},
     ],
     propertyAddress: [

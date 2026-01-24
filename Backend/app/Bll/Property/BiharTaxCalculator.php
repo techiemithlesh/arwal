@@ -190,7 +190,7 @@ class BiharTaxCalculator
             $floor = [
                 "floorName"=>"VacantLand",
                 "areaOfPlot"=>$this->_REQUEST["areaOfPlot"],
-                "builtupArea"=>decimalToSqFt($this->_REQUEST["areaOfPlot"]) - ($mobileAndHordingTowerArea*1.43),
+                "builtupArea"=>($this->_REQUEST["areaOfPlot"]) - ($mobileAndHordingTowerArea*1.43),
                 "mobileAndHordingTowerArea"=>$mobileAndHordingTowerArea,
                 "dateFrom"=>$this->_REQUEST["landOccupationDate"],
                 "floorMasterId"=>"0",
@@ -208,7 +208,7 @@ class BiharTaxCalculator
         else{
             //Land + Building
             if($this->_PropertyType==3){
-                $remainArea = decimalToSqFt($this->_REQUEST["areaOfPlot"]) - ($this->_REQUEST["builtupArea"]*1.43);
+                $remainArea = ($this->_REQUEST["areaOfPlot"]) - ($this->_REQUEST["builtupArea"]*1.43);
                 if($remainArea>0){
                     $floor = [
                         "floorName"=>"VacantLand",

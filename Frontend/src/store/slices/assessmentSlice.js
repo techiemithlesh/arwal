@@ -1,7 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  formData: {}
+  formData: {},
+  lastUpdated: null
 };
 
 const assessmentSlice = createSlice({
@@ -10,9 +11,11 @@ const assessmentSlice = createSlice({
   reducers: {
     setFormData(state, action) {
       state.formData = { ...state.formData, ...action.payload };
+      state.lastUpdated = Date.now();
     },
     clearForm(state) {
       state.formData = {};
+      state.lastUpdated = null;
     }
   }
 });

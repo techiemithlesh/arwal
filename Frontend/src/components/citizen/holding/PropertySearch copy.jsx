@@ -166,7 +166,7 @@ const PropertySearch = () => {
               </div>
               <div>
                 <span className="font-semibold text-gray-700">
-                  Area of Plot (In Dismil):
+                  Area of Plot (In Sqrft):
                 </span>
                 <span className="ml-2">{userData.areaOfPlot || "NA"}</span>
               </div>

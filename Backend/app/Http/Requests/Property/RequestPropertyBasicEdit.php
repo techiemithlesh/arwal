@@ -40,7 +40,7 @@ class RequestPropertyBasicEdit extends ParentRequest
                 "plotNo"=>"nullable|string|regex:".$this->_REX_ALPHA_NUM_DOT_SPACE,
                 "villageMaujaName"=>"nullable|string|regex:".$this->_REX_ALPHA_NUM_DOT_SPACE,
                 "areaOfPlot"=>"required|numeric|min:0.1",
-                "builtupArea"=>"required|numeric|min:0".($this->areaOfPlot ? "|max:".decimalToSqFt($this->areaOfPlot) : ""),
+                "builtupArea"=>"required|numeric|min:0".($this->areaOfPlot ? "|max:".($this->areaOfPlot) : ""),
                 "propAddress"=>"required|string|regex:".$this->_REX_ALPHA_NUM_OPS_DOT_MIN_COM_AND_SPACE_SL,
                 "propCity"=>"required|string|regex:".$this->_REX_ALPHA_NUM_DOT_SPACE,
                 "propDist"=>"required|string|regex:".$this->_REX_ALPHA_NUM_DOT_SPACE,

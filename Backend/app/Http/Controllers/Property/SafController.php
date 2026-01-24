@@ -406,7 +406,7 @@ class SafController extends Controller
                     throw new CustomException("Your Saf (".$isCurrentSafPending->saf_no.") Application Is Not Approve. Please Wait For Approval...");
                 }
                 $additionData["citizenId"] = $property->citizen_id ? $property->citizen_id : $additionData["citizenId"]??null;
-                $additionData["holdingNo"] = $property->new_holding_no;
+                $additionData["holdingNo"] = $property->new_holding_no ? $property->new_holding_no : $property->holding_no;
             }elseif(in_array($request->assessmentType,["New Assessment"])){
                 $additionData["previousHoldingId"]= null;
                 $additionData["holdingNo"] = null;
@@ -571,7 +571,7 @@ class SafController extends Controller
                 "plotNo"=>"nullable",
                 "villageMaujaName"=>"required",
                 "areaOfPlot"=>"required|numeric|min:0.1",
-                "builtupArea"=>"required|numeric|min:0".($request->areaOfPlot ? "|max:".decimalToSqFt($request->areaOfPlot) : ""),
+                "builtupArea"=>"required|numeric|min:0".($request->areaOfPlot ? "|max:".($request->areaOfPlot) : ""),
                 "propAddress"=>"required",
                 "propCity"=>"required",
                 "propDist"=>"required",

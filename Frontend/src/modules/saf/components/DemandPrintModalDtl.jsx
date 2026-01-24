@@ -142,12 +142,12 @@ function DemandPrintModalDtl({ data = null, id, setIsFrozen = () => { } }) {
                             <th className="p-1 border" colSpan={2}>
                                 Demand
                             </th>
-                            <th className="p-1 border" rowSpan={2}>
+                            {/* <th className="p-1 border" rowSpan={2}>
                                 Quarterly Tax
                             </th>
                             <th className="p-1 border" rowSpan={2}>
                                 Rainwater Harvesting Tax
-                            </th>
+                            </th> */}
                             <th className="p-1 border" rowSpan={2}>
                                 Total Quarterly Tax
                             </th>
@@ -172,8 +172,8 @@ function DemandPrintModalDtl({ data = null, id, setIsFrozen = () => { } }) {
                             <tr>
                                 <td className="p-1 border">{receiptData?.previousDemandReceipt?.fromQtr} / {receiptData?.previousDemandReceipt?.fromYear}</td>
                                 <td className="p-1 border">{receiptData?.previousDemandReceipt?.uptoQtr} / {receiptData?.previousDemandReceipt?.uptoYear}</td>
-                                <td className="p-1 border">{receiptData?.previousDemandReceipt?.qtrTax}</td>
-                                <td className="p-1 border">{receiptData?.previousDemandReceipt?.qtrRwh}</td>
+                                {/* <td className="p-1 border">{receiptData?.previousDemandReceipt?.qtrTax}</td>
+                                <td className="p-1 border">{receiptData?.previousDemandReceipt?.qtrRwh}</td> */}
                                 <td className="p-1 border">{receiptData?.previousDemandReceipt?.totalQtrTax}</td>
                                 <td className="p-1 border">{receiptData?.previousDemandReceipt?.totalQtr}</td>
                                 <td className="p-1 border">{receiptData?.previousDemandReceipt?.totalDue}</td>
@@ -182,36 +182,36 @@ function DemandPrintModalDtl({ data = null, id, setIsFrozen = () => { } }) {
                         <tr>
                             <td className="p-1 border">{receiptData?.currentDemandReceipt?.fromQtr} / {receiptData?.currentDemandReceipt?.fromYear}</td>
                             <td className="p-1 border">{receiptData?.currentDemandReceipt?.uptoQtr} / {receiptData?.currentDemandReceipt?.uptoYear}</td>
-                            <td className="p-1 border">{receiptData?.currentDemandReceipt?.qtrTax}</td>
-                            <td className="p-1 border">{receiptData?.currentDemandReceipt?.qtrRwh}</td>
+                            {/* <td className="p-1 border">{receiptData?.currentDemandReceipt?.qtrTax}</td>
+                            <td className="p-1 border">{receiptData?.currentDemandReceipt?.qtrRwh}</td> */}
                             <td className="p-1 border">{receiptData?.currentDemandReceipt?.totalQtrTax}</td>
                             <td className="p-1 border">{receiptData?.currentDemandReceipt?.totalQtr}</td>
                             <td className="p-1 border">{receiptData?.currentDemandReceipt?.totalDue}</td>
                         </tr>   
                         <tr>
-                            <td colSpan={5} className="p-1 border text-red-500">* Total Quarterly Tax x Total Quarter = Total Dues</td>
+                            <td colSpan={3} className="p-1 border text-red-500">* Total Quarterly Tax x Total Quarter = Total Dues</td>
                             <td className="p-1 border">Total Dues</td>
                             <td className="p-1 border">{(Number(receiptData?.previousDemandReceipt?.totalDue) + Number(receiptData?.currentDemandReceipt?.totalDue)).toFixed(2)}</td>
                         </tr>  
                         <tr>
-                            <td colSpan={5} className="p-1 border"></td>
+                            <td colSpan={3} className="p-1 border"></td>
                             <td className="p-1 border">1.5 % Penalty</td>
                             <td className="p-1 border">{receiptData?.monthlyPenalty}</td>
                         </tr>
                         <tr>
-                            <td colSpan={5} className="p-1 border"></td>
+                            <td colSpan={3} className="p-1 border"></td>
                             <td className="p-1 border">Notice Penalty</td>
                             <td className="p-1 border">{receiptData?.noticePenalty}</td>
                         </tr>
                         <tr>
-                            <td colSpan={5} className="p-1 border"></td>
+                            <td colSpan={3} className="p-1 border"></td>
                             <td className="p-1 border">Notice Additional Penalty</td>
                             <td className="p-1 border">{receiptData?.noticeAdditionalPenalty}</td>
                         </tr>
                                     
                         {receiptData?.otherPenaltyList?.map((item, index) => (
                             <tr key={`tr_${index}`}>
-                                <td colSpan={5} className="p-1 border"></td>
+                                <td colSpan={3} className="p-1 border"></td>
                                 <td className="p-1 border" >
                                     {item?.penaltyType}
                                 </td>
@@ -220,7 +220,7 @@ function DemandPrintModalDtl({ data = null, id, setIsFrozen = () => { } }) {
                         ))}
                         {receiptData?.additionalTaxList?.map((item, index) => (
                             <tr key={`tr_${index}`}>
-                                <td colSpan={5} className="p-1 border"></td>
+                                <td colSpan={3} className="p-1 border"></td>
                                 <td className="p-1 border" >
                                     {item?.taxType}
                                 </td>
@@ -228,22 +228,22 @@ function DemandPrintModalDtl({ data = null, id, setIsFrozen = () => { } }) {
                             </tr>
                         ))}
                         <tr>
-                            <td colSpan={5} className="p-1 border"></td>
+                            <td colSpan={3} className="p-1 border"></td>
                             <td className="p-1 border" >Less First Qtr Rebate</td>
                             <td className="p-1 border">{receiptData?.firstQuatreRebate}</td>
                         </tr>
                         <tr>
-                            <td colSpan={5} className="p-1 border"></td>
+                            <td colSpan={3} className="p-1 border"></td>
                             <td className="p-1 border" >Less Total Advance</td>
                             <td className="p-1 border">{receiptData?.advanceAmount}</td>
                         </tr>
                         <tr>
-                            <td colSpan={5} className="p-1 border"></td>
+                            <td colSpan={3} className="p-1 border"></td>
                             <td className="p-1 border" >SWM Amount</td>
                             <td className="p-1 border">{receiptData?.swmPayableAmount}</td>
                         </tr>
                         <tr>
-                            <td className="p-1 border font-semibold" colSpan={5}></td>
+                            <td className="p-1 border font-semibold" colSpan={3}></td>
                             <td className="p-1 border" >Grand Total Demand</td>
                             <td className="p-1 border font-semibold">
                                 {receiptData?.totalPayableAmount}
@@ -251,7 +251,7 @@ function DemandPrintModalDtl({ data = null, id, setIsFrozen = () => { } }) {
                         </tr>
                         <tr>
                             <td className="p-1 border font-semibold" >Total Demand (in words)</td>
-                            <td className="p-1 border text-left" colSpan={6} >{receiptData?.totalPayableAmountInWord}</td>
+                            <td className="p-1 border text-left" colSpan={4} >{receiptData?.totalPayableAmountInWord}</td>
                         </tr>
                     </tbody>
                 </table>

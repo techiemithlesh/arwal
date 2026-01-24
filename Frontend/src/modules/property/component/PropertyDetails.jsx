@@ -29,7 +29,7 @@ const PropertyDetails = ({ data }) => {
     { label: "Assessment Type", value: assessmentType },
     { label: "Plot No", value: plotNo },
     { label: "Property Type", value: propertyType },
-    { label: "Area of Plot (In Dismil)", value: areaOfPlot },
+    { label: "Area of Plot (In Sqft)", value: areaOfPlot },
     { label: "Built Up Area (In Sqft)", value: builtupArea },
     { label: "Ownership Type", value: ownershipType },
     {

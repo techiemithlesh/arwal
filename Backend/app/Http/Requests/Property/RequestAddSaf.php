@@ -119,7 +119,7 @@ class RequestAddSaf extends ParentRequest
             "plotNo"=>"nullable",
             "villageMaujaName"=>"required",
             "areaOfPlot"=>"required|numeric|min:0.1",
-            "builtupArea"=>"nullable|required_unless:propTypeMstrId,4|numeric|min:0".($this->areaOfPlot ? "|max:".decimalToSqFt($this->areaOfPlot) : ""),
+            "builtupArea"=>"nullable|required_unless:propTypeMstrId,4|numeric|min:0".($this->areaOfPlot ? "|max:".($this->areaOfPlot) : ""),
             "propAddress"=>"required",
             "propCity"=>"required",
             "propDist"=>"required",

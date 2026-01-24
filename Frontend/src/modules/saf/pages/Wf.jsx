@@ -239,7 +239,7 @@ function Wf() {
     { label: "Ownership Type", value: safDetails?.ownershipType },
     { label: "Road Width", value: safDetails?.roadWidth },
     { label: "Plot No", value: safDetails?.plotNo },
-    { label: "Area of Plot (In Dismil)", value: safDetails?.areaOfPlot },
+    { label: "Area of Plot (In Sqft)", value: safDetails?.areaOfPlot },
     { label: "Built Up Area (In Sqft)", value: safDetails?.builtupArea },
     {
       label: "Rain Water Harvesting",

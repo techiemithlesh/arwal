@@ -101,7 +101,7 @@ const PropDtl = ({
 
           <div className="">
             <label htmlFor="areaOfPlot" className="block font-medium text-sm">
-              Area of Plot (in Dismil) <span className="text-red-500">*</span>
+              Area of Plot (in Sqft) <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
