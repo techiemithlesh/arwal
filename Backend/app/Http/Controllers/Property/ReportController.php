@@ -111,6 +111,11 @@ class ReportController extends Controller
                 "w.guardian_name",
                 "w.mobile_no",
             ];
+            $summarySelect=[
+                DB::raw(
+                    "SUM (prop_transactions.payable_amt) as total_amount, COUNT(prop_transactions.id) as total_count"
+                ),
+            ];
 
             $activeSafTran = $this->_PropTransaction->select(array_merge($commonSelect, [DB::raw("null as holding_no"), "active_saf_details.saf_no"]))
                     ->leftJoin("cheque_details","cheque_details.transaction_id","prop_transactions.id")
@@ -246,6 +251,11 @@ class ReportController extends Controller
                     $q->whereIn("prop_transactions.user_id", $userIds);
                 }
             }
+            
+            $summaryQuery = (clone $activeSafTran)->select($summarySelect)
+                            ->unionAll((clone $safTran)->select($summarySelect))
+                            ->unionAll((clone $rejectedSafTran)->select($summarySelect))
+                            ->unionAll((clone $propertyTran)->select($summarySelect));
             $data = $activeSafTran
                 ->union($safTran)
                 ->union($rejectedSafTran)
@@ -254,6 +264,11 @@ class ReportController extends Controller
                 $data = $data->get();
             }else{
                 $data = paginator($data,$request);
+                $summary = $this->_PropTransaction->getConnection()->table(DB::raw("({$summaryQuery->toSql()}) as sub"))
+                            ->mergeBindings($summaryQuery->getQuery()) // Essential for where clause values
+                            ->select(DB::raw("SUM(total_amount) as total_amount, SUM(total_count) as total_count"))
+                            ->first();
+                $data["summary"]=$summary;
             }
 
             return responseMsg(true,"Transaction List Fetched",camelCase(remove_null($data)));

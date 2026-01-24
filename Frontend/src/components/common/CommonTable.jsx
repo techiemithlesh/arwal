@@ -254,7 +254,7 @@ export default function CommonTable({
             )}
           </tbody>
           {footerRow && (
-            <tfoot>
+            <tfoot className="sticky bottom-0">
               {footerRow}
             </tfoot>
           )}

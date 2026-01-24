@@ -301,7 +301,7 @@ function PaymentReceiptDtl({ data = null, id,  setIsFrozen = () => { } }) {
                             <li>{t("Payment by Cheque/DD")} <strong>"{toTitleCase(receiptData?.ulbDtl?.ulbName||"")} TAX ESCROW A/C"</strong> {t("favored Will go.")}</li>
                             <li>{t("To make online transfer (RTGS/NEFT etc.) in following account details")} :-</li>
                             <li>Account Name : "<strong>{toTitleCase(receiptData?.ulbDtl?.ulbName||"")} TAX ESCROW A/C</strong>" . Account No.: <strong>{receiptData?.ulbDtl?.accountNo || "-----"}</strong> . IFC CODE.: <strong>{receiptData?.ulbDtl?.ifcCode||"----"}</strong> </li>
-                            <li>Printing Date : <strong>{formatTimeAMPM(receiptData?.printingDate)}</strong></li>
+                            <li>Printing Date : <strong>{formatLocalDate(receiptData?.printingDate,'-')} {formatTimeAMPM(receiptData?.printingDate)}</strong></li>
                         </ul>
                     </p>                
                 </div>

@@ -15,6 +15,7 @@ import Select from "react-select";
 
 function CollectionReports() {
   const [dataList, setDataList] = useState([]);
+  const [summary, setSummary] = useState({});
   const [paymentModeList, setPaymentModeList] = useState([]);
   const [collectorList, setCollectorList] = useState([]);
   const [isFrozen, setIsFrozen] = useState(false);
@@ -145,6 +146,7 @@ function CollectionReports() {
       );
       const list = res.data.data || {};
       setDataList(list.data || []);
+      setSummary(list.summary || {}); // ✅ fixed
       setTotalPage(list.lastPage || 1);
       setTotalItem(list.total || 0);
     } catch (err) {
@@ -236,6 +238,15 @@ function CollectionReports() {
       </td>
     </tr>
   );
+  const renderFooter = (totals) => (
+    <tr className="bg-gray-200 font-bold">
+      <td className="px-3 py-2 border border-white text-center">
+        Total
+      </td>
+      <td colSpan={8} className="px-3 py-2 border border-white">{totals.totalCount}</td>
+      <td colSpan={7} className="px-3 py-2 border border-white">{totals.totalAmount}</td>
+    </tr>
+  );
 
   const filterComponent = (
     <div className="gap-4 grid grid-cols-1 md:grid-cols-4">
@@ -322,6 +333,7 @@ function CollectionReports() {
         data={dataList}
         headers={headers}
         renderRow={renderRow}
+        footerRow={renderFooter(summary)}
         title="Collection Report"
         totalPages={totalPage}
         currentPage={page}
