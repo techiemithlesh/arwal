@@ -32,6 +32,7 @@ export default function AddExistingFormPreview() {
     mstrData,
     newWardList,
     apartmentList,
+    additionDoc
   } = state || {};
 
   const buildPayload = () =>
@@ -84,13 +85,49 @@ export default function AddExistingFormPreview() {
     // normalize numbers/booleans and dates
     const finalPayload = normalizePayload(rawPayload);
     const swmDetails = formData?.hasSwm ? swmConsumer : [];
+    const form = { ...finalPayload, swmConsumer: swmDetails,assessmentType:"" };
     setIsLoadingGable(true);
+    const formData2 = new FormData();
+
+    Object.entries(form).forEach(([key, value]) => {
+      if (value === null || value === undefined) return;
+
+      // Array handling
+      if (Array.isArray(value)) {
+        value.forEach((item, index) => {
+          if (typeof item === "object") {
+            Object.entries(item).forEach(([childKey, childValue]) => {
+              formData2.append(`${key}[${index}][${childKey}]`, childValue);
+            });
+          } else {
+            formData2.append(`${key}[${index}]`, item);
+          }
+        });
+      }
+
+      // Object handling
+      else if (typeof value === "object") {
+        Object.entries(value).forEach(([childKey, childValue]) => {
+          formData2.append(`${key}[${childKey}]`, childValue);
+        });
+      }
+
+      // Primitive values
+      else {
+        formData2.append(key, value);
+      }
+    });
+    console.log("additionDoc",additionDoc);
+    if (additionDoc) {
+      formData2.append("additionDoc", additionDoc);
+    }
     try {
       const { data: res } = await axios.post(
         addExistingPropertyApi,
-        { ...finalPayload, swmConsumer: swmDetails,assessmentType:"" },
+        formData2,
         {
           headers: { Authorization: `Bearer ${token}` },
+          "Content-Type": "multipart/form-data",
         }
       );
 

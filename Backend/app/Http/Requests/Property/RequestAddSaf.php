@@ -125,16 +125,16 @@ class RequestAddSaf extends ParentRequest
             "propDist"=>"required",
             "propPinCode"=>"required|int|regex:/[0-9]{6}/",
             "propState"=>"required",
-            "isMobileTower"=>"required|bool",
+            "isMobileTower"=>"required|boolean",
             "towerArea"=>"nullable|required_if:isMobileTower,true,1|numeric|min:0.1",
             "towerInstallationDate"=>"nullable|required_if:isMobileTower,true,1|date|date_format:Y-m-d|before_or_equal:".Carbon::now()->format("Y-m-d"),
-            "isHoardingBoard"=>"required|bool",
+            "isHoardingBoard"=>"required|boolean",
             "hoardingArea"=>"nullable|required_if:isHoardingBoard,true,1|numeric|min:0.1",
             "hoardingInstallationDate"=>"nullable|required_if:isHoardingBoard,true,1|date|date_format:Y-m-d|before_or_equal:".Carbon::now()->format("Y-m-d"),
-            "isPetrolPump"=>"nullable|required_if:propTypeMstrId,1,2,3|bool",
+            "isPetrolPump"=>"nullable|required_if:propTypeMstrId,1,2,3|boolean",
             "underGroundArea"=>"nullable|required_if:isPetrolPump,true,1|numeric|min:0.1",
             "petrolPumpCompletionDate"=>"nullable|required_if:isPetrolPump,true,1|date|date_format:Y-m-d|before_or_equal:".Carbon::now()->format("Y-m-d"),
-            "isWaterHarvesting"=>"nullable|required_if:propTypeMstrId,1,2,3,5|bool",
+            "isWaterHarvesting"=>"nullable|required_if:propTypeMstrId,1,2,3,5|boolean",
             "waterHarvestingDate"=>"nullable|required_if:isWaterHarvesting,true,1|date|date_format:Y-m-d|before_or_equal:".Carbon::now()->format("Y-m-d"),
             "landOccupationDate"=>"nullable|required_if:propTypeMstrId,4|date|date_format:Y-m-d|before_or_equal:".Carbon::now()->format("Y-m-d"),
             "waterConnectionFacilityTypeId"=>"required|exists:".$this->_WaterConnectionFacilityType->getConnectionName().".".$this->_WaterConnectionFacilityType->getTable().",id",
@@ -150,8 +150,8 @@ class RequestAddSaf extends ParentRequest
             "ownerDtl.*.aadharNo"=>"nullable|digits:12|regex:/[0-9]{12}/",
             "ownerDtl.*.gender"=>"required|in:Male,Female,Other",
             "ownerDtl.*.dob"=>"required|date|date|date_format:Y-m-d|before_or_equal:".Carbon::now()->format("Y-m-d"),
-            "ownerDtl.*.isArmedForce"=>"required|bool",
-            "ownerDtl.*.isSpeciallyAbled"=>"required|bool",
+            "ownerDtl.*.isArmedForce"=>"required|boolean",
+            "ownerDtl.*.isSpeciallyAbled"=>"required|boolean",
 
             "floorDtl"=>"nullable|required_unless:propTypeMstrId,4|array",
             "floorDtl.*.builtupArea"=>"nullable|required_unless:propTypeMstrId,4|min:0.1|max:".($this->builtupArea?$this->builtupArea:"0.2"),
@@ -246,4 +246,47 @@ class RequestAddSaf extends ParentRequest
         ];
         return $rules;
     }
+
+    protected function prepareForValidation()
+    {
+        // 1️⃣ Top-level boolean fields
+        $booleanFields = [
+            'isMobileTower',
+            'isHoardingBoard',
+            'isPetrolPump',
+            'isWaterHarvesting',
+        ];
+
+        foreach ($booleanFields as $field) {
+            if ($this->has($field)) {
+                $this->merge([
+                    $field => filter_var($this->$field, FILTER_VALIDATE_BOOLEAN),
+                ]);
+            }
+        }
+
+        // 2️⃣ Owner details booleans (nested array)
+        if (is_array($this->ownerDtl)) {
+            $owners = $this->ownerDtl;
+
+            foreach ($owners as $i => $owner) {
+                if (isset($owner['isArmedForce'])) {
+                    $owners[$i]['isArmedForce'] = filter_var(
+                        $owner['isArmedForce'],
+                        FILTER_VALIDATE_BOOLEAN
+                    );
+                }
+
+                if (isset($owner['isSpeciallyAbled'])) {
+                    $owners[$i]['isSpeciallyAbled'] = filter_var(
+                        $owner['isSpeciallyAbled'],
+                        FILTER_VALIDATE_BOOLEAN
+                    );
+                }
+            }
+
+            $this->merge(['ownerDtl' => $owners]);
+        }
+    }
+
 }

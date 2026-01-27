@@ -12,7 +12,7 @@ import {
 } from "../../../api/endpoints";
 import SectionCard from "../../../components/common/SectionCard";
 import { motion } from "framer-motion";
-import { FaCommentDollar, FaEdit, FaEye, FaTimes } from "react-icons/fa";
+import { FaCommentDollar, FaEdit, FaEye, FaFilePdf, FaTimes } from "react-icons/fa";
 import ActionButton from "../../../components/common/ActionButton";
 import { formatLocalDate, formatTimeAMPM } from "../../../utils/common";
 import toast from "react-hot-toast";
@@ -34,6 +34,7 @@ import { modalVariants } from "../../../utils/motionVariable";
 import DeactivateHoldingModal from "../component/DeactivateHoldingModal";
 import OwnerDtlEdit from "../component/OwnerDtlEdit";
 import GenerateNoticeModal from "../component/GenerateNoticeModal";
+import ImagePreview from "../../../components/common/ImagePreview";
 
 const Details = () => {
   const { propId } = useParams();
@@ -42,6 +43,8 @@ const Details = () => {
   const [wfId, setWfId] = useState(null);
   const [isFrozen, setIsFrozen] = useState(false);
   const [verificationRemarks, setVerificationRemarks] = useState("");
+  const [isModalPreviewOpen, setIsModalPreviewOpen] = useState(false);
+  const [previewImg, setPreviewImg] = useState("");
   const [ids, setIds] = useState({
     paymentReceipt: null,
     samReceipt: null,
@@ -187,6 +190,16 @@ const Details = () => {
     } finally {
       setIsFrozen(false);
     }
+  };
+
+  const openPreviewModel = (link) => {
+    setIsModalPreviewOpen(true);
+    setPreviewImg(link);
+  };
+
+  const closePreviewModel = () => {
+    setIsModalPreviewOpen(false);
+    setPreviewImg("");
   };
 
   return (
@@ -391,6 +404,54 @@ const Details = () => {
               )}
             />
             <AditionalDetails data={propDetails} />
+            {/* Additional Document */}
+            {propDetails?.additionalDoc && Array.isArray(propDetails?.additionalDoc) && propDetails?.additionalDoc?.length>0 &&(
+              <>
+                <SectionCard
+                  title="Additional Document"
+                  headers={[
+                    "SL",
+                    "Document Name",
+                    "File",
+                  ]}
+                  data={propDetails?.additionalDoc}
+                  renderRow={(item, idx) => (
+                    <tr key={idx}>
+                      <td className="px-3 py-2 border">{idx + 1}</td>
+                      <td className="px-3 py-2 border">{item.documentName}</td>
+                      <td className="px-3 py-2 border text-center">
+                        {item.docPath ? (
+                          <>
+                            {item.docPath.toLowerCase().endsWith(".pdf") ? (
+                              <FaFilePdf
+                                size={40}
+                                className="mx-auto text-red-600 cursor-pointer"
+                                onClick={() => openPreviewModel(item?.docPath)}
+                                title="Click to view PDF"
+                              />
+                            ) : (
+                              <img
+                                src={item?.docPath}
+                                onClick={() => openPreviewModel(item?.docPath)}
+                                className="inline-block ml-2 border border-gray-300 rounded-full w-10 h-10 object-cover cursor-pointer"
+                              />
+                            )}
+                          </>
+                        ) : (
+                          <span className="text-gray-400">No file</span>
+                        )}
+                      </td>
+                    </tr>
+                  )}
+                />
+                {isModalPreviewOpen && (
+                  <ImagePreview
+                    imageSrc={previewImg}
+                    closePreview={closePreviewModel}
+                  />
+                )}
+              </>
+            )}
             <SectionCard
               title="Tax Details"
               headers={[
