@@ -24,6 +24,7 @@ use App\Models\Property\AppBasicUpdate;
 use App\Models\Property\AppOwnerUpdate;
 use App\Models\Property\DeactivateAppDetail;
 use App\Models\Property\NttPaymentRequest;
+use App\Models\Property\PropertyAdditionalDocument;
 use App\Models\Property\PropertyDemand;
 use App\Models\Property\PropertyDetail;
 use App\Models\Property\PropertyFloorDetail;
@@ -64,6 +65,7 @@ class PropertyController extends Controller
     private $_PropertyDetail;
     private $_PropertyOwnerDetail;
     private $_PropertyFloorDetail;
+    private $_PropertyAdditionalDocument;
     private $_PropertyDemand;
     private $_DeactivateAppDetail;
     private $_ActiveSafDetail;
@@ -97,6 +99,7 @@ class PropertyController extends Controller
         $this->_AppOwnerUpdate = new AppOwnerUpdate();
         $this->_PropertyNotice = new PropertyNotice();
         $this->_NttPaymentRequest = new NttPaymentRequest();
+        $this->_PropertyAdditionalDocument = new PropertyAdditionalDocument();
 
         $this->_SwmActiveConsumer = new SwmActiveConsumer();
         $this->_SwmActiveConsumerOwner = new SwmActiveConsumerOwner();
@@ -200,6 +203,10 @@ class PropertyController extends Controller
             $property->floors = $this->adjustFloorValue($property->getFloors());
             $property->owners = $property->getOwners();
             $property->tran_dtls = $property->getTrans();
+            $property->additionalDoc = $property->getAdditionalDoc()->map(function($item){
+                $item->docPath = $item->doc_path ? url("/documents")."/".$item->doc_path:"";
+                return $item;
+            });
             $property->swm_consumer = $property->getSwmConsumer()->map(function($val){
                 $val=$this->adjustSWMConsumer($val);
                 $val->owners = $val->getOwners();
@@ -918,6 +925,21 @@ class PropertyController extends Controller
             
             $this->begin();
             $propertyId = $this->_PropertyDetail->store($request);
+            if($request->additionDoc){
+                $relativePath = "Uploads/ExistingProperty";
+                $imageName = $propertyId."_Existing".".".$request->additionDoc->getClientOriginalExtension();
+                // $request->document->move($relativePath, $imageName);
+                $path = $request->additionDoc->storeAs($relativePath,$imageName, $this->disk);
+                $additionalDocRequest = new Request(
+                    [
+                        "property_detail_id"=>$propertyId,
+                        "document_name"=>"Existing",
+                        "doc_path"=>$path,
+                        "user_id"=>$user?->id,
+                    ]
+                );
+                $this->_PropertyAdditionalDocument->store($additionalDocRequest);
+            }
             foreach($tax["RuleSetVersionTax"] as $key=>$safTax){  
                 if($safTax["Fyearlytax"]) {
                     $taxRequest = new Request($safTax);  

@@ -8,9 +8,6 @@ const PropDtl = ({
   isDisabled,
   disabledFields,
 }) => {
-  console.log("Rendering PropDtl with formData:", formData);
-  console.log("PROPERTY TYPE:", formData.propTypeMstrId == '4');
-  console.log("PROPERTY TYPE VALUE:", formData.propTypeMstrId);
   return (
     <div className="flex flex-col gap-2 text-gray-700 text-lg property_details_container">
       <h2 className="flex items-center gap-2 bg-gradient-to-r from-blue-700 to-blue-400 shadow-md p-3 rounded-md font-bold text-white text-lg uppercase tracking-wide">

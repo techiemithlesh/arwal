@@ -57,6 +57,7 @@ const AddExistingForm = ({
   const [apartmentList, setApartmentList] = useState([]);
   const [disabledFields, setDisabledFields] = useState({});
   const [isFormSubmit, setIsFormSubmit] = useState(false);
+  const [additionDoc, setAdditionDoc] = useState(null);
 
   const ulbIdL = getUserDetails()?.ulbId;
 
@@ -336,16 +337,54 @@ const AddExistingForm = ({
       // 🟠 NORMAL NEW APPLICATION LOGIC (with preview)
       const previewUrl = `/property/add-existing/preview`;
       const swmDetails = formData?.hasSwm ? swmConsumer : [];
-      const response = await axios.post(
-        addExistingPropertyTestReqApi,
-        {
+      const finalPayload = {
           ...payload,
           ownerDtl,
           floorDtl: floorPayload,
           swmConsumer: swmDetails,
           ulbId,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
+        };
+      const formData2 = new FormData();
+
+      Object.entries(finalPayload).forEach(([key, value]) => {
+        if (value === null || value === undefined) return;
+
+        // Array handling
+        if (Array.isArray(value)) {
+          value.forEach((item, index) => {
+            if (typeof item === "object") {
+              Object.entries(item).forEach(([childKey, childValue]) => {
+                formData2.append(`${key}[${index}][${childKey}]`, childValue);
+              });
+            } else {
+              formData2.append(`${key}[${index}]`, item);
+            }
+          });
+        }
+
+        // Object handling
+        else if (typeof value === "object") {
+          Object.entries(value).forEach(([childKey, childValue]) => {
+            formData2.append(`${key}[${childKey}]`, childValue);
+          });
+        }
+
+        // Primitive values
+        else {
+          formData2.append(key, value);
+        }
+      });
+      console.log("additionDoc",additionDoc);
+      if (additionDoc) {
+        formData2.append("additionDoc", additionDoc);
+      }
+      const response = await axios.post(
+        addExistingPropertyTestReqApi,
+        formData2,
+        { 
+          headers: { Authorization: `Bearer ${token}` },
+          "Content-Type": "multipart/form-data",
+         }
       );
 
       if (response.data.status) {
@@ -359,6 +398,7 @@ const AddExistingForm = ({
             mstrData,
             newWardList,
             apartmentList,
+            additionDoc,
           },
         });
       } else if (response.data.errors) {
@@ -405,7 +445,6 @@ const AddExistingForm = ({
     );
   }
 
-  // console.log("formData in assessment form:", formData);
 
   return (
     <div className="container-fluid">
@@ -1243,6 +1282,27 @@ const AddExistingForm = ({
                 )}
               </div>
             )}
+
+            <div className="">
+              <label
+                htmlFor="additionDoc"
+                className="block font-medium text-sm"
+              >
+                Attach The Document
+                <span className="text-red-400 text-sm">*</span>
+              </label>
+              <input
+                type="file"
+                id="additionDoc"
+                name="additionDoc"
+                className="block bg-white shadow-sm px-3 py-2 border border-gray-300 rounded-md w-full sm:text-xs"
+                onChange={(e) => setAdditionDoc(e.target.files[0])}
+              />
+               
+              {error?.additionDoc && (
+                <FormError name="additionDoc" errors={error} />
+              )}
+            </div>
           </div>
         </div>
 

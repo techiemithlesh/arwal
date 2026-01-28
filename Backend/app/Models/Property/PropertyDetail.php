@@ -127,4 +127,7 @@ class PropertyDetail extends ParamModel
     public function getSwmConsumer(){
         return $this->hasMany(SwmConsumer::class,"property_detail_id","id")->where("lock_status",false)->get();
     }
+    public function getAdditionalDoc(){
+        return $this->hasMany(PropertyAdditionalDocument::class,"property_detail_id","id")->where("lock_status",false)->get();
+    }
 }
