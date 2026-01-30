@@ -27,12 +27,13 @@ class LogApiResponse
             $content = json_decode($response->getContent(), true);            
             $requestToken = app('requestToken');
             $logModel = (new ModelLog());
+            $jsonContent = $content;
             if (is_array($content) || is_object($content)) {
-                $jsonContent = json_encode($content);
-                $logModel->where("token", $requestToken)->update([
-                    "response_body" => $jsonContent
-                ]);
+                $jsonContent = json_encode($content);                
             }
+            $logModel->where("token", $requestToken)->update([
+                "response_body" => $jsonContent
+            ]);
         }
     }
 
