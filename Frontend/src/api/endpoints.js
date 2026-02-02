@@ -84,6 +84,7 @@ export const RoleModuleLockUnlockApi = `${BASE_URL}/api/role-permission/lock-unl
 /**
  * ==============setting [Property]======================
  */
+export const initOnlinePropPaymentApi = `${BASE_URL}/api/property/pay-prop-demand-nttData-init`;
 export const getUsageTypeListApi = `${BASE_URL}/api/property/prop-usage-type`;
 export const getUsageTypeDtlApi = `${BASE_URL}/api/property/prop-usage-type-dtl`;
 export const getUsageTypeAddApi = `${BASE_URL}/api/property/prop-usage-type-add`;

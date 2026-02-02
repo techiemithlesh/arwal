@@ -4,6 +4,7 @@ import axios from 'axios';
 import { motion } from "framer-motion";
 import { modalVariants } from "../../../utils/motionVariable";
 import { FaTimes } from "react-icons/fa";
+import { initOnlinePropPaymentApi } from '../../../api/endpoints';
 
 function NttDataPayment({ id,demandData, onSubmit, onCancel }) {
     const token = getToken();
@@ -28,7 +29,7 @@ function NttDataPayment({ id,demandData, onSubmit, onCancel }) {
         setLoading(true);
         try {
             // 1. Call your Laravel API to get the token and merchant data
-            const response = await axios.post("http://127.0.0.1:8091/api/property/pay-prop-demand-nttData-init", 
+            const response = await axios.post(initOnlinePropPaymentApi, 
                 { 
                     "paymentType": "FULL",
                     "id": id,
