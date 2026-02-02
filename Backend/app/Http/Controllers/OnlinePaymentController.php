@@ -7,6 +7,7 @@ use App\Http\Controllers\Property\PropertyController;
 use App\Models\DBSystem\OnlinePaymentRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class OnlinePaymentController extends Controller
@@ -36,6 +37,8 @@ class OnlinePaymentController extends Controller
              $merchTxnId = $jsonData["payInstrument"]["merchDetails"]["merchTxnId"]??"";
              $fileName = "payment_responses/response_" . $merchTxnId . "_" . time() . ".json";
              Storage::disk('local')->put($fileName, json_encode($jsonData, JSON_PRETTY_PRINT));
+            //  Log::info("NttData Callback Response",["data"=>$jsonData]);
+            //  dd($jsonData);
              #SUCCESS
              $onlineRequestData = $this->_OnlinePaymentRequest
                                 ->where("gateway_type",$this->_ObjNttData->_GatewayType)

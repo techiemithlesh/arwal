@@ -150,9 +150,12 @@ class PaymentReceiptBll{
     public function generateReceipt(){
         $this->loadParam();
 
+
+
         $this->_currentDemandList = $this->_CollectionDetail->where("fyear",$this->_tranDateFyear);
         $this->_previousDemandList = $this->_CollectionDetail->where("fyear","<",$this->_tranDateFyear);
 
+        
         $this->_GRID=[
             "printingDate"=>Carbon::now()->format("Y-m-d H:i:s"),
             "description"=>"HOLDING TAX RECEIPT",
