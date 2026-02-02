@@ -7,6 +7,7 @@ use App\Http\Controllers\Property\PropertyController;
 use App\Models\DBSystem\OnlinePaymentRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
 
 class OnlinePaymentController extends Controller
 {
@@ -33,6 +34,9 @@ class OnlinePaymentController extends Controller
              $decData = $this->_ObjNttData->decryptResponse($data);
              $jsonData = json_decode($decData, true);
              $merchTxnId = $jsonData["payInstrument"]["merchDetails"]["merchTxnId"]??"";
+
+            //  Log::info("NttData Callback Response",["data"=>$jsonData]);
+            //  dd($jsonData);
              #SUCCESS
              $onlineRequestData = $this->_OnlinePaymentRequest
                                 ->where("gateway_type",$this->_ObjNttData->_GatewayType)

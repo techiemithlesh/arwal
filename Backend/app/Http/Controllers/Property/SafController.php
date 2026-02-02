@@ -916,7 +916,8 @@ class SafController extends Controller
             if($validator->fails()){
                 return validationError($validator);
             }
-            $receiptBll = new PaymentReceiptBll($request->id); 
+            $receiptBll = new PaymentReceiptBll($request->id);
+            // dd($receiptBll);
             $receiptBll->generateReceipt();
             return responseMsg(true,"Payment Receipt",camelCase(remove_null($receiptBll->_GRID)));
         }catch(CustomException $e){
