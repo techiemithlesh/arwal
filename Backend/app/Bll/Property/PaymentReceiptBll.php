@@ -171,6 +171,7 @@ class PaymentReceiptBll{
             "saf_no" => $this->_propSafData->saf_no??"",
             "address" => $this->_propSafData->prop_address??"",
             "ownerName" =>$this->_owners->implode("owner_name",", "),
+            "relationType" =>$this->_owners->unique("relation_type")->pluck("relation_type")->implode(", "),
             "guardianName" =>$this->_owners->implode("guardian_name",", "),
             "mobileNo"=>$this->_owners->implode("mobile_no",", "),
             "amount" => $this->_TranDetail->payable_amt,

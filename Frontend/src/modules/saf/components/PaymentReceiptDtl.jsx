@@ -174,7 +174,7 @@ function PaymentReceiptDtl({ data = null, id, setIsFrozen = () => {} }) {
               <td></td>
             </tr>
             <tr>
-              <td>{t("S/O")}</td>
+              <td>{t(receiptData?.relationType??"S/O")}</td>
               <td>: {receiptData?.guardianName}</td>
               <td></td>
               <td></td>

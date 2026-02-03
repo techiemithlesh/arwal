@@ -430,12 +430,12 @@ function DemandViewModal({
                 >
                   Pay Now
                 </button>
-                <button
+                {/* <button
                   onClick={() => setIsShowOnlinePaymentModal(true)}
                   className="bg-green-600 hover:bg-green-700 px-6 py-2 rounded text-white"
                 >
                   Pay Online
-                </button>
+                </button> */}
               </div>
             )}
           </div>
