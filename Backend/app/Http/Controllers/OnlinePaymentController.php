@@ -72,7 +72,7 @@ class OnlinePaymentController extends Controller
                     case $this->_SYSTEM_CONST["MODULE"]["TRADE"] : dd("trade");
                                                                         break;
                 }
-                $updateDataRequest->merge(["module_response"=>$response]);
+                $updateDataRequest->merge(["module_response"=>json_decode($response->original,true)]);
                 $this->_OnlinePaymentRequest->edit($updateDataRequest);
                 
             }
