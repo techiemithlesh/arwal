@@ -58,6 +58,8 @@ class OnlinePaymentController extends Controller
             "status"=>$isSuccess?"SUCCESS":"FAILED",
             "amount"=>$jsonData['payInstrument']['payDetails']["amount"],
             "orderId"=>$merchTxnId,
+            "response"=>json_encode($jsonData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            "response_hash_value"=>$request->encData,
             ]);             
             $collectionRequest = new Request($collectionRequest);
     
@@ -72,7 +74,7 @@ class OnlinePaymentController extends Controller
                     case $this->_SYSTEM_CONST["MODULE"]["TRADE"] : dd("trade");
                                                                         break;
                 }
-                $updateDataRequest->merge(["module_response"=>json_decode($response->original,true)]);
+                $updateDataRequest->merge(["module_response"=>json_encode($response->original,JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)]);
                 $this->_OnlinePaymentRequest->edit($updateDataRequest);
                 
             }

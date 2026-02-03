@@ -555,7 +555,11 @@ class PropertyController extends Controller
             $request->merge(["paymentMode"=>"ONLINE","userId"=>$requestData->user_id,"typeOfUser"=>$requestData->user_type]);
             $propertyPaymentBll = new PropertyPaymentBll($request);
             $this->begin();           
-            $responseData = ($propertyPaymentBll->payNow());         
+            $requestData->status = $request->status;
+            $requestData->response = $request->response;
+            $requestData->response_hash_value = $request->response_hash_value;  
+            $requestData->save();      
+            $responseData = ($propertyPaymentBll->payNow()); 
             $this->commit();
             return responseMsg(true,"Payment Successfully Done",$responseData);
         }catch(CustomException $e){
