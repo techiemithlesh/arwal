@@ -426,7 +426,7 @@ class CitizenController extends NotificationController
             $key = "ulb_id:" . $userType . ":" . $user->id . ":" . $req->bearerToken();
             Redis::del($key);
             $req->user()->currentAccessToken()->delete();                               // Delete the Current Accessable Token
-            return responseMsgs(true, "You have Logged Out", [], "", "1.0", responseTime(), "POST", $req->deviceId);
+            return responseMsgs(true, "You have Logged Out", []);
         } catch (Exception $e) {
             return response()->json($e, 400);
         }
