@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Bll\Payment\NttData;
 use App\Http\Controllers\Property\PropertyController;
 use App\Models\DBSystem\OnlinePaymentRequest;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
@@ -31,61 +32,83 @@ class OnlinePaymentController extends Controller
 
     public function NttDataCallback(Request $request)
     {
-             $data = $request->encData;
-             $decData = $this->_ObjNttData->decryptResponse($data);
-             $jsonData = json_decode($decData, true);
-             $merchTxnId = $jsonData["payInstrument"]["merchDetails"]["merchTxnId"]??"";
-             $fileName = "payment_responses/response_" . $merchTxnId . "_" . time() . ".json";
-             Storage::disk('local')->put($fileName, json_encode($jsonData, JSON_PRETTY_PRINT));
-            //  Log::info("NttData Callback Response",["data"=>$jsonData]);
-            //  dd($jsonData);
-             #SUCCESS
-             $onlineRequestData = $this->_OnlinePaymentRequest
-                                ->where("gateway_type",$this->_ObjNttData->_GatewayType)
-                                ->where("order_id",$merchTxnId)
-                                ->first();
-             $updateDataRequest = new Request();
-             $isSuccess = $jsonData['payInstrument']['responseDetails']['statusCode'] == 'OTS0000';
-             $updateDataRequest->merge([
-                "id"=>$onlineRequestData->id,
-                "status"=>$isSuccess?"SUCCESS":"FAILED",
-                "response"=>json_encode($jsonData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-                "response_hash_value"=>$request->encData,
-             ]);
-             $this->_OnlinePaymentRequest->edit($updateDataRequest);
-             $collectionRequest = json_decode($onlineRequestData->request_data,true);
-             $collectionRequest = array_merge($collectionRequest,
-             [
-                "status"=>$isSuccess?"SUCCESS":"FAILED",
-                "amount"=>$jsonData['payInstrument']['payDetails']["amount"],
-                "orderId"=>$merchTxnId,
-             ]);             
-             $collectionRequest = new Request($collectionRequest);
+        try{
+            $data = $request->encData;
+            $decData = $this->_ObjNttData->decryptResponse($data);
+            $jsonData = json_decode($decData, true);
+            $merchTxnId = $jsonData["payInstrument"]["merchDetails"]["merchTxnId"]??"";
+            $fileName = "payment_responses/response_" . $merchTxnId . "_" . time() . ".json";
+            Storage::disk('local')->put($fileName, json_encode($jsonData, JSON_PRETTY_PRINT));
+            $onlineRequestData = $this->_OnlinePaymentRequest
+                            ->where("gateway_type",$this->_ObjNttData->_GatewayType)
+                            ->where("order_id",$merchTxnId)
+                            ->first();
+            $updateDataRequest = new Request();
+            $isSuccess = $jsonData['payInstrument']['responseDetails']['statusCode'] == 'OTS0000';
+            $updateDataRequest->merge([
+            "id"=>$onlineRequestData->id,
+            "status"=>$isSuccess?"SUCCESS":"FAILED",
+            "response"=>json_encode($jsonData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            "response_hash_value"=>$request->encData,
+            ]);
+            $this->_OnlinePaymentRequest->edit($updateDataRequest);
+            $collectionRequest = json_decode($onlineRequestData->request_data,true);
+            $collectionRequest = array_merge($collectionRequest,
+            [
+            "status"=>$isSuccess?"SUCCESS":"FAILED",
+            "amount"=>$jsonData['payInstrument']['payDetails']["amount"],
+            "orderId"=>$merchTxnId,
+            ]);             
+            $collectionRequest = new Request($collectionRequest);
+    
+            if($isSuccess){
+    
+                switch($onlineRequestData->module_id){
+                    case $this->_SYSTEM_CONST["MODULE"]["PROPERTY"] : 
+                        $response = $this->_PropertyController->propOnlineNttDataHandelPayment($collectionRequest);
+                        break;
+                    case $this->_SYSTEM_CONST["MODULE"]["WATER"] : dd("water");
+                                                                        break;
+                    case $this->_SYSTEM_CONST["MODULE"]["TRADE"] : dd("trade");
+                                                                        break;
+                }
+                $updateDataRequest->merge(["module_response"=>$response]);
+                $this->_OnlinePaymentRequest->edit($updateDataRequest);
+                
+            }
+            return responseMsg(true, "Data Received Successfully", []);
+        }catch (Exception $e) {
+            return responseMsg(false,$e->getMessage(),"",400);
+        }
+    }
 
-             if($isSuccess){
+    public function NttDataHandelResponse(Request $request){
+        $data = $request->encData;
+        $decData = $this->_ObjNttData->decryptResponse($data);
+        $jsonData = json_decode($decData, true);
+        $merchTxnId = $jsonData["payInstrument"]["merchDetails"]["merchTxnId"]??"";
+        #SUCCESS
+        $onlineRequestData = $this->_OnlinePaymentRequest
+                        ->where("gateway_type",$this->_ObjNttData->_GatewayType)
+                        ->where("order_id",$merchTxnId)
+                        ->first();
+        $isSuccess = $jsonData['payInstrument']['responseDetails']['statusCode'] == 'OTS0000';
+        
 
-                  switch($onlineRequestData->module_id){
-                        case $this->_SYSTEM_CONST["MODULE"]["PROPERTY"] : 
-                            $this->_PropertyController->propOnlineNttDataHandelPayment($collectionRequest);
-                            break;
-                        case $this->_SYSTEM_CONST["MODULE"]["WATER"] : dd("water");
-                                                                          break;
-                        case $this->_SYSTEM_CONST["MODULE"]["TRADE"] : dd("trade");
-                                                                          break;
-                  }
-                  $responseData=[
-                    "UniqueRefNumber"=>$merchTxnId,
-                    "PaymentMode"=>"",
-                    "callBack"=>$onlineRequestData->success_url,
-                  ];
-                  return view('NttData.paymentSuccess',$responseData);
-             }else{
-                $responseData=[
-                    "UniqueRefNumber"=>$merchTxnId,
-                    "PaymentMode"=>"",
-                    "callBack"=>$onlineRequestData->fail_url,
-                  ];
-                  return view('NttData.paymentFail',$responseData);
-             }
+        if($isSuccess){
+            $responseData=[
+                "UniqueRefNumber"=>$merchTxnId,
+                "PaymentMode"=>"",
+                "callBack"=>$onlineRequestData->success_url,
+            ];
+            return view('NttData.paymentSuccess',$responseData);
+        }else{
+            $responseData=[
+                "UniqueRefNumber"=>$merchTxnId,
+                "PaymentMode"=>"",
+                "callBack"=>$onlineRequestData->fail_url,
+            ];
+            return view('NttData.paymentFail',$responseData);
+        }
     }
 }

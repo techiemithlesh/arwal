@@ -11,10 +11,10 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
 
 if (!function_exists("responseMsg")) {
-    function responseMsg($status, $message, $data)
+    function responseMsg($status, $message, $data,$statusCode=200)
     {
         $response = ['status' => $status, "message" => $message, "data" => $data];
-        return response()->json($response, 200);
+        return response()->json($response, $statusCode);
     }
 }
 
@@ -22,7 +22,7 @@ if (!function_exists("responseMsg")) {
  * | Response Msg Version2 with apiMetaData
  */
 if (!function_exists("responseMsgs")) {
-    function responseMsgs($status, $msg, $data, $apiId = null, $version = null, $queryRunTime = null, $action = null, $deviceId = null)
+    function responseMsgs($status, $msg, $data,$statusCode=200, $apiId = null, $version = null, $queryRunTime = null, $action = null, $deviceId = null)
     {
         return response()->json([
             'status' => $status,
@@ -36,7 +36,7 @@ if (!function_exists("responseMsgs")) {
                 'deviceId' => $deviceId
             ],
             'data' => $data
-        ]);
+        ],$statusCode);
     }
 }
 

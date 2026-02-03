@@ -27,7 +27,7 @@ class NttData
     {
         $this->_GatewayType = "NTTDATA";
         $this->_OnlinePaymentRequest = new OnlinePaymentRequest();
-        $this->_Return_url = url("/")."/"."api/payment/ntt/callback";
+        $this->_Return_url = url("/")."/"."api/payment/ntt/response";
         $this->_LoginUser = Config::get("paymentConstraint.NTT_ID");
         $this->_LoginPass = Config::get("paymentConstraint.NTT_PASS");
         $this->_ProdId = Config::get("paymentConstraint.NTT_PROD_ID");

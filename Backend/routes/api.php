@@ -23,7 +23,11 @@ Route::get('/user', function (Request $request) {
 Route::get("/getInfo",function(){
     echo phpinfo();die;
 });
-Route::post('/payment/ntt/callback', [OnlinePaymentController::class,"NttDataCallback"]);
+Route::controller(OnlinePaymentController::class)->group(function(){
+    Route::post('/payment/ntt/callback',"NttDataCallback");
+    Route::post('/payment/ntt/response',"NttDataHandelResponse");
+
+});
 
 Route::match(["get","post"],"fyear/list",function(){
     $data = FyListdesc();
