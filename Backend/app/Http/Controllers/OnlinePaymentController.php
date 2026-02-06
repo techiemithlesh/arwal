@@ -113,4 +113,26 @@ class OnlinePaymentController extends Controller
             return view('NttData.paymentFail',$responseData);
         }
     }
+
+    public function decryptNttDataResponse(Request $request){
+        try{
+            $data = $request->encData;
+            $decData = $this->_ObjNttData->decryptResponse($data);
+            $jsonData = json_decode($decData, true);
+            return responseMsg(true,"data Decrypt",$jsonData);
+        }
+        catch (Exception $e) {
+            return responseMsg(false,$e->getMessage(),"");
+        }
+    }
+
+    public function testSignature(Request $request){
+        try{
+            $signatureStr = $request->signatureStr;
+            $rsignatureStr = $this->_ObjNttData->verifyPaymentSignature($signatureStr);
+            return responseMsg(true,"signature",['signature' =>$rsignatureStr]);
+        }catch (Exception $e) {
+            return responseMsg(false,$e->getMessage(),"");
+        }
+    }
 }

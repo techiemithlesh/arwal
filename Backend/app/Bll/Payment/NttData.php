@@ -3,6 +3,7 @@
 namespace App\Bll\Payment;
 
 use App\Models\DBSystem\OnlinePaymentRequest;
+use Carbon\Carbon;
 use Google\Service\WorkflowExecutions\Callback;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
@@ -20,8 +21,11 @@ class NttData
     private $_LoginPass;
     private $_ProdId;
     private $_Api;
+    private $_NttMode;
     private $_encRequestKey;
     private $_decResponseKey;
+    private $_hashRequestKey;
+    private $_hashResponseKey;
     private $_hashValue;
     public function __construct()
     {
@@ -31,11 +35,19 @@ class NttData
         $this->_LoginUser = Config::get("paymentConstraint.NTT_ID");
         $this->_LoginPass = Config::get("paymentConstraint.NTT_PASS");
         $this->_ProdId = Config::get("paymentConstraint.NTT_PROD_ID");
-        $this->_Api = Config::get("paymentConstraint.NTT_API");
+        $this->_NttMode = Config::get("paymentConstraint.NTT_MODE");
+        // $this->_Api = Config::get("paymentConstraint.NTT_API");
 
         $this->_encRequestKey = "A4476C2062FFA58980DC8F79EB6A799E";
         $this->_decResponseKey ="75AEF0FA1B94B3C10D4F5B268F757F11";
+        $this->_hashRequestKey = "KEY123657234";
+        $this->_hashResponseKey = "KEYRESP123657234";
+        $this->setApi();
         
+    }
+
+    private function setApi(){
+        $this->_Api = $this->_NttMode == "uat" ? "https://caller.atomtech.in/ots/aipay/auth" : "https://paynetzuat.atomtech.in/ots/aipay/auth";
     }
 
     private function getOderId(int $modeuleId=0)
@@ -126,6 +138,7 @@ class NttData
             "orderId"=>$payData['txnId'],
             "payload"=>$payData,
             "payload_hash_value"=>$this->_hashValue,
+            "mode"=>$this->_NttMode,
         ];
     }
 
@@ -239,5 +252,9 @@ class NttData
 
     public function decryptResponse($data){
         return $this->decrypt($data,$this->_decResponseKey,$this->_decResponseKey);
+    }
+
+    public function verifyPaymentSignature($signatureStr){
+        return hash_hmac('sha512', $signatureStr, $this->_hashResponseKey);
     }
 }

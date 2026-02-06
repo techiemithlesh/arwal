@@ -26,6 +26,8 @@ Route::get("/getInfo",function(){
 Route::controller(OnlinePaymentController::class)->group(function(){
     Route::post('/payment/ntt/callback',"NttDataCallback");
     Route::post('/payment/ntt/response',"NttDataHandelResponse");
+    Route::post('/decrypt/ntt/response',"decryptNttDataResponse");
+    Route::post('/test/ntt/signature',"testSignature");
 
 });
 

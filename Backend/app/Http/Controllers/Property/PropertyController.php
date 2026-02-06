@@ -512,6 +512,8 @@ class PropertyController extends Controller
                 "returnUrl",
                 "amount",
                 "orderId",
+                "payload_hash_value",
+                "mode",
                 ]);
             return responseMsg(true,"Payment Initiated",camelCase(remove_null($response)));
         }catch(CustomException $e){
@@ -519,7 +521,7 @@ class PropertyController extends Controller
             return responseMsg(false,$e->getMessage(),"");
         }
         catch(Exception $e){
-            $this->rollBack();
+            $this->rollBack();dd($e);
             return responseMsg(false,"Internal Server Error","");
         }
     }
