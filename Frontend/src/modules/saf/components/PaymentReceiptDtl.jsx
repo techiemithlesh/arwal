@@ -14,6 +14,7 @@ import { useTranslation } from "react-i18next";
 import "../../../i18n";
 
 function PaymentReceiptDtl({ data = null, id, setIsFrozen = () => {} }) {
+  const isTest = JSON.parse(import.meta.env.VITE_REACT_APP_TEST || "false");
   const { t, i18n } = useTranslation();
   const [receiptData, setReceiptData] = useState({});
   const [qurCode, setQurCode] = useState(null);
@@ -82,6 +83,13 @@ function PaymentReceiptDtl({ data = null, id, setIsFrozen = () => {} }) {
             alt="Watermark"
             className="w-[300px] opacity-[0.08] grayscale select-none"
           />
+        </div>
+      )}
+      {isTest && (
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center z-20 overflow-hidden">
+          <div className="whitespace-nowrap text-red-800 opacity-10 text-[10rem] font-bold -rotate-[35deg] uppercase select-none">
+            TEST TEST TEST TEST TEST
+          </div>
         </div>
       )}
       <div className="relative z-10">
