@@ -124,7 +124,7 @@ export default function OwnerDtlEdit({ propDetails, onClose, token }) {
           </button>
         </div>
 
-        <div className="flex flex-col border border-blue-900 rounded-t-xl">
+        <div className="flex flex-col border border-blue-900 rounded-t-xl overflow-y-auto p-6 space-y-6">
           <h1 className="bg-blue-900 px-4 py-1 rounded-t-xl font-semibold text-white text-lg">
             Owner Details
           </h1>
