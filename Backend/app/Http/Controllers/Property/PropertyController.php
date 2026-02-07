@@ -322,6 +322,7 @@ class PropertyController extends Controller
             $oldValues   = Arr::only($originalValues, $changedKeys);
             $request->merge(["updatesField"=>["old"=>$oldValues,"new"=>$dirty],"userId"=>$user->id]);
             $this->_AppOwnerUpdate->store($request);
+            $owner->save();
             $this->commit();
             return responseMsg(true,"Basic Details Updated","");
         }catch(CustomException $e){
@@ -557,11 +558,12 @@ class PropertyController extends Controller
             $request->merge(["paymentMode"=>"ONLINE","userId"=>$requestData->user_id,"typeOfUser"=>$requestData->user_type]);
             $propertyPaymentBll = new PropertyPaymentBll($request);
             $this->begin();           
+            $responseData = ($propertyPaymentBll->payNow()); 
             $requestData->status = $request->status;
             $requestData->response = $request->response;
-            $requestData->response_hash_value = $request->response_hash_value;  
-            $requestData->save();      
-            $responseData = ($propertyPaymentBll->payNow()); 
+            $requestData->response_hash_value = $request->response_hash_value;                    
+            $requestData->tran_id = $responseData["tranId"]; 
+            $requestData->save();
             $this->commit();
             return responseMsg(true,"Payment Successfully Done",$responseData);
         }catch(CustomException $e){
@@ -570,6 +572,32 @@ class PropertyController extends Controller
         }
         catch(Exception $e){
             $this->rollBack();
+            return responseMsg(false,"Internal Server Error","");
+        }
+    }
+
+    public function verifyOnlinePayment(Request $request){
+        try{
+            $rule = [
+                "orderId" => "required|exists:".$this->_NttPaymentRequest->getConnectionName().".".$this->_NttPaymentRequest->getTable().",order_id",
+            ];
+
+            $validator = Validator::make($request->all(),$rule);
+            if($validator->fails()){
+                return validationError($validator);
+            }
+            $requestData = $this->_NttPaymentRequest
+                            ->where("order_id",$request->orderId)
+                            ->where("module","PROPERTY")
+                            ->first();
+            if($requestData->status!="SUCCESS"){
+                throw new CustomException("Payment Not Clear");
+            }
+            return responseMsg(true,"Payment Successfully Done",["tranId"=>$requestData->tran_id]);
+        }catch(CustomException $e){
+            return responseMsg(false,$e->getMessage(),"");
+        }
+        catch(Exception $e){
             return responseMsg(false,"Internal Server Error","");
         }
     }
