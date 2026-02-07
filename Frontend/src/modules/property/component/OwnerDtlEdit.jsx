@@ -27,7 +27,7 @@ export default function OwnerDtlEdit({ propDetails, onClose, token }) {
         setOwnerDetails(
           propDetails.owners.map((ele) => ({
             ...ele,
-            remarks: "ABCD",
+            remarks: "",
             document: "",
             isArmedForce: 0,
             isSpeciallyAbled: 0,
@@ -50,7 +50,6 @@ export default function OwnerDtlEdit({ propDetails, onClose, token }) {
     const formData = new FormData();
 
     Object.entries(payload).forEach(([key, value]) => {
-      // Only append if value is not undefined or null
       if (value !== undefined && value !== null) {
         formData.append(key, value);
       }
@@ -63,7 +62,7 @@ export default function OwnerDtlEdit({ propDetails, onClose, token }) {
       });
 
       if (response && response.data && response.data.status) {
-        toast.success("Property details updated successfully!");
+        toast.success("Property details updated successfully!", { position: "top-right" });
         onClose && onClose();
       } else {
         if (response && response.data && response.data.errors) {
@@ -72,14 +71,15 @@ export default function OwnerDtlEdit({ propDetails, onClose, token }) {
             .join("\n");
           toast.error(errorMessages, { duration: 8000 });
         } else {
-          toast.error("Failed to update property details.");
+          toast.error("Failed to update property details.", {position: "top-right"});
         }
       }
       // Optionally show a toast or success message here
     } catch (error) {
       console.error("Error submitting owner details:", error);
-      toast.error("An error occurred while updating property details.");
-      // Optionally show an error message here
+      toast.error("An error occurred while updating property details.", {
+        position: "top-right",
+      });
     }
   };
 

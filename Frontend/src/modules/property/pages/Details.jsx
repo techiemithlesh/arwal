@@ -144,7 +144,6 @@ const Details = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const data = response.data?.data;
-      // console.log("data", data);
       setPropDetails(data);  
     } catch (error) {
       console.error("Failed to fetch SAF details", error);
@@ -165,6 +164,7 @@ const Details = () => {
   };
 
   const handelChange = (e) => setVerificationRemarks(e.target.value);
+
   const forwardBackward = () => {
     if (verificationRemarks.trim() === "")
       return toast.error("Remarks are required");
@@ -183,7 +183,7 @@ const Details = () => {
         toast.success(response?.data?.message);
         fetchDetails();
       } else {
-        toast.error(response?.data?.message || "Something went wrong");
+        toast.error(response?.data?.message || "Something went wrong", {position: "top-right"});
       }
     } catch (error) {
       console.error("Failed to post", error);
