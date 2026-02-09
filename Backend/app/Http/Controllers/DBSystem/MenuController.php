@@ -209,14 +209,16 @@ class MenuController extends Controller
             $request->merge($data);
             DB::beginTransaction();
 
-            // $test = $this->_modelWebMenuMaster->where(DB::raw("upper(url)"),Str::upper($request->url))
-            //         ->where(DB::raw("menu_name"),($request->menuName))
-            //         ->where(DB::raw("query_string"),($request->queryString))
-            //         ->where("id","<>",$request->id)
-            //         ->first();
-            // if($test){
-            //     throw new CustomException("This Menu Already Exists");
-            // }
+            $test = $this->_modelWebMenuMaster->where(DB::raw("upper(url)"),Str::upper($request->url))
+                    ->where(DB::raw("menu_name"),($request->menuName))
+                    ->where(DB::raw("query_string"),($request->queryString))
+                    ->where("parent_id",$request->parentId)
+                    ->where("menu_type",$request->menuType)
+                    ->where("id","<>",$request->id)
+                    ->first();
+            if($test){
+                throw new CustomException("This Menu Already Exists");
+            }
             $this->_modelWebMenuMaster->edit($request);
             $this->_modelWebRoleMenuMap->where("menu_id",$request->id)->update(["lock_status"=>true]);
             if($request->role){
