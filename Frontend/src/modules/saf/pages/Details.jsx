@@ -319,6 +319,7 @@ const Details = () => {
                   </td>
                   <td className="px-3 py-2 border">{owner?.panNo ?? "NA"}</td>
                   <td className="px-3 py-2 border">{owner?.gender ?? "NA"}</td>
+                  <td className="px-3 py-2 border">{owner?.dob ?? "NA"}</td>
                   <td className="px-3 py-2 border">
                     {owner?.isArmedForce ? "YES" : "NO"}
                   </td>

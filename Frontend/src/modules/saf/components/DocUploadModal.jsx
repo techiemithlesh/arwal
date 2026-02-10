@@ -69,7 +69,7 @@ function DocUploadModal({
   };
 
   const handleSubmit = async () => {
-    // setIsFrozen(true);
+    setIsFrozen(true);
     if (!docCode) {
       toast.error("Document type is required.");
       return;

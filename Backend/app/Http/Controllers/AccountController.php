@@ -580,7 +580,7 @@ class AccountController extends Controller
                                     $item->new_ward_no = $app?->getWardNewdWardNo()?->ward_no;
                                 }else{
                                     $app = $this->_PropertyDetail->find($item->property_detail_id);
-                                    $item->app_no = $app?->new_holding_no;
+                                    $item->app_no = $app?->new_holding_no ? $app->new_holding_no: $app?->holding_no;
                                     $item->app_typ ="Property";
                                     $item->ward_no = $app?->getWardOldWardNo()?->ward_no;
                                     $item->new_ward_no = $app?->getWardNewdWardNo()?->ward_no;
@@ -967,7 +967,7 @@ class AccountController extends Controller
             
             $list = paginator($orm,$request);
             $list["data"] = collect($list["data"])->map(function($item){ 
-                $item->doc_path = $item->doc_path ? trim(Config::get("app.url"),'\\/')."/".$item->doc_path:"";
+                $item->doc_path = $item->doc_path ? url("/documents")."/".$item->doc_path:"";
                 $user = User::find($item->user_id);
                 $item->deactivate_by = $user?->name;
                 $item->user_img = $item->user_img ? trim(Config::get("app.url"),'\\/')."/".$item->user_img:"";

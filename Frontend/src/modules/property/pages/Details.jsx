@@ -227,8 +227,6 @@ const Details = () => {
                 "Dob",
                 "Armed Force",
                 "Specially Abled",
-                "Applicant Image",
-                "Applicant Document",
               ]}
               data={propDetails.owners}
               renderRow={(owner, idx) => (
@@ -244,33 +242,12 @@ const Details = () => {
                   </td>
                   <td className="px-3 py-2 border">{owner?.panNo ?? "NA"}</td>
                   <td className="px-3 py-2 border">{owner?.gender ?? "NA"}</td>
+                  <td className="px-3 py-2 border">{owner?.dob ?? "NA"}</td>
                   <td className="px-3 py-2 border">
                     {owner?.isArmedForce ? "YES" : "NO"}
                   </td>
                   <td className="px-3 py-2 border">
                     {owner?.isSpeciallyAbled ? "YES" : "NO"}
-                  </td>
-                  <td className="px-3 py-2 border">
-                    {owner?.ownerPhoto ? (
-                      <img
-                        src={owner.ownerPhoto}
-                        alt="Owner"
-                        className="border rounded w-16 h-16 object-cover"
-                      />
-                    ) : (
-                      "NA"
-                    )}
-                  </td>
-                  <td className="px-3 py-2 border">
-                    {owner?.ownerDoc ? (
-                      <iframe
-                        src={owner.ownerDoc}
-                        title="Owner Document"
-                        className="border rounded w-32 h-16"
-                      />
-                    ) : (
-                      "NA"
-                    )}
                   </td>
                 </tr>
               )}
