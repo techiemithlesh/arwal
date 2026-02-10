@@ -14,7 +14,7 @@ const OwnerDtlAdd = ({
 }) => {
   useEffect(() => {
     if (!Array.isArray(ownerDtl) || ownerDtl.length === 0) {
-      setOwnerDtl([{ id: 1 }]);
+      setOwnerDtl([{ id: 1 ,isArmedForce: false,isSpeciallyAbled: false,}]);
     }
   }, []);
 
@@ -26,7 +26,7 @@ const OwnerDtlAdd = ({
 
   const handleOwnerAdd = () => {
     if (isSingleOwner) return; // ❌ hard stop
-    setOwnerDtl([...ownerDtl, { id: ownerDtl.length + 1 }]);
+    setOwnerDtl([...ownerDtl, { id: ownerDtl.length + 1,isArmedForce: false,isSpeciallyAbled: false, }]);
   };
 
   const handleRemoveOwner = (index) => {
