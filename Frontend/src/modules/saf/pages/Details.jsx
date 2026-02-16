@@ -169,6 +169,7 @@ const Details = () => {
       });
 
       const updatedRemarks = data?.levelRemarks?.map((item) => ({
+        ...item,
         roleCode: item?.senderRole,
         action: item?.actions,
         userName: item?.senderUserName,
@@ -245,7 +246,7 @@ const Details = () => {
     { label: "Assessment Type", value: safDetails?.assessmentType },
     { label: "Property Type", value: safDetails?.propertyType },
     { label: "Ownership Type", value: safDetails?.ownershipType },
-    { label: "Road Width", value: safDetails?.roadWidth },
+    { label: "Road Type", value: safDetails?.roadType },
     { label: "Plot No", value: safDetails?.plotNo },
     { label: "Area of Plot (In Sqft)", value: safDetails?.areaOfPlot },
     { label: "Built Up Area (In Sqft)", value: safDetails?.builtupArea },

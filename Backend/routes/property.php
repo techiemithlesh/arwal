@@ -79,6 +79,9 @@ Route::middleware(['auth:sanctum',"expireBearerToken","setUlb"])->group(function
         Route::post("pay-saf-demand","safOfflinePayment");
         Route::post("payment-receipt","getSafPaymentReceipt")->withoutMiddleware(["auth:sanctum","setUlb"]);
 
+        Route::post("saf-auto-forward-list","safListForAutoApprove");
+        Route::post("saf-auto-forward","addAutoForwardAssistant");
+        Route::post("inbox","inbox");
         Route::post("inbox","inbox");
         Route::post("outbox","outbox");
         Route::post("post-next","postNextLevel");

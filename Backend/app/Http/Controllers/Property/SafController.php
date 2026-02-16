@@ -43,6 +43,7 @@ use App\Models\Property\PropertyTypeMaster;
 use App\Models\Property\PropTransaction;
 use App\Models\Property\RejectedSafDetail;
 use App\Models\Property\RoadTypeMaster;
+use App\Models\Property\SafAutoApprovedLog;
 use App\Models\Property\SafDemand;
 use App\Models\Property\SafDetail;
 use App\Models\Property\SafDocDetail;
@@ -112,6 +113,7 @@ class SafController extends Controller
     private $_GeotagDetail;
     private $_FieldVerificationDetail;
     private $_FieldVerificationFloorDetail;
+    private $_SafAutoApprovedLog;
 
     private $_WaterConnectionFacilityType;
     private $_WaterTaxType;
@@ -161,6 +163,7 @@ class SafController extends Controller
         $this->_GeotagDetail = new GeotagDetail();
         $this->_FieldVerificationDetail = new FieldVerificationDetail();
         $this->_FieldVerificationFloorDetail = new FieldVerificationFloorDetail();
+        $this->_SafAutoApprovedLog = new SafAutoApprovedLog();
 
         $this->_WaterConnectionFacilityType = new WaterConnectionFacilityType();
         $this->_WaterTaxType = new WaterTaxType();
@@ -807,14 +810,18 @@ class SafController extends Controller
                 return $item;
             });
             $levelRemarks = $saf->getLevelRemarks()->orderBy("id","ASC")->get();
-            $saf->level_remarks = collect($levelRemarks)->map(function($val){
+            $autoForwardDoc  = $this->_SafAutoApprovedLog->where("saf_detail_id",$saf->id)->where("lock_status",false)->orderBy("id","desc")->first();
+            
+            $saf->level_remarks = collect($levelRemarks)->map(function($val)use($autoForwardDoc){
+                if($autoForwardDoc && $val->sender_remarks=="Auto Approved"){
+                    $val->doc_path = $autoForwardDoc->doc_path ? url("/documents")."/".$autoForwardDoc->doc_path:"";
+                }
                 $val->senderRole = $val->getSenderRole()->first()->role_name??"";
                 $val->senderUserName = $val->getSenderUser()->first()->name??"";
                 $val->receiverRole = $val->getReceiverRole()->first()->role_name??""; 
                 $val->actions = flipConstants(Config::get("PropertyConstant.ACTION_TYPE"))[$val->verification_status]??"";
                 return $val;  
             });
-            
             $user = Auth()->user();
             if($user){
                 $currentToken = $user->currentAccessToken();
@@ -1020,6 +1027,9 @@ class SafController extends Controller
         try{
             $user = Auth()->user();
             $role = $user->getRoleDetailsByUserId()->first();
+            if($request->roleId){
+                $role = $this->_RoleTypeMstr->find($request->roleId);
+            }
             $saf = ActiveSafDetail::find($request->id);
             if(!$saf){
                 throw new CustomException("Data Not Find");
@@ -1224,6 +1234,9 @@ class SafController extends Controller
         try{
             $user = Auth()->user();
             $role = $user->getRoleDetailsByUserId()->first();
+            if($request->roleId){
+                $role = $this->_RoleTypeMstr->find($request->roleId);
+            }
             $saf = ActiveSafDetail::find($request->id);
             if(!$saf){
                 throw new CustomException("Data Not Find");
@@ -1290,6 +1303,211 @@ class SafController extends Controller
                 dd("REJECT");
             }
             $id=$this->_LevelRemark->store($request);
+            $this->commit();
+            return responseMsg(true,"Saf Approved","");
+
+        }catch(CustomException $e){
+            $this->rollBack();
+            return responseMsg(false,$e->getMessage(),"");
+        }
+        catch(Exception $e){
+            $this->rollBack();
+            return responseMsg(false,"Internal Server Error","");
+        }
+    }
+
+    public function safListForAutoApprove (Request $request){
+        try{
+            $user = Auth()->user();
+            if($user->getTable()!="users"){
+                throw new CustomException("Another User Are Not Allow");
+            }
+            $data = $this->metaDataList()
+                    ->where("active_saf_details.ulb_id",$user->ulb_id)
+                    ->where("active_saf_details.is_btc",false)
+                    ->where("active_saf_details.payment_status",1);
+            if($request->key){
+                $data->where(function($where)use($request){
+                    $where->where("active_saf_details.saf_no","ILIKE","%".$request->key."%")
+                    ->orWhere("active_saf_details.saf_no","ILIKE","%".$request->key."%")
+                    ->orWhere("owners.owner_name","ILIKE","%".$request->key."%")
+                    ->orWhere("owners.mobile_no","ILIKE","%".$request->key."%");
+
+                });                
+            }
+            if($request->wardId){
+                if(!is_array($request->wardId)){
+                    $request->merge(["wardId"=>[$request->wardId]]);
+                }
+                $data->whereIn("active_saf_details.ward_mstr_id",$request->wardId);
+            }
+            if($request->fromDate || $request->uptoDate){
+                if($request->fromDate && $request->uptoDate){
+                    $data->whereBetween("active_saf_details.apply_date",[Carbon::parse($request->fromDate)->format("Y-m-d"),Carbon::parse($request->uptoDate)->format("Y-m-d")]);
+                }elseif($request->fromDate){
+                    $data->where("active_saf_details.apply_date",Carbon::parse($request->fromDate)->format("Y-m-d"));
+                }elseif($request->uptoDate){
+                    $data->where("active_saf_details.apply_date",Carbon::parse($request->uptoDate)->format("Y-m-d"));
+                }
+            }
+
+            
+            $list = paginator($data,$request);
+            $list["data"] = collect($list["data"])->map(function($item){   
+                $item->appStatus = $this->getSafStatus($item->id);
+                return $item;
+            });
+            return responseMsg(true,"Saf List",camelCase(remove_null($list)));
+        }catch(CustomException $e){
+            return responseMsg(false,$e->getMessage(),"");
+        }
+        catch(Exception $e){
+            return responseMsg(false,"Internal Server Error","");
+        }
+    }
+
+    public function addAutoForwardAssistant(Request $request){
+        try{
+            $user = Auth::user();
+            $rules =[
+                "id"=>"required|digits_between:1,9223372036854775807|exists:".$this->_ActiveSafDetail->getConnectionName().".".$this->_ActiveSafDetail->getTable().",id",
+                "remarks"=>"required|min:10",
+                "document"=>[
+                    "required",
+                    "mimes:".($request->docCode=="Applicant Image" ? "bmp,jpeg,jpg,png":"pdf"),
+                    function ($attribute, $value, $fail) {
+                        if($value instanceof UploadedFile){
+                            $maxSize = $value->getClientOriginalExtension() === 'application/pdf' ? 10240 : 5120; // Size in KB
+                            $maxSizeBytes = $maxSize * 1024; // Convert to bytes
+                            if ($value->getSize() > $maxSizeBytes) {
+                                $fail('The ' . $attribute . ' may not be greater than ' . $maxSize . ' kilobytes.');
+                            }
+                        }
+                    },
+
+                ],
+            ];
+            $validator = Validator::make($request->all(),$rules);
+            if($validator->fails()){
+                return validationError($validator);
+            }
+            $saf = $this->_ActiveSafDetail->find($request->id);
+            if(!$saf){
+                throw new CustomException("Data Not Find");
+            }
+            if(!$saf->payment_status){
+                throw new CustomException("Please Make Payment First");
+            }
+            if($saf->payment_status!=1){
+                throw new CustomException("Please Wait For Payment Clarence");
+            }
+            $workflowMater = $this->_WorkflowMaster->find($saf->workflow_id);
+            if(!$workflowMater){
+                throw new CustomException("Invalid Workflow Assign");
+            }
+            if(!$this->testAllDocUpload($saf) && $saf->current_role_id==$saf->initiator_role_id){                
+                throw new CustomException("All Mandatory Document Not Upload");
+            }
+            $allRoles = $this->_CommonClass->getWorkFlowAllRoles($saf->ulb_id, $workflowMater->id);
+            $collection = collect($allRoles);
+
+            // 1. Sort the hierarchy from Initiator to Finisher
+            $ordered = collect();
+            $current = $collection->where('is_initiator', true)->first();
+
+            while ($current) {
+                $ordered->push($current);
+                $nextRoleId = $current['forward_role_id'];
+                $current = $nextRoleId ? $collection->where('role_id', $nextRoleId)->first() : null;
+            }
+          
+            $relativePath = "Uploads/SafAutoApproveLog";
+
+            $imageName = $saf->id."_".Str::uuid().".".$request->document->getClientOriginalExtension();
+            $path = $request->document->storeAs($relativePath,$imageName, $this->disk);
+            $request->merge(["docPath"=>$path,"safDetailId"=>$saf->id]);
+
+            $this->begin();
+
+            $this->_SafAutoApprovedLog->store($request);
+            
+            foreach ($ordered as $role) {
+                
+                $saf->refresh();//dd($role["role_id"] != $saf->current_role_id,$role["role_id"] , $saf->current_role_id,$ordered);
+                
+                if ($role["role_id"] != $saf->current_role_id) {
+                    continue;
+                }
+                
+                $data = [
+                    "id" => $saf->id,
+                    "remarks" => "Auto Approved",
+                    "status" => "FORWARD",
+                    "roleId"=>$role["role_id"],
+                ];
+
+                // Handle Document Verification logic if applicable
+                if ($role["can_doc_verify"]) {
+                    // Assuming you want to verify all unverified docs
+                    $testUnverifiedDocList = $saf->getDocList()->where("verified_status", 0)->get();
+                    foreach ($testUnverifiedDocList as $doc) {
+                        $doc->verified_status = 1;
+                        $doc->update();
+                    }
+                    $saf->is_doc_verify = true;
+                    $saf->doc_verify_date = Carbon::now()->format("Y-m-d");
+                    $saf->doc_verify_user_id = $user->id;
+                    $saf->update();
+                }
+                $testVerification = $saf->getVerification()->first(); 
+                // Handle Field Verification
+                if($role["can_field_verify"] && !$testVerification){
+                    $safFloor = $saf->getFloors();
+                    $verificationData = camelCase($saf);
+                    $verificationData["safDetailId"] = $saf->id;
+                    $verificationData["newWardMstrId"] = null;
+                    $verificationData["roleId"] = $role["role_id"];
+                    if($safFloor ){
+                        $floorVerification =[];
+                        foreach($safFloor as $key=>$floor){
+                            $floor = camelCase($floor);
+                            $floor["safFloorDetailId"]=$floor["id"]; //builtupArea   builtupArea
+                            $floor["dateFrom"]=$floor["dateFrom"] ? Carbon::parse($floor["dateFrom"])->format("Y-m") : null;
+                            $floor["dateUpto"]=$floor["dateUpto"] ? Carbon::parse($floor["dateUpto"])->format("Y-m") : null;
+                            $floorVerification[] = $floor->toArray();                            
+                        }
+                        $verificationData["floorDtl"]=$floorVerification;
+                    }
+                    $verificationData = $verificationData->toArray();
+                    // dd($verificationData);
+                    $verificationRequest = RequestFieldVerification::createFrom($request); 
+                    $verificationRequest->replace($verificationData);
+                    $verificationRequest->setContainer(app())->setRedirector(app()->make('redirect'));
+                    if (method_exists($verificationRequest, 'validateResolved')) {
+                        $verificationRequest->validateResolved();
+                    }
+                    $response = $this->fieldVerification($verificationRequest);
+                    $resData = $response->getData(true); 
+                    if (!$resData['status']) {
+                        throw new CustomException($resData['message'] ?? "Forwarding failed at " . $role['role_name']);
+                    }
+                }
+
+                // Handle Post Next
+                $formRequest = RequestPostNextLevel::createFrom($request); 
+                $formRequest->replace($data);
+                $formRequest->setContainer(app())->setRedirector(app()->make('redirect'));
+                if (method_exists($formRequest, 'validateResolved')) {
+                    $formRequest->validateResolved();
+                }
+                $response = $this->postNextLevel($formRequest);
+                $resData = $response->getData(true);
+                // print_var($resData); 
+                if (!$resData['status']) {
+                    throw new CustomException($resData['message'] ?? "Forwarding failed at " . $role['role_name']);
+                }
+            }
+            // dd($ordered);
             $this->commit();
             return responseMsg(true,"Saf Approved","");
 
@@ -1669,7 +1887,10 @@ class SafController extends Controller
     public function fieldVerification(RequestFieldVerification $request){
         try{
             $user = Auth()->user();
-            $role = $user->getRoleDetailsByUserId()->first();            
+            $role = $user->getRoleDetailsByUserId()->first(); 
+            if($request->roleId){
+                $role = $this->_RoleTypeMstr->find($request->roleId);
+            }          
             $saf = $this->_ActiveSafDetail->find($request->safDetailId);
             $shortName = $this->_SystemConstant["USER-TYPE-SHORT-NAME"][strtoupper($role->role_name)]??"";
             if($shortName=="TC"){
@@ -1707,7 +1928,7 @@ class SafController extends Controller
             return responseMsg(false,$e->getMessage(),"");
         }
         catch(Exception $e){
-            $this->rollBack();
+            $this->rollBack();dd($e);
             return responseMsg(false,"Internal Server Error","");
         }
     }

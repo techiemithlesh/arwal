@@ -1,9 +1,21 @@
 import { useState } from "react";
-import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { FaChevronDown, FaChevronUp, FaFilePdf } from "react-icons/fa";
 import { formatTimeAMPM, getShortRole } from "../../utils/common";
+import ImagePreview from "./ImagePreview";
 
 const RemarksAccordion = ({ color, title = "Level Remarks", remarks = [] }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [previewImg, setPreviewImg] = useState("");
+  const [isModalPreviewOpen, setIsModalPreviewOpen] = useState(false);
+  const openPreviewModel = (link) => {
+      setIsModalPreviewOpen(true);
+      setPreviewImg(link);
+  };
+
+  const closePreviewModel = () => {
+      setIsModalPreviewOpen(false);
+      setPreviewImg("");
+  };
 
   const actionStyleMap = {
     forward: "text-green-600",
@@ -81,6 +93,23 @@ const RemarksAccordion = ({ color, title = "Level Remarks", remarks = [] }) => {
                         {remark.userName}
                       </div>
                     )}
+                    {remark?.docPath &&(
+                        remark.docPath.toLowerCase().endsWith(".pdf") ? (
+                              <FaFilePdf
+                                  size={40}
+                                  className="mx-auto text-red-600 cursor-pointer"
+                                  onClick={() => openPreviewModel(remark.docPath)}
+                                  title="Click to view PDF"
+                              />
+                          ) : (
+                              <img
+                                  src={remark.docPath}
+                                  alt="document image"
+                                  onClick={() => openPreviewModel(remark.docPath)}
+                                  className="inline-block ml-2 border border-gray-300 rounded-full w-10 h-10 object-cover cursor-pointer"
+                              />
+                          )
+                      )}
                   </div>
                 </div>
               ))
@@ -91,6 +120,9 @@ const RemarksAccordion = ({ color, title = "Level Remarks", remarks = [] }) => {
             )}
           </div>
         </div>
+      )}
+      {isModalPreviewOpen && (
+          <ImagePreview imageSrc={previewImg} closePreview={closePreviewModel} />
       )}
     </div>
   );

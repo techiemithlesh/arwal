@@ -313,6 +313,52 @@ trait PropertyTrait{
         return ["is_work_complied"=>$workComplied,"message"=>$message];
     }
 
+    public function testAllDocUpload($saf){
+        $requiredDocList = $this->getRequiredDocList($saf);
+        $getUploadedDocList = $saf->getDocList()->get();
+        $applicationDoc = collect($requiredDocList["appDoc"]??[]);
+        $ownerDoc = collect($requiredDocList["ownerDoc"]??[]);
+
+        $appMandetoryDoc = $applicationDoc->where("is_madetory", true);
+
+        $appUploadedDocVerified = collect();
+        $appUploadedDocRejected = collect();
+        $appMadetoryDocRejected  = collect();
+        $applicationDoc->map(function ($item) use ($appUploadedDocVerified, $appUploadedDocRejected, $appMadetoryDocRejected,$getUploadedDocList) {
+            $val = $getUploadedDocList->where("doc_type_id",$item->id)->whereNull("saf_owner_detail_id")->first();
+            $appUploadedDocVerified->push(["is_docVerify" => ($val ?  ($val->verified_status ? true : false) : true)]);
+            $appUploadedDocRejected->push(["is_docRejected" => ($val ?  ($val->verified_status == 2 ? true : false) : false)]);
+            if ($item->is_madetory) {
+                $appMadetoryDocRejected->push(["is_docRejected" => ($val ?  ($val->verified_status == 2 ? true : false) : false)]);
+            }
+        });
+        $is_appUploadedDocRejected          = $appUploadedDocRejected->where("is_docRejected", true);
+        
+        $is_appMandUploadedDoc = $appMandetoryDoc->filter(function ($val) {
+            return ($val["uploaded_doc"] == "" || $val["uploaded_doc"] == null);
+        });
+
+        $Wdocuments = collect();
+        $ownerDoc->map(function ($val) use ($Wdocuments) {
+            $ownerId = $val->id?? "";
+            $ownerUploadDoc = $val->getDocList()->get();
+            $val["doc_list"]->map(function ($val1) use ($Wdocuments, $ownerId,$ownerUploadDoc) {
+                $test = $ownerUploadDoc->where("doc_type_id",$val1->id)->first();
+                $val1["ownerId"] = $ownerId;
+                $val1["is_uploded"] = ($val1->is_madetory)  ? ($test ? true : false) : true;
+                $val1["is_docVerify"] = $test ?  ($test->verified_status ? true : false) : true;
+                $val1["is_docRejected"] = $test ?  ($test->verified_status == 2 ? true : false) : false;
+                $val1["is_madetory_docRejected"] = ($test && $val1->is_madetory) ?  ($test->verified_status == 2 ? true : false) : false;
+                $Wdocuments->push($val1);
+            });
+        });
+        $is_ownerUploadedDoc            = $Wdocuments->where("is_uploded", false);
+        $is_ownerDocRejected            = $Wdocuments->where("is_docRejected", true);
+        $workComplied = (empty($is_ownerUploadedDoc->all()) && empty($is_ownerDocRejected->all()) && empty($is_appMandUploadedDoc->all()) && empty($is_appUploadedDocRejected->all()));
+        return $workComplied;
+        
+    }
+
     public function getRequiredDocList($saf){
         $docList = [];
         $commonClass = new Common;
