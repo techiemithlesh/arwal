@@ -1434,10 +1434,12 @@ class SafController extends Controller
             $count = 0;
             while (true) {
                 
-                $saf->refresh();
-                if(!$saf){ // after approve data move on aprroved table
+                $testSaf=$this->_ActiveSafDetail->find($request->id);
+                // print_var($testSaf?->id);
+                if(!$testSaf){ // after approve data move on aprroved table
                     break;
                 }
+                $saf->refresh();
                 $role = $ordered->where('role_id', $saf->current_role_id)->first();
                 if (!$role) {
                     break; 
@@ -1527,7 +1529,7 @@ class SafController extends Controller
             return responseMsg(false,$e->getMessage(),"");
         }
         catch(Exception $e){
-            $this->rollBack();
+            $this->rollBack();dd($e);
             return responseMsg(false,"Internal Server Error","");
         }
     }
