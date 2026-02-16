@@ -1542,7 +1542,7 @@ class SafController extends Controller
             return responseMsg(false,$e->getMessage(),"");
         }
         catch(Exception $e){
-            $this->rollBack();dd($e);
+            $this->rollBack();
             return responseMsg(false,"Internal Server Error","");
         }
     }
@@ -1954,7 +1954,7 @@ class SafController extends Controller
             return responseMsg(false,$e->getMessage(),"");
         }
         catch(Exception $e){
-            $this->rollBack();dd($e);
+            $this->rollBack();
             return responseMsg(false,"Internal Server Error","");
         }
     }
