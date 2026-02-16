@@ -304,7 +304,7 @@ trait PropertyTrait{
                     $message = "Filed Verification Pending";
                 }
             }
-            if($WfPermission->can_geotag){
+            if($WfPermission->can_geotag && !$roleId){
                 $geoTag = $saf->getGeoTag()->get();
                 if($geoTag->isEmpty()){
                     $workComplied = false;
