@@ -1070,7 +1070,7 @@ class SafController extends Controller
                 return $this->approveRejectApplication($request);
             }
             if($request->status=="FORWARD"){
-                $testWoke = $this->testWorks($saf->id);
+                $testWoke = $this->testWorks($saf->id,$request->roleId);
                 $flag = $testWoke["is_work_complied"];
                 $message = $testWoke["message"];
                 if(!$flag){                    
@@ -1435,12 +1435,13 @@ class SafController extends Controller
             while (true) {
                 
                 $testSaf=$this->_ActiveSafDetail->find($request->id);
-                // print_var($testSaf?->id);
+                
                 if(!$testSaf){ // after approve data move on aprroved table
                     break;
                 }
                 $saf->refresh();
                 $role = $ordered->where('role_id', $saf->current_role_id)->first();
+                // print_var($role["role_id"]);
                 if (!$role) {
                     break; 
                 }
@@ -1472,11 +1473,21 @@ class SafController extends Controller
                     $saf->doc_verify_user_id = $user->id;
                     $saf->update();
                 }
-                $testVerification = $saf->getVerification()->first(); 
+                $testVerification = $saf->getVerification()->where("verified_by","AGENCY TC")->orderBy("id","DESC")->first();
+                $shortName = $this->_SystemConstant["USER-TYPE-SHORT-NAME"][strtoupper($role["role_name"])]??"";
+                if(in_array($shortName,["UTC","AMN"])){
+                    $testVerification = $saf->getVerification()->where("verified_by","ULB TC")->where("id",">",$testVerification->id)->orderBy("id","DESC")->first();
+                } 
                 // Handle Field Verification
                 if($role["can_field_verify"] && !$testVerification){
                     $safFloor = $saf->getFloors();
                     $verificationData = camelCase($saf);
+                    if(in_array($shortName,["UTC","AMN"])){
+                        $tcData = $saf->getVerification()->where("verified_by","AGENCY TC")->orderBy("id","DESC")->first();
+                        $safFloor = $tcData->getVerificationFloorDtl()->get();
+                        $verificationData = camelCase($tcData);
+                        // dd($safFloor,$tcData);
+                    }
                     $verificationData["safDetailId"] = $saf->id;
                     $verificationData["newWardMstrId"] = null;
                     $verificationData["roleId"] = $role["role_id"];
@@ -1484,7 +1495,9 @@ class SafController extends Controller
                         $floorVerification =[];
                         foreach($safFloor as $key=>$floor){
                             $floor = camelCase($floor);
-                            $floor["safFloorDetailId"]=$floor["id"]; //builtupArea   builtupArea
+                            if(!in_array($shortName,["UTC","AMN"])){
+                                $floor["safFloorDetailId"]=$floor["id"]; 
+                            }
                             $floor["dateFrom"]=$floor["dateFrom"] ? Carbon::parse($floor["dateFrom"])->format("Y-m") : null;
                             $floor["dateUpto"]=$floor["dateUpto"] ? Carbon::parse($floor["dateUpto"])->format("Y-m") : null;
                             $floorVerification[] = $floor->toArray();                            

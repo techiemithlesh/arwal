@@ -214,13 +214,16 @@ trait PropertyTrait{
                 "prop_address","property_type_masters.property_type","owners.*");
     }
 
-    public function testWorks($safId){
+    public function testWorks($safId,$roleId=null){
         $user = Auth()->user();
         $workComplied = true;
         $message ="";
         $saf = ActiveSafDetail::find($safId);
         if($saf){
             $role = $user->getRoleDetailsByUserId()->first(); 
+            if($roleId){
+                $role = RoleTypeMstr::find($roleId);
+            }
             $workflowMater = WorkflowMaster ::find($saf->workflow_id);
             if(!$workflowMater){
                 $workComplied = true ;
