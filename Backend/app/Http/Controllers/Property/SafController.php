@@ -1430,10 +1430,21 @@ class SafController extends Controller
             $this->begin();
 
             $this->_SafAutoApprovedLog->store($request);
-            
-            foreach ($ordered as $role) {
+            $maxIterations = 20; // Safety cap
+            $count = 0;
+            while (true) {
                 
-                $saf->refresh();//dd($role["role_id"] != $saf->current_role_id,$role["role_id"] , $saf->current_role_id,$ordered);
+                $saf->refresh();
+                if(!$saf){ // after approve data move on aprroved table
+                    break;
+                }
+                $role = $ordered->where('role_id', $saf->current_role_id)->first();
+                if (!$role) {
+                    break; 
+                }
+                if ($count++ > $maxIterations) {
+                    throw new CustomException("Auto-forwarding limit reached. Potential workflow loop detected.");
+                }
                 
                 if ($role["role_id"] != $saf->current_role_id) {
                     continue;
