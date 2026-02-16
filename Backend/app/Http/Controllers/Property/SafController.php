@@ -1405,7 +1405,7 @@ class SafController extends Controller
             if(!$workflowMater){
                 throw new CustomException("Invalid Workflow Assign");
             }
-            if(!$this->testAllDocUpload($saf) && $saf->current_role_id==$saf->initiator_role_id){                
+            if(!$this->testAllDocUpload($saf) && ($saf->current_role_id==$saf->initiator_role_id || $saf->skip_tc_level)){                
                 throw new CustomException("All Mandatory Document Not Upload");
             }
             $allRoles = $this->_CommonClass->getWorkFlowAllRoles($saf->ulb_id, $workflowMater->id);
@@ -1599,7 +1599,7 @@ class SafController extends Controller
                 throw new CustomException("You do not have permission to edit");
             }
 
-            $canDocUpload = $saf->is_btc || ($saf->current_role_id == $saf->initiator_role_id);
+            $canDocUpload = $saf->is_btc || ($saf->current_role_id == $saf->initiator_role_id) || $saf->skip_tc_level;
             if(!$canDocUpload){
                 throw new CustomException("Currently Not Update Doc"); 
             }
