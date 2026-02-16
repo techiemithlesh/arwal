@@ -1441,7 +1441,7 @@ class SafController extends Controller
                 }
                 $saf->refresh();
                 $role = $ordered->where('role_id', $saf->current_role_id)->first();
-                // print_var($role["role_id"]);
+                print_var($role["role_id"]);
                 if (!$role) {
                     break; 
                 }
@@ -1542,7 +1542,7 @@ class SafController extends Controller
             return responseMsg(false,$e->getMessage(),"");
         }
         catch(Exception $e){
-            $this->rollBack();
+            $this->rollBack();dd($e);
             return responseMsg(false,"Internal Server Error",$e);
         }
     }
