@@ -1441,7 +1441,7 @@ class SafController extends Controller
                 }
                 $saf->refresh();
                 $role = $ordered->where('role_id', $saf->current_role_id)->first();
-                print_var($role["role_id"]);
+                print_var($role);
                 if (!$role) {
                     break; 
                 }
