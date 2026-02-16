@@ -1543,7 +1543,7 @@ class SafController extends Controller
         }
         catch(Exception $e){
             $this->rollBack();
-            return responseMsg(false,"Internal Server Error","");
+            return responseMsg(false,"Internal Server Error",$e);
         }
     }
 
