@@ -207,6 +207,7 @@ export const propertyNoticeDeactivateApi = `${BASE_URL}/api/property/prop-notice
 export const addExistingPropertyApi = `${BASE_URL}/api/property/add-existing-prop`;
 export const addExistingPropertyTestReqApi = `${BASE_URL}/api/property/test-add-existing-prop`;
 export const validateHoldingUniqueApi = `${BASE_URL}/api/property/validate-existing-holding-no`;
+export const propPaymentApi = `${BASE_URL}/api/property/pay-prop-demand`;
 
 /**
  * property Reports
@@ -220,7 +221,6 @@ export const levelWisePendingApi = `${BASE_URL}/api/property/report/level-wise-p
 export const levelUserWisePendingApi = `${BASE_URL}/api/property/report/role-user-wise-pending-saf`;
 export const propertyWardWiseDCBApi = `${BASE_URL}/api/property/report/ward-wise-dcb`;
 export const propertyWiseDCBApi = `${BASE_URL}/api/property/report/prop-dcb`;
-export const propPaymentApi = `${BASE_URL}/api/property/pay-prop-demand`;
 
 // Trade
 export const getTradeMstrDataApi = `${BASE_URL}/api/trade/get-trade-master-data`;
@@ -239,6 +239,19 @@ export const tradeGetUploadedDocListApi = `${BASE_URL}/api/trade/get-uploaded-do
 export const tradeDocVerifyApi = `${BASE_URL}/api/trade/doc-verify`;
 export const tradePostNextLevelApi = `${BASE_URL}/api/trade/post-next`;
 export const tradeLicenseReceiptApi = `${BASE_URL}/api/trade/license-receipt`;
+
+/**
+ * Trade Reports
+ */
+export const tradePaymentModeListApi = `${BASE_URL}/api/trade/report/payment-mode`;
+export const tradeCollectionApi = `${BASE_URL}/api/trade/report/collection`;
+export const tradeCollectionSummaryApi = `${BASE_URL}/api/trade/report/collection-summary`;
+export const tradeWfRoleListApi = `${BASE_URL}/api/trade/report/wf-role-list`;
+export const tradeRoleWisePendingApi = `${BASE_URL}/api/trade/report/role-wise-pending-saf`;
+export const tradeLevelWisePendingApi = `${BASE_URL}/api/trade/report/level-wise-pending-saf`;
+export const tradeLevelUserWisePendingApi = `${BASE_URL}/api/trade/report/role-user-wise-pending-saf`;
+export const tradeWardWiseDCBApi = `${BASE_URL}/api/trade/report/ward-wise-dcb`;
+export const tradeWiseDCBApi = `${BASE_URL}/api/trade/report/trade-dcb`;
 
 // MainDashboard
 

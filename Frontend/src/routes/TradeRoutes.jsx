@@ -11,6 +11,7 @@ import RenewApplication from "../modules/trade/pages/RenewApplication";
 import SurrendarApplication from "../modules/trade/pages/SurrendarApplication";
 import AmedmentApplication from "../modules/trade/pages/AmedmentApplication";
 import AdminLayout from "../layout/AdminLayout";
+import ReportRoute from "../modules/trade/ReportRoute";
 
 const TradeRoutes = () => {
   return (
@@ -48,6 +49,7 @@ const TradeRoutes = () => {
           <Route path="/wf/:from/:itemId" element={<ProtectedRoute>
             <WorkflowDetail/>
           </ProtectedRoute>}/>
+          <Route path="/report/*" element={<ReportRoute />} />
         </Routes>
       </AdminLayout>
     </>

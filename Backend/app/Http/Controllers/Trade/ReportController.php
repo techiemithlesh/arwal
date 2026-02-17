@@ -103,7 +103,13 @@ class ReportController extends Controller
                 "w.owner_name",
                 "w.guardian_name",
                 "w.mobile_no",
-                "t.application_no"
+                "t.application_no",
+                "a.application_type"
+            ];
+            $summarySelect=[
+                DB::raw(
+                    "SUM (tran.payable_amt) as total_amount, COUNT(tran.id) as total_count"
+                ),
             ];
 
             $activeTradeTran = $this->_TradeTransaction->select($commonSelect)
@@ -114,6 +120,7 @@ class ReportController extends Controller
                         ->where("tran.user_type","<>","ONLINE");
                     })
                     ->join("active_trade_licenses as t","t.id","tran.trade_license_id")
+                    ->join("application_type_masters  as a","a.id","t.application_type_id")
                     ->leftJoin(DB::raw("(
                                         select trade_license_id,
                                             string_agg(owner_name,',') as owner_name, 
@@ -134,6 +141,7 @@ class ReportController extends Controller
                         ->where("tran.user_type","<>","ONLINE");
                     })
                     ->join("trade_licenses as t","t.id","tran.trade_license_id")
+                    ->join("application_type_masters  as a","a.id","t.application_type_id")
                     ->leftJoin(DB::raw("(
                                         select trade_license_id,
                                             string_agg(owner_name,',') as owner_name, 
@@ -155,6 +163,7 @@ class ReportController extends Controller
                         ->where("tran.user_type","<>","ONLINE");
                     })
                     ->join("rejected_trade_licenses as t","t.id","tran.trade_license_id")
+                    ->join("application_type_masters  as a","a.id","t.application_type_id")
                     ->leftJoin(DB::raw("(
                                         select trade_license_id,
                                             string_agg(owner_name,',') as owner_name, 
@@ -176,6 +185,7 @@ class ReportController extends Controller
                         ->where("tran.user_type","<>","ONLINE");
                     })
                     ->join("trade_license_logs as t","t.id","tran.trade_license_id")
+                    ->join("application_type_masters  as a","a.id","t.application_type_id")
                     ->leftJoin(DB::raw("(
                                         select trade_license_id,
                                             string_agg(owner_name,',') as owner_name, 
@@ -233,6 +243,10 @@ class ReportController extends Controller
                     $q->whereIn("tran.user_id", $userIds);
                 }
             }
+            $summaryQuery = (clone $activeTradeTran)->select($summarySelect)
+                            ->unionAll((clone $tradeTran)->select($summarySelect))
+                            ->unionAll((clone $rejectedTradeTran)->select($summarySelect))
+                            ->unionAll((clone $tradeLogTran)->select($summarySelect));
             $data = $activeTradeTran
                 ->union($tradeTran)
                 ->union($rejectedTradeTran)
@@ -242,6 +256,11 @@ class ReportController extends Controller
                 $data = $data->get();
             }else{
                 $data = paginator($data,$request);
+                $summary = $this->_TradeTransaction->getConnection()->table(DB::raw("({$summaryQuery->toSql()}) as sub"))
+                            ->mergeBindings($summaryQuery->getQuery()) // Essential for where clause values
+                            ->select(DB::raw("SUM(total_amount) as total_amount, SUM(total_count) as total_count"))
+                            ->first();
+                $data["summary"]=$summary;
             }
             return responseMsg(true,"Transaction List Fetched",camelCase(remove_null($data)));
         }catch(CustomException $e){
