@@ -36,13 +36,13 @@ function CollectionReports() {
   const [wardList, setWardList] = useState([]);
   const token = getToken();
 
-  const appTypeOptions = useMemo(
-    () => [
-      { value: "SAF", label: "SAF" },
-      { value: "PROPERTY", label: "PROPERTY" },
-    ],
-    []
-  );
+//   const appTypeOptions = useMemo(
+//     () => [
+//       { value: "SAF", label: "SAF" },
+//       { value: "PROPERTY", label: "PROPERTY" },
+//     ],
+//     []
+//   );
 
   const filters = useMemo(
     () => ({
@@ -296,7 +296,7 @@ function CollectionReports() {
           placeholder="Select Collector"
         />
       </div>
-      <div>
+      {/* <div>
         <label className="block text-sm">App Type</label>
         <Select
           options={appTypeOptions}
@@ -305,7 +305,7 @@ function CollectionReports() {
           isClearable
           placeholder="Select App Type"
         />
-      </div>
+      </div> */}
     </div>
   );
 

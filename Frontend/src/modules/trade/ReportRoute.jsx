@@ -2,6 +2,10 @@ import React, { Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom';
 import ProtectedRoute from '../../components/common/ProtectedRoute';
 import CollectionReports from './pages/CollectionReports';
+import PaymentModeSummary from './pages/PaymentModeSummary';
+import LevelWisePending from './pages/LevelWisePending';
+import TradePendingList from './pages/TradePendingList';
+import RoleUserWisePendingTrade from './pages/RoleUserWisePendingTrade';
 
 function ReportRoute() {
   return (
@@ -23,7 +27,7 @@ function ReportRoute() {
               </ProtectedRoute>
             }
           />
-          {/* <Route
+          <Route
             path="/payment/mode/summary"
             element={
               <ProtectedRoute>
@@ -35,7 +39,7 @@ function ReportRoute() {
             path="/level/wise/pending"
             element={
               <ProtectedRoute>
-                <LevelWisePendingSaf />
+                <LevelWisePending />
               </ProtectedRoute>
             }
           />
@@ -43,7 +47,7 @@ function ReportRoute() {
             path="/level/user/pending"
             element={
               <ProtectedRoute>
-                <SafPendingList />
+                <TradePendingList />
               </ProtectedRoute>
             }
           />
@@ -51,11 +55,11 @@ function ReportRoute() {
             path="/level/user/wise/pending"
             element={
               <ProtectedRoute>
-                <RoleUserWisePendingSaf />
+                <RoleUserWisePendingTrade />
               </ProtectedRoute>
             }
-          />
-          <Route
+          /> 
+          {/* <Route
             path="/ward/wise/dcb"
             element={
               <ProtectedRoute>

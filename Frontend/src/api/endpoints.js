@@ -247,9 +247,9 @@ export const tradePaymentModeListApi = `${BASE_URL}/api/trade/report/payment-mod
 export const tradeCollectionApi = `${BASE_URL}/api/trade/report/collection`;
 export const tradeCollectionSummaryApi = `${BASE_URL}/api/trade/report/collection-summary`;
 export const tradeWfRoleListApi = `${BASE_URL}/api/trade/report/wf-role-list`;
-export const tradeRoleWisePendingApi = `${BASE_URL}/api/trade/report/role-wise-pending-saf`;
-export const tradeLevelWisePendingApi = `${BASE_URL}/api/trade/report/level-wise-pending-saf`;
-export const tradeLevelUserWisePendingApi = `${BASE_URL}/api/trade/report/role-user-wise-pending-saf`;
+export const tradeRoleWisePendingApi = `${BASE_URL}/api/trade/report/role-wise-pending-trade`;
+export const tradeLevelWisePendingApi = `${BASE_URL}/api/trade/report/level-wise-pending-trade`;
+export const tradeLevelUserWisePendingApi = `${BASE_URL}/api/trade/report/role-user-wise-pending-trade`;
 export const tradeWardWiseDCBApi = `${BASE_URL}/api/trade/report/ward-wise-dcb`;
 export const tradeWiseDCBApi = `${BASE_URL}/api/trade/report/trade-dcb`;
 
