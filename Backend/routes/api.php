@@ -23,13 +23,14 @@ Route::get('/user', function (Request $request) {
 Route::get("/getInfo",function(){
     echo phpinfo();die;
 });
+
 Route::controller(OnlinePaymentController::class)->group(function(){
     Route::post('/payment/ntt/callback',"NttDataCallback");
     Route::post('/payment/ntt/response',"NttDataHandelResponse");
     Route::post('/decrypt/ntt/response',"decryptNttDataResponse");
     Route::post('/test/ntt/signature',"testSignature");
-
 });
+
 
 Route::match(["get","post"],"fyear/list",function(){
     $data = FyListdesc();
@@ -90,7 +91,7 @@ Route::middleware(['auth:sanctum',"expireBearerToken","setUlb"])->group(function
 });
 
 Route::middleware(['auth:sanctum',"expireBearerToken","setUlb"])->group(function () {
-    Route::post('/heartbeat', function () {                 // Heartbeat Api
+    Route::post('/heartbeat', function () {  // Heartbeat Api
         return response()->json([
             'status' => true,
             'authenticated' => auth()->check()

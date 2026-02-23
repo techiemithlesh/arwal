@@ -97,6 +97,7 @@ export default function OwnerDtlEdit({ propDetails, onClose, token }) {
       { label: "Aadhaar No", type: "input", name: "aadharNo" },
       { label: "Email", type: "input", name: "email" },
       { label: "PAN No", type: "input", name: "panNo" },
+      {label : "Remarks", type: "input", name: "remarks"},
       { label: "Supportive Document", type: "upload", name: "document" },
     ],
   };
