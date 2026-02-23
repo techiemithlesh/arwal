@@ -1066,8 +1066,15 @@ class PropertyController extends Controller
                 }
             }
             $property = $this->_PropertyDetail->find($propertyId);
+            $holdingNo = $property->holding_no;
+            if(!$request->hasOldHoldingNo){
+                $newHoldingNo = $this->generateHoldingNo($propertyId);
+                $property->new_holding_no = $newHoldingNo;
+                $property->update();
+                $holdingNo=$newHoldingNo;
+            }
             $this->commit();
-            return responseMsg(true,"Holding Add",remove_null(camelCase(["id"=>$property->id,"holdingNo"=>$property->holding_no])));
+            return responseMsg(true,"Holding Add",remove_null(camelCase(["id"=>$property->id,"holdingNo"=>$holdingNo])));
 
         }catch(CustomException $e){
             return responseMsg(false,$e->getMessage(),"");

@@ -173,7 +173,7 @@ export default function AddExistingFormPreview() {
           <div className="gap-4 grid sm:grid-cols-2 md:grid-cols-4 bg-gray-50 rounded">
             <DetailCard
               label="Holding No"
-              value={formData?.holdingNo}
+              value={formData?.hasOldHoldingNo ? formData?.holdingNo:"Auto Generate"}
             />
             <DetailCard
               label="Assessment Type"

@@ -471,6 +471,9 @@ trait PropertyTrait{
         if(!$saf){
             $saf = SafDetail::find($safId);
         }
+        if(!$saf){
+            $saf = PropertyDetail::find($safId);
+        }
         $floor = $saf->getFloors();
         $count_usage_type = $floor->unique("usage_type_master_id")??collect();
         $property = PropertyDetail::find($saf->previous_holding_id);

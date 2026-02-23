@@ -38,4 +38,8 @@ class PropertyFloorDetail extends ParamModel
         $return= $model->update($inputs->all());
         return $return;
     }
+
+    public function getUsageType(){
+        return $this->belongsTo(UsageTypeMaster::class,"usage_type_master_id","id")->first();
+    }
 }

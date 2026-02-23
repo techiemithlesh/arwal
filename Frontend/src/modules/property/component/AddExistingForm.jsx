@@ -97,7 +97,7 @@ const AddExistingForm = ({
   useEffect(() => {
     const savedFloorDtl = localStorage.getItem("floorDtl");
     if (savedFloorDtl) setFloorDtl(JSON.parse(savedFloorDtl));
-    const updatedFormData = applyDefaults(formData);
+    const updatedFormData = applyDefaults({hasOldHoldingNo:true,...formData});
     dispatch(setFormData(updatedFormData));
     if (ownerDtl.length > 0) {
       dispatch(setOwnerDtl(applyOwnerDefaults(ownerDtl)));
@@ -233,6 +233,13 @@ const AddExistingForm = ({
         })
       );
       return;
+    }
+    if (name === "hasOldHoldingNo" && updatedValue === false) {
+      dispatch(
+        setFormData({
+          holdingNo: "",
+        })
+      );
     }
 
     dispatch(setFormData({ [name]: updatedValue }));
@@ -451,28 +458,48 @@ const AddExistingForm = ({
       <form className="flex flex-col gap-4" onSubmit={handlePreviewFormData}>
         <div className="items-center gap-2 grid grid-cols-1 md:grid-cols-4 bg-gradient-to-br from-white via-blue-50 to-blue-100 shadow-sm p-4 border border-blue-300 rounded-xl">
           {formType=="Existing" &&(
-            <div>
-              <label
-                htmlFor="holdingNo"
-                className="block font-medium text-sm"
-              >
-                Old Holding No
-                <span className="text-red-400 text-sm">*</span>
-              </label>
+            <>
+            <div className="flex items-center">
               <input
-                type="text"
-                id="holdingNo"
-                name="holdingNo"
-                required
-                value={formData.holdingNo}
+                type="checkbox"
+                id="hasOldHoldingNo"
+                name="hasOldHoldingNo"
+                checked={formData.hasOldHoldingNo}
                 onChange={handleInputChange}
-                onBlur={validateHoldingNo}
-                className="block bg-white shadow-sm px-3 py-2 border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 w-full sm:text-xs"              
+                className="border-gray-300 rounded w-4 h-4 text-indigo-600"
               />
-              {error?.holdingNo && (
-                <FormError name="holdingNo" errors={error} />
-              )}
+              <label
+                htmlFor="hasOldHoldingNo"
+                className="block ml-2 text-yellow-600 text-sm"
+              >
+                Have Old Holding No.
+              </label>
             </div>
+            {formData?.hasOldHoldingNo &&(
+              <div>
+                <label
+                  htmlFor="holdingNo"
+                  className="block font-medium text-sm"
+                >
+                  Old Holding No
+                  <span className="text-red-400 text-sm">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="holdingNo"
+                  name="holdingNo"
+                  required
+                  value={formData.holdingNo}
+                  onChange={handleInputChange}
+                  onBlur={validateHoldingNo}
+                  className="block bg-white shadow-sm px-3 py-2 border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 w-full sm:text-xs"              
+                />
+                {error?.holdingNo && (
+                  <FormError name="holdingNo" errors={error} />
+                )}
+              </div>
+            )}
+            </>
           )}
           <div>
             <label htmlFor="zoneMstrId" className="block font-medium text-sm">

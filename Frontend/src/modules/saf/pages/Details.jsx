@@ -727,7 +727,7 @@ const Details = () => {
                   <td className="px-3 py-2 border">{item?.memoType || "NA"}</td>
                   <td className="px-3 py-2 border">
                     <a
-                      href={`/property/details/${safDetails.propDtlId}`}
+                      href={`/property/details/${item.propertyDetailId}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

@@ -34,7 +34,20 @@ class RequestAddExistingProperty extends RequestAddSaf
         $rules["assessmentType"]="nullable";
         $rules["previousHoldingId"]="nullable";
         $rules["demandPaidUpto"]="nullable|date";
-        $rules["holdingNo"] = "required|unique:".$this->_PropertyDetail->getConnectionName().".".$this->_PropertyDetail->getTable().",holding_no";
+        $rules["hasOldHoldingNo"]="required|boolean";
+        $rules["holdingNo"] = "nullable|required_if:hasOldHoldingNo,true|unique:".$this->_PropertyDetail->getConnectionName().".".$this->_PropertyDetail->getTable().",holding_no";
         return $rules;
+    }
+
+    protected function prepareForValidation()
+    {
+        // Call parent prepareForValidation if it exists in RequestAddSaf
+        if (method_exists(parent::class, 'prepareForValidation')) {
+            parent::prepareForValidation();
+        }
+
+        $this->merge([
+            'hasOldHoldingNo' => filter_var($this->hasOldHoldingNo, FILTER_VALIDATE_BOOLEAN),
+        ]);
     }
 }
