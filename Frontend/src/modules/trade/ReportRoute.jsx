@@ -6,6 +6,7 @@ import PaymentModeSummary from './pages/PaymentModeSummary';
 import LevelWisePending from './pages/LevelWisePending';
 import TradePendingList from './pages/TradePendingList';
 import RoleUserWisePendingTrade from './pages/RoleUserWisePendingTrade';
+import ValidAndExpired from './pages/ValidAndExpired';
 
 function ReportRoute() {
   return (
@@ -59,15 +60,15 @@ function ReportRoute() {
               </ProtectedRoute>
             }
           /> 
-          {/* <Route
-            path="/ward/wise/dcb"
+          <Route
+            path="/valid-and-expired"
             element={
               <ProtectedRoute>
-                <WardWiseDcb />
+                <ValidAndExpired />
               </ProtectedRoute>
             }
           />
-          <Route
+          {/* <Route
             path="/holding/wise/dcb"
             element={
               <ProtectedRoute>

@@ -262,6 +262,16 @@ function PaymentReceiptDtl({ data = null, id, setIsFrozen = () => {} }) {
                 ).toFixed(2)}
               </td>
             </tr>
+            {receiptData?.additionalTax && receiptData?.additionalTax?.length > 0 && 
+              receiptData?.additionalTax.map((item, index) => (
+                <tr key={index}>
+                  <td className="p-1 border text-right font-bold" colSpan={6}>
+                    {t(item?.taxType)}
+                  </td>
+                  <td className="p-1 border">{item?.amount}</td>
+                </tr>
+              ))
+            }
             <tr>
               <td className="p-1 border text-right font-bold" colSpan={6}>
                 {t("Total Penalty")}

@@ -567,13 +567,15 @@ class ReportController extends Controller
 
     public function licenseStatus(Request $request){
         try{
+            // $currentDate = 
             $user = Auth::user();
             if(!$request->ulbId){
                 $request->merge(["ulbId"=>$user->ulb_id]);
             }
             $trade = $this->_TradeLicense
                 ->select("t.id","t.application_no","t.license_no","t.firm_name",'t.address','t.valid_from','t.valid_upto','t.license_date',
-                    "p.new_holding_no","w.owner_name",'w.guardian_name','w.mobile_no'
+                    "p.new_holding_no","w.owner_name",'w.guardian_name','w.mobile_no',
+                    // DB::raw("CASE WHEN t.valid_upto")
                 )
                 ->from("trade_licenses as t")
                 ->leftJoin("property_details as p","p.id","t.property_detail_id")
