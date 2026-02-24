@@ -63,6 +63,18 @@ export const formatReadableYearMonth = (dateStr) => {
   return `${month}-${year}`;
 };
 
+export const formatYearMonth = (dateStr) => {
+  if (!dateStr) return "N/A";
+  
+  const parts = dateStr.split('-');
+  if (parts.length < 2) return dateStr; // Return as is if it can't be split
+
+  const year = parts[0];
+  const month = parts[1].padStart(2, "0");
+  
+  return `${year}-${month}`;
+};
+
 
 export const toTitleCase = (str) => {
   return str.replace(

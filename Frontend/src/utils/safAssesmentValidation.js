@@ -230,7 +230,7 @@ export const validateOwnerDtl = (owner, index) => {
   }
 
   if (isEmptyOrWhitespace(owner.dob)) {
-    errors.dob = `Date of birth is required`;
+    // errors.dob = `Date of birth is required`;
   } else {
     const today = new Date();
     const dobDate = new Date(owner.dob);

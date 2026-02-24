@@ -733,15 +733,18 @@ class SafController extends Controller
 
 
             if($request->keyWord){
-                $activeSaf->where("saf_no","ILIKE","%".$request->keyWord."%")
+                $activeSaf->where(function($where)use($request){
+                    $where->where("saf_no","ILIKE","%".$request->keyWord."%")
                     ->orWhere("saf_no","ILIKE","%".$request->keyWord."%")
                     ->orWhere("w.owner_name","ILIKE","%".$request->keyWord."%")
                     ->orWhere("w.mobile_no","ILIKE","%".$request->keyWord."%");
-
-                $saf->where("saf_no","ILIKE","%".$request->keyWord."%")
+                });
+                $saf->where(function($where)use($request){
+                    $where->where("saf_no","ILIKE","%".$request->keyWord."%")
                     ->orWhere("saf_no","ILIKE","%".$request->keyWord."%")
                     ->orWhere("w.owner_name","ILIKE","%".$request->keyWord."%")
                     ->orWhere("w.mobile_no","ILIKE","%".$request->keyWord."%");
+                });
             }
             if($request->wardId){
                 if(!is_array($request->wardId)){

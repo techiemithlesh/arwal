@@ -161,10 +161,12 @@ class PropertyController extends Controller
             ->where("property_details.lock_status", false);
 
             if($request->keyWord){
-                $property->where("holding_no","ILIKE","%".$request->keyWord."%")
+                $property->where(function($where)use($request){
+                    $where->where("holding_no","ILIKE","%".$request->keyWord."%")
                     ->orWhere("new_holding_no","ILIKE","%".$request->keyWord."%")
                     ->orWhere("w.owner_name","ILIKE","%".$request->keyWord."%")
                     ->orWhere("w.mobile_no","ILIKE","%".$request->keyWord."%");
+                });
             }
             if($request->wardId){
                 if(!is_array($request->wardId)){

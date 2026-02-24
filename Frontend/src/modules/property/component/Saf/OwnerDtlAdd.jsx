@@ -138,13 +138,13 @@ const OwnerDtlAdd = ({
               htmlFor={`dob-${index}`}
               className="block font-medium text-sm"
             >
-              DOB <span className="text-red-500">*</span>
+              DOB 
             </label>
             <input
               type="date"
               id={`dob-${index}`}
               name="dob"
-              required
+              // required
               value={owner.dob || ""}
               onChange={(e) =>
                 handleOwnerDtlChange(index, "dob", e.target.value)

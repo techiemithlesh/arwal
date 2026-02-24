@@ -22,7 +22,7 @@ import { setSwmConsumerDtl } from "../../../store/slices/swmConsumerSlice";
 import { applyDefaults } from "../../../utils/initDefaultFormFields";
 import { applyOwnerDefaults } from "../../../utils/initOwnerDefaults";
 import FormError from "../../../components/common/FormError";
-import { extractDateYYMM } from "../../../utils/common";
+import { extractDateYYMM, formatYearMonth } from "../../../utils/common";
 import { fetchNewWardByOldWard } from "../../../utils/commonFunc";
 import toast from "react-hot-toast";
 import { getUserDetails } from "../../../utils/auth";
@@ -371,7 +371,7 @@ const AssessmentForm = ({
         setFloorDtl(
           propDetails.floors.map((floor) => ({
             ...floor,
-            dateFrom: extractDateYYMM(floor.dateFrom),
+            dateFrom: formatYearMonth(floor.dateFrom),
           }))
         )
       );

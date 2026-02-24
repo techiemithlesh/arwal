@@ -38,7 +38,7 @@ class RequestOwnerEdit extends ParentRequest
                 "panNo"=>"nullable|string|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/",
                 "aadharNo"=>"nullable|digits:12|regex:/[0-9]{12}/",
                 "gender"=>"required|in:Male,Female,Other",
-                "dob"=>"required|date|date|date_format:Y-m-d|before_or_equal:".Carbon::now()->format("Y-m-d"),
+                "dob"=>"nullable|date|date|date_format:Y-m-d|before_or_equal:".Carbon::now()->format("Y-m-d"),
                 "isArmedForce"=>"required|bool",
                 "isSpeciallyAbled"=>"required|bool",
                 "remarks"=>"required|string",
