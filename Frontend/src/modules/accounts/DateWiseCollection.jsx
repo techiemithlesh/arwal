@@ -19,8 +19,11 @@ function DateWiseCollection() {
         { label: "#", key: "serial" },
         { label: "Date", key: "date" },
         { label: "Property", key: "propertyAmount" },
+        { label: "Total Property", key: "totalProperty" },
         { label: "Water", key: "waterAmount" },
+        { label: "Total Water", key: "totalWater" },
         { label: "Trade", key: "tradeAmount" },
+        { label: "Total Trade", key: "totalTrade" }
         { label: "Total", key: "totalAmount" },
     ];
 
@@ -34,8 +37,11 @@ function DateWiseCollection() {
             </td>
             <td className="px-3 py-2 border">{formatLocalDate(item?.date)}</td>
             <td className="px-3 py-2 border">{item?.propertyAmount}</td>
+            <td className="px-3 py-2 border">{item?.totalProperty}</td>
             <td className="px-3 py-2 border">{item?.waterAmount}</td>
+            <td className="px-3 py-2 border">{item?.totalWater}</td>
             <td className="px-3 py-2 border">{item?.tradeAmount}</td>
+            <td className="px-3 py-2 border">{item?.totalTrade}</td>
             <td className="px-3 py-2 border">{item.totalAmount}</td>
         
         </tr>

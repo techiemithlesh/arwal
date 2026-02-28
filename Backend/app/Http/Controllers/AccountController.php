@@ -1153,8 +1153,11 @@ class AccountController extends Controller
                 $response->push([
                     "date"=> $fromDate->clone()->format("Y-m-d"),
                     "propertyAmount"=>roundFigure($prop->sum("payableAmt")),
+                    "totalProperty"=>$prop->count("id"),
                     "waterAmount"=>roundFigure($water->sum("payableAmt")),
+                    "totalWater"=>$water->count("id"),
                     "tradeAmount"=>roundFigure($trade->sum("payableAmt")),
+                    "totalTrade"=>$trade->count("id"),
                     "totalAmount"=>roundFigure($prop->sum("payableAmt") + $water->sum("payableAmt") +$trade->sum("payableAmt") ),
                 ]);
                 $fromDate = $fromDate->addDay();
@@ -1168,8 +1171,11 @@ class AccountController extends Controller
                     "total"=>$response->count(),
                     "totalAmount"=>roundFigure($response->sum("totalAmount")),
                     "propertyAmount"=>roundFigure($response->sum("propertyAmount")),
+                    "totalProperty"=>$response->sum("totalProperty"),
                     "waterAmount"=>roundFigure($response->sum("waterAmount")),
+                    "totalWater"=>$response->sum("totalWater"),
                     "tradeAmount"=>roundFigure($response->sum("tradeAmount")),
+                    "totalTrade"=>$response->sum("totalTrade"),
                 ],                
             ];
             return responseMsg(true,"Date Wise Collection",camelCase(remove_null($data)));
