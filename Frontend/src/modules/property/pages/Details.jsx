@@ -109,13 +109,13 @@ const Details = () => {
     },
     {
       label: "ReAssessment",
-      onClick: () => navigate(`/property/details/${propId}/reassessment`),
+      onClick: () => navigate(`/property/details/${propId}/Reassessment`),
       icon: <FaEye />,
       show: propDetails?.userPermission?.canAdd ?? false,
     },
     {
       label: "Mutation",
-      onClick: () => navigate(`/property/details/${propId}/mutation`),
+      onClick: () => navigate(`/property/details/${propId}/Mutation`),
       icon: <FaEye />,
       show: propDetails?.userPermission?.canAdd ?? false,
     },

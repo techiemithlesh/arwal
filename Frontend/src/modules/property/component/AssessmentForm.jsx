@@ -520,7 +520,7 @@ const AssessmentForm = ({
                 name="landOccupationDate"
                 placeholder=""
                 value={formData.landOccupationDate}
-                required={formData?.propTypeMstrId == 4}
+                required={[3, 4].includes(Number(formData?.propTypeMstrId))}
                 onChange={handleInputChange}
                 className="block bg-white shadow-sm px-3 py-2 border border-gray-300 focus:border-indigo-500 rounded-md focus:outline-none focus:ring-indigo-500 w-full sm:text-xs"
               />
@@ -593,11 +593,11 @@ const AssessmentForm = ({
             </div>
           )}
 
-          {formType === "mutation" ? (
+          {formType === "Mutation" ? (
             <>
               <div>
                 <label
-                  htmlFor="zoneMstrId"
+                  htmlFor="transferMode"
                   className="block font-medium text-sm"
                 >
                   Mode of Ownership Transfer{" "}
@@ -615,7 +615,7 @@ const AssessmentForm = ({
                     disabledFields?.transferModeMstrId
                   }
                 >
-                  <option value="">Select Zone</option>
+                  <option value="">Select </option>
                   {mstrData?.transferMode.map((mode, index) => (
                     <option key={index} value={mode.id}>
                       {mode.transferMode}
@@ -623,7 +623,7 @@ const AssessmentForm = ({
                   ))}
                 </select>
                 {error?.transferModeMstrId && (
-                  <FormError name="transferModeMstrId" errors={error} />
+                  <FormError path="transferModeMstrId" errors={error} />
                 )}
               </div>
 
@@ -650,7 +650,7 @@ const AssessmentForm = ({
 
                 {error?.percentageOfPropertyTransfer && (
                   <FormError
-                    name="percentageOfPropertyTransfer"
+                    path="percentageOfPropertyTransfer"
                     errors={error}
                   />
                 )}
@@ -666,7 +666,7 @@ const AssessmentForm = ({
           setErrors={setErrors}
           ownerDtl={ownerDtl || []}
           setOwnerDtl={handleOwnerDtlUpdate}
-          isDisabled={pathname.includes("reassessment")}
+          isDisabled={pathname.includes("Reassessment")}
           disabledFields={disabledFields?.owners || []}
           isSingleOwner={formData.ownershipTypeMstrId == 1}
         />

@@ -83,7 +83,7 @@ const Mutation = () => {
         mstrData={mstrData}
         isLoading={isLoading}
         propDetails={propDetails}
-        formType={"mutation"}
+        formType={"Mutation"}
         token={token}
       />
     </div>

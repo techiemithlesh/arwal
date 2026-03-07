@@ -86,7 +86,7 @@ const ReAssesment = () => {
         mstrData={mstrData}
         isLoading={isLoading}
         propDetails={propDetails}
-        formType={"reassessment"}
+        formType={"Reassessment"}
         token={token}
       />
     </div>

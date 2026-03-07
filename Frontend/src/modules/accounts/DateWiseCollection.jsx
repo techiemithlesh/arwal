@@ -23,7 +23,7 @@ function DateWiseCollection() {
         { label: "Water", key: "waterAmount" },
         { label: "Total Water", key: "totalWater" },
         { label: "Trade", key: "tradeAmount" },
-        { label: "Total Trade", key: "totalTrade" }
+        { label: "Total Trade", key: "totalTrade" },
         { label: "Total", key: "totalAmount" },
     ];
 

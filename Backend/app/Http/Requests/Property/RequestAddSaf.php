@@ -136,7 +136,7 @@ class RequestAddSaf extends ParentRequest
             "petrolPumpCompletionDate"=>"nullable|required_if:isPetrolPump,true,1|date|date_format:Y-m-d|before_or_equal:".Carbon::now()->format("Y-m-d"),
             "isWaterHarvesting"=>"nullable|required_if:propTypeMstrId,1,2,3,5|boolean",
             "waterHarvestingDate"=>"nullable|required_if:isWaterHarvesting,true,1|date|date_format:Y-m-d|before_or_equal:".Carbon::now()->format("Y-m-d"),
-            "landOccupationDate"=>"nullable|required_if:propTypeMstrId,4|date|date_format:Y-m-d|before_or_equal:".Carbon::now()->format("Y-m-d"),
+            "landOccupationDate"=>"nullable|required_if:propTypeMstrId,3,4|date|date_format:Y-m-d|before_or_equal:".Carbon::now()->format("Y-m-d"),
             "waterConnectionFacilityTypeId"=>"required|exists:".$this->_WaterConnectionFacilityType->getConnectionName().".".$this->_WaterConnectionFacilityType->getTable().",id",
             "waterTaxTypeId"=>"required|exists:".$this->_WaterTaxType->getConnectionName().".".$this->_WaterTaxType->getTable().",id",
             

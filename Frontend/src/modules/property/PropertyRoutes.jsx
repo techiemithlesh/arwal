@@ -42,7 +42,7 @@ const PropertyRoutes = () => {
               }
             />
             <Route
-              path="/details/:propId/reassessment"
+              path="/details/:propId/Reassessment"
               element={
                 <ProtectedRoute>
                   <ReAssesment />
@@ -50,7 +50,7 @@ const PropertyRoutes = () => {
               }
             />
             <Route
-              path="/details/:propId/mutation"
+              path="/details/:propId/Mutation"
               element={
                 <ProtectedRoute>
                   <Mutation />
