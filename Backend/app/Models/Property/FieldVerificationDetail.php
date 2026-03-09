@@ -35,6 +35,8 @@ class FieldVerificationDetail extends ActiveSafDetail
         'under_ground_area',
         "petrol_pump_completion_date",
         'is_water_harvesting',
+        "water_harvesting_date",
+        "land_occupation_date",
         'manual_verification_doc',
         'lock_status',
     ];
