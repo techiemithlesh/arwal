@@ -54,8 +54,11 @@ function DateWiseCollection() {
             </td>
             <td className="px-3 py-2 border">{totals.total}</td>
             <td className="px-3 py-2 border">{totals.propertyAmount}</td>
+            <td className="px-3 py-2 border">{totals.totalProperty}</td>
             <td className="px-3 py-2 border">{totals.waterAmount}</td>
+            <td className="px-3 py-2 border">{totals.totalWater}</td>
             <td className="px-3 py-2 border">{totals.tradeAmount}</td>
+            <td className="px-3 py-2 border">{totals.totalTrade}</td>
             <td className="px-3 py-2 border">{totals.totalAmount}</td>
         </tr>
     );

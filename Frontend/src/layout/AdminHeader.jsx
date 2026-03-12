@@ -10,6 +10,7 @@ import { FaBars } from "react-icons/fa";
 import ProfileViewCard from "../components/specific/ProfileViewCard";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@nextui-org/react";
 import ChangePassword from "../components/specific/ChangePassword";
+import LoginUserList from "../components/specific/LoginUserList";
 
 const defaultAvatar = "https://via.placeholder.com/100";
 
@@ -19,6 +20,7 @@ const AdminHeader = ({ setIsSidebarOpen, isSidebarOpen, ulbData }) => {
   const [isModelOpen, setIsModelOpen] = useState(false);
   const [isChangePassModelOpen, setIsChangePassModelOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false); // 👈 new state
+  const [isLoginDeviceModelOpen, setIsLoginDeviceModelOpen] = useState(false);
   const closeModal = () => setIsModelOpen(false);
   const openModal = () => setIsModelOpen(true);
   const navigate = useNavigate();
@@ -69,6 +71,12 @@ const AdminHeader = ({ setIsSidebarOpen, isSidebarOpen, ulbData }) => {
       key: "Edit Profile",
       label: "Edit Profile",
       action: handleViewDetails,
+    },
+    {
+      key: "Login Device",
+      label: "Login Device",
+      className:"text-yellow-300",
+      action: ()=>setIsLoginDeviceModelOpen(true),
     },
     {
       key: "Change Password",
@@ -136,7 +144,7 @@ const AdminHeader = ({ setIsSidebarOpen, isSidebarOpen, ulbData }) => {
                 <DropdownItem
                   key={item.key}
                   color={item.key === "Logout" ? "danger" : "default"}
-                  className={item.key === "Logout" ? "text-danger" : (item.key=="Change Password" ? "text-blue-300" : "")}
+                  className={item.className ? item.className  :(item.key === "Logout" ? "text-danger" : (item.key=="Change Password" ? "text-blue-300" : ""))}
                   onClick={item.action}
                 >
                   {item.label}
@@ -164,6 +172,15 @@ const AdminHeader = ({ setIsSidebarOpen, isSidebarOpen, ulbData }) => {
           <div className="bg-white shadow-md p-4 sm:p-6 border border-gray-200 rounded-lg max-w-full sm:max-w-sm h-fit text-black">
             <ChangePassword
               onClose={()=>setIsChangePassModelOpen(false)}
+            />
+          </div>
+        </div>
+      )}
+      {isLoginDeviceModelOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
+          <div className="bg-white shadow-md p-4 sm:p-6 border border-gray-200 rounded-lg max-w-full sm:max-w-sm h-fit text-black">
+            <LoginUserList
+              onClose={()=>setIsLoginDeviceModelOpen(false)}
             />
           </div>
         </div>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Spinner, Button, Input } from "@nextui-org/react";
-import { FaLock, FaUnlock } from "react-icons/fa";
+import { FaHistory, FaLock, FaUnlock, FaUserCheck } from "react-icons/fa";
 import { getToken } from "../../../utils/auth";
 import { exportToExcel } from "../../../utils/exportExcel";
 import { useLoading } from "../../../contexts/LoadingContext";
@@ -21,6 +21,7 @@ import ImagePreview from "../../../components/common/ImagePreview";
 import CommonTable from "../../../components/common/CommonTable";
 import toast from "react-hot-toast";
 import { toastMsg } from "../../../utils/utils";
+import LoginUserList from "../../../components/specific/LoginUserList";
 
 export default function UserCardList({ userType }) {
   const [userListData, setUserListData] = useState([]);
@@ -39,6 +40,7 @@ export default function UserCardList({ userType }) {
 
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalPreviewOpen, setIsModalPreviewOpen] = useState(false);
+  const [isLoginDeviceModelOpen, setIsLoginDeviceModelOpen] = useState(false);
   const [previewImg, setPreviewImg] = useState("");
 
   const userInfo = JSON.parse(localStorage.getItem("userDetails"));
@@ -122,6 +124,13 @@ export default function UserCardList({ userType }) {
               onClick={() => lockUnlockUser(!item.lockStatus, item)}
             >
               {item.lockStatus ? <FaUnlock /> : <FaLock />}
+            </Button>
+            {}
+            <Button
+              size="sm"              
+              onClick={() => openLoginHistoryModal(item)}
+            >
+              <FaHistory/>
             </Button>
           </div>
         )}
@@ -232,6 +241,11 @@ export default function UserCardList({ userType }) {
     setIsRoleMapModelOpen(true);
   };
 
+  const openLoginHistoryModal = (user) => {
+    setSelectedUser(user);
+    setIsLoginDeviceModelOpen(true);
+  };
+
   const updateRedis = async () => {
     setIsLoading(true);
     try {
@@ -317,6 +331,13 @@ export default function UserCardList({ userType }) {
           onClose={() => setIsUserModelOpen(false)}
           user={selectedUser}
           onSuccess={fetchUserData}
+        />
+      )}
+
+      {isLoginDeviceModelOpen && (
+        <LoginUserList
+          onClose={() => setIsLoginDeviceModelOpen(false)}
+          id={selectedUser?.id}
         />
       )}
     </>

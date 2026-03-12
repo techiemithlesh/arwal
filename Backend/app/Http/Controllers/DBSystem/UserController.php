@@ -201,6 +201,46 @@ class UserController extends Controller
         }
     }
 
+    public function loginUsers(Request $request){
+        try{
+            // 1. Determine which user we are looking at (Auth user or specified ID)
+            $userId = $request->id ?? auth()->user()->id;
+            $muser = $this->_modelUser->find($userId);
+
+            if (!$muser) {
+                return responseMsg(false, "User not found", "");
+            }
+
+            // 2. Get active tokens/sessions
+            // Assuming you are using Laravel Sanctum or Passport
+            $activeTokens = $muser->tokens->map(function ($token) {                
+                return [
+                    'id' => $token->id,
+                    "last_used_at"=>$token->last_used_at,
+                    "login_type"=>$token->login_type,
+                    "latitude"=>$token->latitude,
+                    "longitude"=>$token->longitude,
+                    'machine' => $token->machine,
+                    'name' => $token->browser_name, // Usually the device name (e.g., "iPhone", "Chrome")
+                    'lastLogin' => $token->created_at->diffForHumans(),
+                    'ip_address' => $token->ip, // Optional: if you store IP in abilities or metadata
+                    'is_current' => auth()->user()->currentAccessToken()->id === $token->id
+                ];
+            })->values();
+
+            // 3. Return the data formatted for your React Component
+            return responseMsg(
+                true, 
+                "Logged in users/sessions retrieved successfully", 
+                $activeTokens
+            );
+        }catch(CustomException $e){
+            return responseMsg(false,$e->getMessage(),"");
+        }catch(Exception $e){
+            return responseMsg(false,"Internal Server Error!!","");
+        }
+    }
+
     public function updateLoginUserProfile($id,LoginUserUpdateRequest $request){
         try{
             $request->merge(["id"=>$id]);
