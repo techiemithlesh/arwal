@@ -209,6 +209,7 @@ export const addExistingPropertyApi = `${BASE_URL}/api/property/add-existing-pro
 export const addExistingPropertyTestReqApi = `${BASE_URL}/api/property/test-add-existing-prop`;
 export const validateHoldingUniqueApi = `${BASE_URL}/api/property/validate-existing-holding-no`;
 export const propPaymentApi = `${BASE_URL}/api/property/pay-prop-demand`;
+export const MemoReceiptApi = `${BASE_URL}/api/property/memo-receipt`;
 
 /**
  * property Reports

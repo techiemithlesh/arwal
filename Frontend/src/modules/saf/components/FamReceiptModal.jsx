@@ -6,11 +6,18 @@ import jhakhandLog from "../../../assets/images/jharkhand_logo.png";
 import QRCodeComponent from "../../../components/common/QRCodeComponent";
 import { hostInfo } from "../../../utils/common";
 import html2canvas from "html2canvas";
+import axios from "axios";
+import { MemoReceiptApi, UlbApi } from "../../../api/endpoints";
 
 function FamReceiptModal({ id, onClose }) {
   const [isFrozen, setIsFrozen] = useState(false);
   const [receiptData, setReceiptData] = useState({});
   const [qurCode, setQurCode] = useState(null);
+
+  const userDetails = JSON.parse(localStorage.getItem("userDetails"));
+  const ulbId = userDetails?.ulb_id || 1;
+
+  const [ulbData, setUlbData] = useState(null);
   const printRef = useRef();
 
   useEffect(() => {
@@ -19,45 +26,68 @@ function FamReceiptModal({ id, onClose }) {
     }
   }, [id]);
 
-  const fetchData = async () => {
-    setIsFrozen(true);
-    const host = hostInfo();
-    setQurCode(
-      <QRCodeComponent value={host + "/saf/fam-receipt/" + id} size={90} />
-    );
-
-    const dummyData = {
-      holdingNo: "0540007574000A1",
-      ownerName: "RANI PANDEY W/O JAYRAJ PANDEY",
-      address:
-        "F NO G 08 GROUND FLOOR MAHABIR GARDEN NEW PATEL COLONY, OBARIYA ROAD NO. 1, OBERIYA ROAD, HATIA, RANCHI RANCHI",
-      memoNo: "FAM/054/406769/2018-2019",
-      generatedAt: "2023-10-13 10:45 AM",
-      taxBreakdown: [
-        { taxType: "Holding Tax @ 2% (2018-2019)", amount: 1685.6 },
-        { taxType: "Holding Tax @ 0.075% (2022-2023)", amount: 2469.6 },
-        { taxType: "Holding Tax @ 2% (2024-2025)", amount: 2688 },
-        { taxType: "Holding Tax @ 2% (2025-2026)", amount: 2688 },
-      ],
-      totalTaxAmount: 9531.2,
-      description: "Final Assessment Memo (FAM) Receipt",
-      ulbDtl: {
-        ulbName: "Ranchi Municipal Corporation, Ranchi",
-      },
-      userDtl: {
-        approvedBySign:
-          "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Facsimile_signature_of_John_Hancock.png/220px-Facsimile_signature_of_John_Hancock.png",
-      },
-      notes: [
-        "Please verify all tax details carefully.",
-        "In case of any discrepancy, contact the Municipal Office within 7 days.",
-        "This receipt is valid only if issued by the authorized department.",
-        "Retain this receipt for future reference.",
-        "For any assistance, call the helpline numbers provided below.",
-      ],
+  useEffect(() => {
+    const fetchUlbDtl = async () => {
+      if (!ulbId) return;
+      try {
+        const res = await axios.post(UlbApi.replace("{id}", ulbId), {});
+        const ulb = res?.data?.data;
+        if (ulb) {
+          setUlbData(ulb);
+        }
+      } catch (err) {
+        setUlbData({ ulb_name: "ULB Info" });
+      }
     };
 
-    setReceiptData(dummyData);
+    fetchUlbDtl();
+  }, [ulbId]);
+
+  const fetchData = async () => {
+    setIsFrozen(true);
+
+    try {
+      const host = hostInfo();
+
+      setQurCode(
+        <QRCodeComponent value={host + "/saf/fam-receipt/" + id} size={90} />
+      );
+
+      const res = await axios.post(MemoReceiptApi, { id });
+
+      const data = res?.data?.data;
+
+      if (data) {
+        const taxBreakdown = [
+          { taxType: "Holding Tax", amount: Number(data.holdingTax || 0) },
+          { taxType: "Water Tax", amount: Number(data.waterTax || 0) },
+          { taxType: "Latrine Tax", amount: Number(data.latrineTax || 0) },
+          { taxType: "Health Cess Tax", amount: Number(data.healthCessTax || 0) },
+          { taxType: "Education Cess Tax", amount: Number(data.educationCessTax || 0) },
+          { taxType: "RWH Tax", amount: Number(data.rwhTax || 0) },
+        ];
+
+        setReceiptData({
+          holdingNo: data.holdingNo || data.newHoldingNo,
+          ownerName: data.ownerName,
+          address: data.propAddress || data.address,
+          memoNo: data.memoNo,
+          generatedAt: new Date(data.createdAt).toLocaleString(),
+          taxBreakdown: taxBreakdown,
+          totalTaxAmount: Number(data.totalTax || 0),
+          description: `${data.memoType} Receipt`,
+          userDtl: {
+            approvedBySign: data?.userDtl?.signatureImg || "",
+          },
+          ulbDtl: {
+            ulbName: data?.ulbDtl?.ulbName || ulbData?.ulb_name,
+          },
+          notes: [],
+        });
+      }
+    } catch (err) {
+      console.error("Receipt fetch error", err);
+    }
 
     setIsFrozen(false);
   };
@@ -73,6 +103,7 @@ function FamReceiptModal({ id, onClose }) {
 
     const dataUrl = canvas.toDataURL("image/png");
     const printWindow = window.open("", "_blank");
+
     printWindow.document.write(`
       <html>
         <head>
@@ -102,6 +133,7 @@ function FamReceiptModal({ id, onClose }) {
         </body>
       </html>
     `);
+
     printWindow.document.close();
 
     printWindow.onload = () => {
@@ -126,6 +158,7 @@ function FamReceiptModal({ id, onClose }) {
           <h2 className="font-semibold text-blue-900 text-xl">
             View FAM Receipt
           </h2>
+
           <div className="flex gap-2">
             <button
               onClick={handlePrint}
@@ -133,6 +166,7 @@ function FamReceiptModal({ id, onClose }) {
             >
               Print
             </button>
+
             {onClose && (
               <button
                 className="text-gray-600 hover:text-red-600"
@@ -158,9 +192,11 @@ function FamReceiptModal({ id, onClose }) {
                     alt="Logo"
                     className="mx-auto mb-2 w-20 h-20"
                   />
+
                   <h1 className="font-bold text-xl">
                     {receiptData?.ulbDtl?.ulbName}
                   </h1>
+
                   <h2 className="mt-3 font-semibold">
                     <span className="px-6 pt-1 pb-1 border-2 border-black">
                       {receiptData?.description}
@@ -173,17 +209,21 @@ function FamReceiptModal({ id, onClose }) {
                     <p>
                       Memo No.: <strong>{receiptData?.memoNo}</strong>
                     </p>
+
                     <p>
                       Holding No.: <strong>{receiptData?.holdingNo}</strong>
                     </p>
+
                     <p>
                       Generated On: <strong>{receiptData?.generatedAt}</strong>
                     </p>
                   </div>
+
                   <div>
                     <p>
                       Owner Name: <strong>{receiptData?.ownerName}</strong>
                     </p>
+
                     <p>
                       Address: <strong>{receiptData?.address}</strong>
                     </p>
@@ -198,6 +238,7 @@ function FamReceiptModal({ id, onClose }) {
                       <th className="p-1 border">Amount (₹)</th>
                     </tr>
                   </thead>
+
                   <tbody>
                     {receiptData?.taxBreakdown?.map((item, idx) => (
                       <tr key={idx}>
@@ -208,6 +249,7 @@ function FamReceiptModal({ id, onClose }) {
                         </td>
                       </tr>
                     ))}
+
                     <tr>
                       <td
                         className="p-1 border font-semibold text-right"
@@ -215,6 +257,7 @@ function FamReceiptModal({ id, onClose }) {
                       >
                         Total Amount Payable
                       </td>
+
                       <td className="p-1 border font-bold text-right">
                         {receiptData?.totalTaxAmount}
                       </td>
@@ -224,29 +267,19 @@ function FamReceiptModal({ id, onClose }) {
 
                 <div className="flex justify-between gap-6 mt-6">
                   <div>{qurCode}</div>
+
                   <div className="text-center">
-                    <img
-                      src={receiptData?.userDtl?.approvedBySign}
-                      alt="Signature"
-                      className="mx-auto mb-1 h-16"
-                    />
+                    {receiptData?.userDtl?.approvedBySign && (
+                      <img
+                        src={receiptData?.userDtl?.approvedBySign}
+                        alt="Signature"
+                        className="mx-auto mb-1 h-16"
+                      />
+                    )}
                     <p className="text-sm">Authorized Signatory</p>
                   </div>
                 </div>
 
-                {/* Notes */}
-                {receiptData?.notes?.length > 0 && (
-                  <div className="mt-6 pt-4 border-t text-gray-700 text-sm">
-                    <p className="mb-2 font-semibold">Note:</p>
-                    <ol className="space-y-1 list-disc list-inside">
-                      {receiptData?.notes?.map((note, idx) => (
-                        <li key={idx}>{note}</li>
-                      ))}
-                    </ol>
-                  </div>
-                )}
-
-                {/* Footer */}
                 <p className="mt-4 text-gray-500 text-xs text-center italic">
                   ** This is a computer-generated receipt and does not require
                   physical signature. **
