@@ -8,6 +8,7 @@ import SafPendingList from "./pages/SafPendingList";
 import RoleUserWisePendingSaf from "./pages/RoleUserWisePendingSaf";
 import WardWiseDcb from "./pages/WardWiseDcb";
 import PropertyWiseDcb from "./pages/PropertyWiseDcb";
+import DateWiseApplySaf from "./pages/DateWiseApplySaf";
 
 function ReportRoute() {
   return (
@@ -74,6 +75,14 @@ function ReportRoute() {
             element={
               <ProtectedRoute>
                 <PropertyWiseDcb />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/date/wise/apply"
+            element={
+              <ProtectedRoute>
+                <DateWiseApplySaf />
               </ProtectedRoute>
             }
           />

@@ -20,6 +20,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class ReportController extends Controller
 {
@@ -857,7 +858,7 @@ class ReportController extends Controller
             if($request->uptoDate){
                 $uptoDate =$request->uptoDate;
             }
-            $select=["id","assessment_type","holding_type","zone_mstr_id","ward_mstr_id","new_ward_mstr_id"];
+            $select=["id","assessment_type","holding_type","zone_mstr_id","ward_mstr_id","new_ward_mstr_id","apply_date"];
             $saf = $this->_SafDetail->select($select)->addSelect(DB::raw("'approve' as app_type"));
             $active = $this->_ActiveSafDetail->select($select)->addSelect(DB::raw("'pending' as app_type"));
             $rejected = $this->_RejectedSafDetail->select($select)->addSelect(DB::raw("'rejected' as app_type"));
@@ -955,6 +956,56 @@ class ReportController extends Controller
         }catch(Exception $e){
             return responseMsg(false,"Server Error !!!","");
         }
+    }
+
+    public function dateWiseAppliedSaf(Request $request){
+        try{
+            $rules=[
+                "fromDate"=>"required|date|before_or_equal:".Carbon::now()->format("Y-m-d"),
+                "uptoDate"=>"required|date|before_or_equal:".Carbon::now()->format("Y-m-d"),
+            ];
+            $validator = Validator::make($request->all(),$rules);
+            if($validator->fails()){
+                return validationError($validator);
+            }
+            
+            $request->merge(["all"=>true]);
+            $holdingWiseDcbResponse = $this->appliedSafList($request);
+            if(!$holdingWiseDcbResponse->original["status"]){
+                throw new CustomException($holdingWiseDcbResponse->original["message"]);
+            }
+            $holdingWiseDcbResponse = $holdingWiseDcbResponse->original["status"]?$holdingWiseDcbResponse->original["data"]:collect();
+
+            $fromDate = Carbon::parse($request->fromDate);
+            $uptoDate = Carbon::parse( $request->uptoDate);
+            $response = collect();
+
+
+            while($fromDate->lte($uptoDate)){
+                $date = $fromDate->clone()->format("Y-m-d");
+                $prop = $holdingWiseDcbResponse->where("applyDate",$date);
+                $response->push([
+                    "date"=> $fromDate->clone()->format("Y-m-d"),
+                    "totalProperty"=>$prop->count("id"),
+                ]);
+                $fromDate = $fromDate->addDay();
+            }
+
+            $data = [
+                "data"=>$response,
+                "summary"=>[
+                    'fromDate'=>$response->min("date"),
+                    'uptoDate'=>$response->max("date"),
+                    "total"=>$response->count(),
+                    "totalProperty"=>$response->sum("totalProperty"),
+                ],                
+            ];
+            return responseMsg(true,"Date Wise Applied",camelCase(remove_null($data)));
+        }catch(CustomException $e){
+            return responseMsg(false,$e->getMessage(),"");
+        }catch(Exception $e){dd($e);
+            return responseMsg(false,"Server Error !!!","");
+        }  
     }
 
 

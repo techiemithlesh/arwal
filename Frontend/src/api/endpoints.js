@@ -223,6 +223,7 @@ export const levelWisePendingApi = `${BASE_URL}/api/property/report/level-wise-p
 export const levelUserWisePendingApi = `${BASE_URL}/api/property/report/role-user-wise-pending-saf`;
 export const propertyWardWiseDCBApi = `${BASE_URL}/api/property/report/ward-wise-dcb`;
 export const propertyWiseDCBApi = `${BASE_URL}/api/property/report/prop-dcb`;
+export const dateWiseApplySafApi = `${BASE_URL}/api/property/report/date-wise-applied-saf`;
 
 // Trade
 export const getTradeMstrDataApi = `${BASE_URL}/api/trade/get-trade-master-data`;

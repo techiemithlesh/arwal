@@ -131,6 +131,7 @@ Route::middleware(['auth:sanctum',"expireBearerToken","setUlb"])->group(function
             Route::post('ward-wise-dcb', 'wardWiseDcb');
             Route::post('applied-saf-list', 'appliedSafList');
             Route::post('ward-wise-applied-saf', 'wardWiseAppliedList');
+            Route::post('date-wise-applied-saf', 'dateWiseAppliedSaf');
         });
     });
 });
