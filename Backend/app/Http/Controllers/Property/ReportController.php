@@ -10,6 +10,7 @@ use App\Models\DBSystem\UlbWardMaster;
 use App\Models\DBSystem\WorkflowMaster;
 use App\Models\Property\ActiveSafDetail;
 use App\Models\Property\PropertyDetail;
+use App\Models\Property\PropertyDemand;
 use App\Models\Property\PropTransaction;
 use App\Models\Property\RejectedSafDetail;
 use App\Models\Property\SafDetail;
@@ -42,6 +43,7 @@ class ReportController extends Controller
     private $_UlbMaster;
     private $_UlbWardMaster;
     private $_PropTransaction;
+    private $_PropertyDemand;
 
     function __construct()
     {
@@ -58,6 +60,7 @@ class ReportController extends Controller
         $this->_SafDetail = new SafDetail();
         $this->_PropertyDetail = new PropertyDetail();
         $this->_PropTransaction = new PropTransaction();
+        $this->_PropertyDemand = new PropertyDemand();
         
     }
 
@@ -1003,9 +1006,159 @@ class ReportController extends Controller
             return responseMsg(true,"Date Wise Applied",camelCase(remove_null($data)));
         }catch(CustomException $e){
             return responseMsg(false,$e->getMessage(),"");
-        }catch(Exception $e){dd($e);
+        }catch(Exception $e){
             return responseMsg(false,"Server Error !!!","");
         }  
+    }
+
+    public function dateWisePropertyCreated(Request $request)
+    {
+        try {
+            // 1. Initialize Dates safely
+            $fromDateStr = $request->fromDate ?? Carbon::now()->format("Y-m-d");
+            $uptoDateStr = $request->uptoDate ?? Carbon::now()->format("Y-m-d");
+
+            // 2. Fetch Property Details
+            $createdProperty = $this->_PropertyDetail
+                ->select(DB::raw(" 
+                    property_details.created_at::DATE as created_date,
+                    COUNT(property_details.id) as total_property, 
+                    COUNT(CASE WHEN entry_type = 'Existing' THEN property_details.id END) AS total_existing_property,
+                    COUNT(CASE WHEN assessment_type = 'New Assessment' THEN property_details.id END) AS total_new_assess_property
+                "))
+                ->where("property_details.lock_status", false)
+                ->whereBetween(DB::raw("property_details.created_at::date"), [$fromDateStr, $uptoDateStr])
+                ->groupBy(DB::raw("property_details.created_at::date"))
+                ->get();
+
+            // 3. Fetch Demands
+            $demandAndBalance = $this->_PropertyDemand
+                ->join("property_details","property_details.id","property_demands.property_detail_id")
+                ->select(DB::raw(" 
+                    property_demands.created_at::DATE as created_date,
+                    COUNT(DISTINCT(property_demands.property_detail_id)) as total_property,
+                    COUNT(DISTINCT(CASE WHEN balance_tax > 0 THEN property_demands.property_detail_id END)) AS due_property, 
+                    SUM(property_demands.total_tax) AS total_tax,
+                    SUM(property_demands.balance_tax) AS balance_tax
+                "))
+                ->where("property_demands.lock_status", false)
+                ->whereBetween(DB::raw("property_demands.created_at::date"), [$fromDateStr, $uptoDateStr])
+                ->groupBy(DB::raw("property_demands.created_at::date"))
+                ->get();
+
+            // 4. Loop through date range to build response
+            $start = Carbon::parse($fromDateStr);
+            $end = Carbon::parse($uptoDateStr);
+            $response = collect();
+
+            while ($start->lte($end)) {
+                $currentDate = $start->format("Y-m-d");
+
+                // Use first() to get the actual object for that date
+                $prop = $createdProperty->where("created_date", $currentDate)->first();
+                $demandDue = $demandAndBalance->where("created_date", $currentDate)->first();
+
+                $response->push([
+                    "date"                   => $currentDate,
+                    "totalProperty"          => $prop->total_property ?? 0,
+                    "totalExistingProperty"  => $prop->total_existing_property ?? 0,
+                    "totalNewAssessProperty" => $prop->total_new_assess_property ?? 0,
+                    "demandTotalProperty"    => $demandDue->total_property ?? 0,
+                    "dueProperty"            => $demandDue->due_property??0,
+                    "totalTax"               => $demandDue->total_tax ?? 0,
+                    "balanceTax"             => $demandDue->balance_tax ?? 0,
+                ]);
+
+                $start->addDay();
+            }
+
+            // 5. Final Data Structure
+            $data = [
+                "data" => $response,
+                "summary" => [
+                    'fromDate'               => $fromDateStr,
+                    'uptoDate'               => $uptoDateStr,
+                    "totalDays"              => $response->count(),
+                    "totalProperty"          => $response->sum("totalProperty"),
+                    "totalExistingProperty"  => $response->sum("totalExistingProperty"),
+                    "totalNewAssessProperty" => $response->sum("totalNewAssessProperty"),
+                    "demandTotalProperty"    => $response->sum("demandTotalProperty"),
+                    "dueProperty"            => $response->sum("dueProperty"),
+                    "totalTax"               => $response->sum("totalTax"),
+                    "balanceTax"             => $response->sum("balanceTax"),
+                ],
+            ];
+
+            return responseMsg(true, "Date Wise Created Property", camelCase(remove_null($data)));
+
+        } catch (CustomException $e) {
+            return responseMsg(false, $e->getMessage(), "");
+        } catch (Exception $e) {
+            return responseMsg(false, "Server Error: " . $e->getMessage(), "");
+        }
+    }
+
+    public function monthWiseCreatedProperty(Request $request)
+    {
+        try {
+            $fromDate = Carbon::parse($request->fromDate)->startOfMonth()->format("Y-m-d");
+            $uptoDate = Carbon::parse($request->uptoDate ?? $request->fromDate)->endOfMonth()->format("Y-m-d");
+
+            // Merge back to request so the dateWise function uses these bounds
+            $request->merge(["fromDate" => $fromDate, "uptoDate" => $uptoDate]);
+
+            $dateWiseResponse = $this->dateWisePropertyCreated($request);
+            $res = $dateWiseResponse->original;
+
+            if (!$res["status"]) {
+                throw new Exception($res["message"]);
+            }
+
+            // 2. Ensure we are working with a Collection
+            // Note: Accessing ['data']['data'] because the response usually wraps it in a 'data' key
+            $dailyData = collect($res["data"]["data"] ?? []);
+
+            // 3. Group by Month and Year
+            $monthWiseData = $dailyData->groupBy(function ($item) {
+                return Carbon::parse($item['date'])->format('Y-m');
+            })->map(function ($daysInMonth, $monthKey) {
+                return [
+                    "month"                  => Carbon::parse($monthKey)->format("F Y"),
+                    "monthKey"               => $monthKey,
+                    "totalProperty"          => $daysInMonth->sum("totalProperty"),
+                    "totalExistingProperty"  => $daysInMonth->sum("totalExistingProperty"),
+                    "totalNewAssessProperty" => $daysInMonth->sum("totalNewAssessProperty"),
+                    "demandTotalProperty"    => $daysInMonth->sum("demandTotalProperty"),
+                    "dueProperty"            => $daysInMonth->sum("dueProperty"),
+                    "totalTax"               => $daysInMonth->sum("totalTax"),
+                    "balanceTax"             => $daysInMonth->sum("balanceTax"),
+                ];
+            })->values();
+
+            // 4. Final Data Structure
+            $data = [
+                "data" => $monthWiseData,
+                "summary" => [
+                    'fromDate'               => $monthWiseData->first()['monthKey'] ?? null,
+                    'uptoDate'               => $monthWiseData->last()['monthKey'] ?? null,
+                    "totalMonths"            => $monthWiseData->count(),
+                    "totalProperty"          => $monthWiseData->sum("totalProperty"),
+                    "totalExistingProperty"  => $monthWiseData->sum("totalExistingProperty"),
+                    "totalNewAssessProperty" => $monthWiseData->sum("totalNewAssessProperty"),
+                    "demandTotalProperty"    => $monthWiseData->sum("demandTotalProperty"),
+                    "dueProperty"            => $monthWiseData->sum("dueProperty"),
+                    "totalTax"               => $monthWiseData->sum("totalTax"),
+                    "balanceTax"             => $monthWiseData->sum("balanceTax"),
+                ],
+            ];
+
+            return responseMsg(true, "Month Wise Created Property", camelCase(remove_null($data)));
+
+        } catch (CustomException $e) {
+            return responseMsg(false, $e->getMessage(), "");
+        } catch (Exception $e) {
+            return responseMsg(false, "Server Error: " . $e->getMessage(), "");
+        }
     }
 
 
