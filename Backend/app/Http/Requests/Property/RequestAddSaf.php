@@ -154,7 +154,7 @@ class RequestAddSaf extends ParentRequest
             "ownerDtl.*.isSpeciallyAbled"=>"required|boolean",
 
             "floorDtl"=>"nullable|required_unless:propTypeMstrId,4|array",
-            "floorDtl.*.builtupArea"=>"nullable|required_unless:propTypeMstrId,4|min:0.1|max:".($this->builtupArea?$this->builtupArea:"0.2"),
+            "floorDtl.*.builtupArea"=>"nullable|required_unless:propTypeMstrId,4|numeric|min:0.1|max:".($this->builtupArea?$this->builtupArea:"0.2"),
             "floorDtl.*.dateFrom"=>"nullable|required_unless:propTypeMstrId,4|date|date_format:Y-m|before_or_equal:".Carbon::now()->format("Y-m"),
             "floorDtl.*.dateUpto"=>[
                 "nullable",
@@ -243,7 +243,7 @@ class RequestAddSaf extends ParentRequest
             "swmConsumer.*.mobileNo"=>"required|digits:10|regex:/[0-9]{10}/",
             "swmConsumer.*.email"=>"nullable|email",
             "swmConsumer.*.gender"=>"nullable|in:Male,Female,Other",
-        ];
+        ];//dd($rules);
         return $rules;
     }
 

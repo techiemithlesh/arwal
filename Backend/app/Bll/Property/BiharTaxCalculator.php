@@ -208,13 +208,38 @@ class BiharTaxCalculator
         else{
             //Land + Building
             if($this->_PropertyType==3){
-                $remainArea = ($this->_REQUEST["areaOfPlot"]) - ($this->_REQUEST["builtupArea"]*1.43);
+                $landOccupationDate = isset($this->_REQUEST["landOccupationDate"]) ? $this->_REQUEST["landOccupationDate"] : (explode("-",$this->_acctOfLimitation)[0]."-04-01");
+                $minDate = collect($this->_REQUEST["floorDtl"])->min("dateFrom");
+                $isFirstAcquired = Carbon::parse($minDate)->gt(Carbon::parse($landOccupationDate));                
+                if($isFirstAcquired){
+                    $area = $this->_REQUEST["areaOfPlot"];
+                    $landOccupationDate=Carbon::parse($minDate)->format("Y-m-d");
+                    $floor = [
+                        "floorName"=>"VacantLand",
+                        "areaOfPlot"=>$this->_REQUEST["areaOfPlot"],
+                        "builtupArea"=>$area,
+                        "dateFrom"=>isset($this->_REQUEST["landOccupationDate"]) ? $this->_REQUEST["landOccupationDate"] : (explode("-",$this->_acctOfLimitation)[0]."-04-01"),
+                        "dateUpto"=>$landOccupationDate,
+                        "floorMasterId"=>"0",
+                        "usageTypeMasterId"=>"1",
+                        "constructionTypeMasterId"=>0,
+                        "occupancyTypeMasterId"=>1,
+                        "tax"=>collect(),
+                    ];
+                    $floor["usageType"] = (collect($this->_mUsageTypeMaster)->where("id",$floor["usageTypeMasterId"])->first())->usage_type??"";
+                    $floor["constructionType"] = (collect($this->_mConstructionTypeMaster)->where("id",$floor["constructionTypeMasterId"])->first())->construction_type??"";
+                    $floor["occupancyType"] = (collect($this->_mOccupancyTypeMaster)->where("id",$floor["occupancyTypeMasterId"])->first())->occupancy_name??"";
+                    $floor["ruleSets"]=collect($this->setRuleSet($floor["dateFrom"],($floor["dateUpto"]??null),false));
+                    $this->_FloorWiseTax[] = $floor;
+                }
+
+                $remainArea = ($this->_REQUEST["areaOfPlot"]) - ($this->_REQUEST["builtupArea"]*1.43);                
                 if($remainArea>0){
                     $floor = [
                         "floorName"=>"VacantLand",
                         "areaOfPlot"=>$this->_REQUEST["areaOfPlot"],
                         "builtupArea"=>$remainArea,
-                        "dateFrom"=>isset($this->_REQUEST["landOccupationDate"]) ? $this->_REQUEST["landOccupationDate"] : (explode("-",$this->_acctOfLimitation)[0]."-04-01"),
+                        "dateFrom"=>$landOccupationDate,
                         "floorMasterId"=>"0",
                         "usageTypeMasterId"=>"1",
                         "constructionTypeMasterId"=>0,
