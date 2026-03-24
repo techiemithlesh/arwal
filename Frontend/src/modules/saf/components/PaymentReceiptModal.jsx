@@ -21,11 +21,7 @@ function PaymentReceiptModal({ id, onClose }) {
   const [isFrozen, setIsFrozen] = useState(false);
   const printRef = useRef();
 
-  // const handlePrint = async () => {
-  //   setIsFrozen(true);
-  //   await handleGeneratePdf(printRef);
-  //   setIsFrozen(false);
-  // };
+
 
   const handlePrint = usePrint(printRef,`${"Payment Receipt" || ""}`);
 

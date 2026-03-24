@@ -4,6 +4,7 @@ import axios from "axios";
 import QRCodeComponent from "../../../components/common/QRCodeComponent";
 import {
   formatLocalDate,
+  formatLocalDateTime,
   formatReadableYearMonth,
   formatTimeAMPM,
   hostInfo,
@@ -73,6 +74,10 @@ function PaymentReceiptDtl({ data = null, id, setIsFrozen = () => {} }) {
       setIsFrozen(false);
     }
   };
+
+
+  // console.log("receiptData", receiptData);
+
   return (
     // <div className="bg-white p-6 print:p-2 border-2 border-red-500 border-dotted print:border-none font-sans text-xs">
     <div className="relative bg-white p-2 border-2 border-red-500 border-dotted font-sans text-xs overflow-hidden">
@@ -133,7 +138,7 @@ function PaymentReceiptDtl({ data = null, id, setIsFrozen = () => {} }) {
               <td>{t("Receipt No.")}</td>
               <td>: {receiptData?.tranNo}</td>
               <td>{t("Date")}</td>
-              <td>: {receiptData?.tranDate}</td>
+              <td>: {formatLocalDateTime(receiptData?.tranDtl?.createdAt)}</td>
             </tr>
             <tr>
               <td>{t("Plot Area")}</td>
