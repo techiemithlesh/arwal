@@ -30,6 +30,9 @@ import WaterConsumerPaymentReceipt from "./modules/waterConsumer/pages/PaymentRe
 import TradeRoutes from './routes/TradeRoutes';
 import LicenseCertificateReceipt from "./modules/trade/pages/LicenseCertificateReceipt";
 import TradePaymentReceipt from "./modules/trade/pages/TradePaymentReceipt";
+import MaintenancePage from "./Maintenance.jsx";
+
+const isMaintenance = true; 
 
 function App() {
   const [browserInfo, setBrowserInfo] = useState({
@@ -47,6 +50,11 @@ function App() {
       localStorage.setItem("browserInfo", JSON.stringify(info));
     })();
   }, []);
+
+  if
+  (isMaintenance) {
+    return <MaintenancePage />;
+  }
 
   return (
     <MenuProvider>
