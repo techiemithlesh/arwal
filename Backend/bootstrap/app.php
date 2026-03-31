@@ -10,6 +10,7 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
         using: function () {
+
             Route::middleware('api')
                 ->prefix('api')
                 ->group(base_path('routes/api.php'));
@@ -44,6 +45,10 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware) {
+
+        // MIDDLEWARE FOR MAINTENANCE MODE
+        // ✅ ADD THIS LINE (GLOBAL MIDDLEWARE)
+        $middleware->append(\App\Http\Middleware\ForceMaintenance::class);
         // 1. Apply the middleware to the global 'api' group
         // It's best practice to add logging after all other API-specific middleware run.
         $middleware->web(prepend: [
