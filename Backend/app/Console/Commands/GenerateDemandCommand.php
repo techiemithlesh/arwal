@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class GenerateDemandCommand extends Command
 {
@@ -51,7 +52,8 @@ class GenerateDemandCommand extends Command
         foreach($properties as $index=> $p){                
             $this->begin();
             try{
-                $this->info("Generated======>> [".$index."] ====>>" . $p->id);                
+                $this->info("Generated======>> [".$index."] ====>>" . $p->id);   
+                Log::info("Generated======>> [".$index."] ====>>" . $p->id);             
                 $prop = PropertyDetail::find($p->id);
                 $propFloor = $prop->getFloors();
                 $request = new Request();
@@ -139,7 +141,7 @@ class GenerateDemandCommand extends Command
                     }
                     
                 }
-                // $this->commit();
+                $this->commit();
             }catch(Exception $e){
                 $this->rollBack();
                 $this->warn("error=>".$e->getMessage());
