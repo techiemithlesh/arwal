@@ -32,7 +32,7 @@ import LicenseCertificateReceipt from "./modules/trade/pages/LicenseCertificateR
 import TradePaymentReceipt from "./modules/trade/pages/TradePaymentReceipt";
 import MaintenancePage from "./Maintenance.jsx";
 
-const isMaintenance = true; 
+const isMaintenance = false; 
 
 function App() {
   const [browserInfo, setBrowserInfo] = useState({
