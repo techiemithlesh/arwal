@@ -836,7 +836,7 @@ class SafController extends Controller
         }catch(CustomException $e){
             return responseMsg(false,$e->getMessage(),"");
         }
-        catch(Exception $e){
+        catch(Exception $e){dd($e);
             return responseMsg(false,"Internal Server Error","");
         }
     }

@@ -962,7 +962,7 @@ class BiharTaxCalculator
 
                     return Carbon::parse($dateFrom)->lt($before90Days);
                 });
-            if(in_array($this->_REQUEST->assessmentType,["New Assessment"])){
+            if(!in_array($this->_REQUEST->assessmentType,["New Assessment"])){
                 $newFloors = $newFloors->whereNull("prop_floor_detail_id");
             }
             if ($newFloors->isNotEmpty()) {
