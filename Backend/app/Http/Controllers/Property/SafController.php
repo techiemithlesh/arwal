@@ -1297,6 +1297,8 @@ class SafController extends Controller
                     $objMemo->generateMemo();
                 }
                 $saf = $this->_SafDetail->find($saf->id);
+                // dd($saf);
+                // dd(Carbon::now());
                 $saf->saf_approved_date = Carbon::now();
                 $saf->saf_approved_user_id = $user->id;
                 $saf->save();
@@ -1537,7 +1539,7 @@ class SafController extends Controller
                 }
             }
             // dd($ordered);
-            $this->commit();
+            // $this->commit();
             return responseMsg(true,"Saf Approved","");
 
         }catch(CustomException $e){
@@ -1545,6 +1547,7 @@ class SafController extends Controller
             return responseMsg(false,$e->getMessage(),"");
         }
         catch(Exception $e){
+            dd($e);
             $this->rollBack();
             return responseMsg(false,"Internal Server Error",$e);
         }
@@ -1913,6 +1916,7 @@ class SafController extends Controller
             return responseMsgs(false,"Server Error","");
         }
     }
+
     public function fieldVerification(RequestFieldVerification $request){
         try{
             $user = Auth()->user();

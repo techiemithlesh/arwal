@@ -45,9 +45,13 @@ export default function Preview() {
     try {
       const finalPayload = buildPayload();
       const swmDetails = formData?.hasSwm ? swmConsumer : [];
-      const { data } = await axios.post(reviewTaxApi, { ...finalPayload, swmConsumer: swmDetails }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const { data } = await axios.post(
+        reviewTaxApi,
+        { ...finalPayload, swmConsumer: swmDetails },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       setTaxDtl(data?.data || {});
     } catch (err) {
       console.error("Tax preview error", err);
@@ -92,7 +96,7 @@ export default function Preview() {
         { ...finalPayload, swmConsumer: swmDetails },
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       if (!res.status) {
@@ -128,6 +132,8 @@ export default function Preview() {
     return list.find((item) => String(item.id) === String(id))?.[key] || "";
   };
 
+  console.log("taxDtl", taxDtl);
+
   return (
     <>
       <div className="flex flex-col gap-6 bg-white shadow-lg mx-auto p-6 rounded-lg w-full container-fluid">
@@ -144,7 +150,7 @@ export default function Preview() {
               value={findName(
                 mstrData.zoneType,
                 formData?.zoneMstrId,
-                "zoneName"
+                "zoneName",
               )}
             />
             <DetailCard
@@ -152,7 +158,7 @@ export default function Preview() {
               value={findName(
                 mstrData.wardList,
                 formData?.wardMstrId,
-                "wardNo"
+                "wardNo",
               )}
             />
 
@@ -161,7 +167,7 @@ export default function Preview() {
               value={findName(
                 mstrData.ownershipType,
                 formData?.ownershipTypeMstrId,
-                "ownershipType"
+                "ownershipType",
               )}
             />
             <DetailCard
@@ -169,7 +175,7 @@ export default function Preview() {
               value={findName(
                 mstrData.propertyType,
                 formData?.propTypeMstrId,
-                "propertyType"
+                "propertyType",
               )}
             />
             {[3, 4].includes(Number(formData?.propTypeMstrId)) && (
@@ -185,7 +191,7 @@ export default function Preview() {
                   value={findName(
                     apartmentList,
                     formData?.appartmentDetailsId,
-                    "apartmentName"
+                    "apartmentName",
                   )}
                 />
                 <DetailCard
@@ -199,7 +205,7 @@ export default function Preview() {
               value={findName(
                 mstrData.roadType,
                 formData?.roadTypeMstrId,
-                "roadType"
+                "roadType",
               )}
             />
           </div>
@@ -262,7 +268,7 @@ export default function Preview() {
               value={findName(
                 mstrData.waterFacility,
                 formData?.waterConnectionFacilityTypeId,
-                "facilityType"
+                "facilityType",
               )}
             />
 
@@ -271,7 +277,7 @@ export default function Preview() {
               value={findName(
                 mstrData.waterTax,
                 formData?.waterTaxTypeId,
-                "taxType"
+                "taxType",
               )}
             />
 
@@ -370,7 +376,7 @@ export default function Preview() {
                         {getName(
                           mstrData?.occupancyType,
                           app?.occupancyTypeMasterId,
-                          "occupancyName"
+                          "occupancyName",
                         )}
                       </td>
                       <td className="px-4 py-2 border border-gray-500 text-gray-500 text-sm whitespace-nowrap">
@@ -389,7 +395,7 @@ export default function Preview() {
                         {getName(
                           mstrData?.swmConsumerType,
                           app.categoryTypeMasterId,
-                          "categoryType"
+                          "categoryType",
                         )}
                       </td>
                       <td className="px-4 py-2 border border-gray-500 text-gray-500 text-sm whitespace-nowrap">
@@ -399,7 +405,7 @@ export default function Preview() {
                         {getName(
                           app?.subCategoryList,
                           app.subCategoryTypeMasterId,
-                          "subCategoryType"
+                          "subCategoryType",
                         )}
                       </td>
                       <td className="px-4 py-2 border border-gray-500 text-gray-500 text-sm whitespace-nowrap">
@@ -424,6 +430,12 @@ export default function Preview() {
           <h2 className="font-semibold text-xl">Tax Details</h2>
           {Object.keys(taxDtl).length > 0 && <TaxViewTab taxDtl={taxDtl} />}
         </section>
+
+        {taxDtl?.lateAssessmentPenalty && (
+          <section className="flex flex-col gap-4 bg-gray-50 p-4 border rounded">
+            <h2 className="font-semibold text-xl">Penalty - <span>₹ {taxDtl.lateAssessmentPenalty} (Late Assessment Penalty)</span></h2>
+          </section>
+        )}
 
         {/* Navigation Buttons */}
         <div className="flex space-x-4">
@@ -534,13 +546,13 @@ const FloorTable = ({ data, mstrData }) =>
         mstrData.floorType.find((x) => String(x.id) === String(f.floorMasterId))
           ?.floorName || "",
         mstrData.usageType.find(
-          (x) => String(x.id) === String(f.usageTypeMasterId)
+          (x) => String(x.id) === String(f.usageTypeMasterId),
         )?.usageType || "",
         mstrData.occupancyType.find(
-          (x) => String(x.id) === String(f.occupancyTypeMasterId)
+          (x) => String(x.id) === String(f.occupancyTypeMasterId),
         )?.occupancyName || "",
         mstrData.constructionType.find(
-          (x) => String(x.id) === String(f.constructionTypeMasterId)
+          (x) => String(x.id) === String(f.constructionTypeMasterId),
         )?.constructionType || "",
         f.builtupArea,
         f.dateFrom,

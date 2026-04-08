@@ -113,7 +113,7 @@ const AssessmentForm = ({
     const newWardMstrId = await fetchNewWardByOldWard(
       formData.wardMstrId,
       token,
-      ulbId,
+      ulbId
     );
     setNewWardList(newWardMstrId);
   }
@@ -175,7 +175,7 @@ const AssessmentForm = ({
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        },
+        }
       );
       if (response.data.status === true) {
         setApartmentList(response.data.data);
@@ -198,7 +198,7 @@ const AssessmentForm = ({
           isMobileTower: false,
           towerArea: "",
           towerInstallationDate: "",
-        }),
+        })
       );
       return;
     }
@@ -208,7 +208,7 @@ const AssessmentForm = ({
           isHoardingBoard: false,
           hoardingArea: "",
           hoardingInstallationDate: "",
-        }),
+        })
       );
       return;
     }
@@ -218,7 +218,7 @@ const AssessmentForm = ({
           isPetrolPump: false,
           underGroundArea: "",
           petrolPumpCompletionDate: "",
-        }),
+        })
       );
       return;
     }
@@ -227,7 +227,7 @@ const AssessmentForm = ({
         setFormData({
           isWaterHarvesting: false,
           waterHarvestingDate: "",
-        }),
+        })
       );
       return;
     }
@@ -246,7 +246,7 @@ const AssessmentForm = ({
         const newWardMstrId = await fetchNewWardByOldWard(
           updatedValue,
           token,
-          ulbId,
+          ulbId
         );
         setNewWardList(newWardMstrId);
       } catch (error) {
@@ -287,26 +287,10 @@ const AssessmentForm = ({
       ulbId: ulbId,
     };
 
-    // const floorPayload = floorDtl.map((floor) => ({
-    //   ...floor,
-    //   propFloorDetailId: floor.id,
-    // }));
-
-    const floorPayload = floorDtl.map((floor) => {
-      const { id, ...rest } = floor;
-
-      if (floor.propertyDetailId) {
-        return {
-          ...rest,
-          propFloorDetailId: id,
-        };
-      }
-
-      return rest;
-    });
-
-    console.log("floorPayload", floorPayload);
-
+    const floorPayload = floorDtl.map((floor) => ({
+      ...floor,
+      propFloorDetailId: floor.id,
+    }));
     setIsLoadingGable(true);
     try {
       if (isEdit) {
@@ -318,7 +302,7 @@ const AssessmentForm = ({
             ownerDtl,
             floorDtl: floorPayload,
           },
-          { headers: { Authorization: `Bearer ${token}` } },
+          { headers: { Authorization: `Bearer ${token}` } }
         );
 
         if (response.data.status) {
@@ -342,7 +326,7 @@ const AssessmentForm = ({
             swmConsumer: swmDetails,
             ulbId,
           },
-          { headers: { Authorization: `Bearer ${token}` } },
+          { headers: { Authorization: `Bearer ${token}` } }
         );
 
         if (response.data.status) {
@@ -376,9 +360,6 @@ const AssessmentForm = ({
     }
   };
 
-  console.log("ownerDtl", ownerDtl);
-  console.log("formData", formData);
-
   useEffect(() => {
     if (!propDetails) return;
 
@@ -391,8 +372,8 @@ const AssessmentForm = ({
           propDetails.floors.map((floor) => ({
             ...floor,
             dateFrom: formatYearMonth(floor.dateFrom),
-          })),
-        ),
+          }))
+        )
       );
 
     // eslint-disable-next-line
