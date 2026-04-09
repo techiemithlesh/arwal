@@ -942,7 +942,7 @@ class BiharTaxCalculator
                     $lateAssessmentPenalty =
                         ($this->_REQUEST->isMobileTower || $this->_REQUEST->isHoardingBoard)
                             ? 5000
-                            : 2000;
+                            : 5000;
                 }
             }
 

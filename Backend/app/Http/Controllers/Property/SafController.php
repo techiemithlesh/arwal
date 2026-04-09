@@ -1539,7 +1539,7 @@ class SafController extends Controller
                 }
             }
             // dd($ordered);
-            // $this->commit();
+            $this->commit();
             return responseMsg(true,"Saf Approved","");
 
         }catch(CustomException $e){
