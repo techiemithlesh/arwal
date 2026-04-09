@@ -50,7 +50,7 @@ return [
             "effective_upto_fyear"=>getFY(explode("-",getFY(Carbon::now()->format("Y-m-d")))[1]."-03-31"),
         ],
     ],
-    "ACT_OF_LIMITATION"=>12,
+    "ACT_OF_LIMITATION"=>13, //EVERY YEAR INCREASED BY 1(TO TAKE DEMAND FROM 2013)
     "BIHAR_RULE_SETS"=>[
         "BuildingRules1"=>[
             "is_building"=>true,
