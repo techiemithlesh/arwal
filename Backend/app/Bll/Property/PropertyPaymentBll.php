@@ -282,7 +282,7 @@ class PropertyPaymentBll{
                 "branch_name"=>$this->_REQUEST->branchName,
             ]);
             $chequeId = $objChequeDtl->store($chequeRequest);
-        }dd($paidDemand);
+        }
 
         # update demand and insert collection
         foreach($paidDemand as $paid){            
@@ -323,9 +323,7 @@ class PropertyPaymentBll{
             if($propDemand->balance_tax<=0){
                 $propDemand->is_full_paid = true;
             }
-            if($propDemand->balance_tax<0){
-                dd($propDemand,$paid);
-            }
+            
             $propDemand->update();
 
         }
