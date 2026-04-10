@@ -174,7 +174,7 @@ class PropertyPaymentBll{
             "qtr"=>$currentDemand->max("qtr"),
             "remainingAmount" => $remainAmount,
             "paid_monthly_penalty"=>roundFigure($paidTotalMonthlyPenaltyTax),
-            "paid_balance_tax" => roundFigure($paidTotalBalance),
+            "paid_balance_tax" => roundFigure($paidTotalBalanceTax),
             "paid_due_holding_tax"=> roundFigure($paidHoldingTax),
             "paid_due_water_tax" => roundFigure($paidWaterTax),
             "paid_due_education_cess_tax"=> roundFigure($paidEducationCessTax),
@@ -183,6 +183,7 @@ class PropertyPaymentBll{
             "paid_due_rwh_tax" => roundFigure($paidRWH),
             "paid_due_fine_tax" => roundFigure($paidFineTax),
             "totalTax"=> roundFigure($total),
+            "apidAmount"=>$paidAmount
         ];
         return $returnData;
 
@@ -281,7 +282,7 @@ class PropertyPaymentBll{
                 "branch_name"=>$this->_REQUEST->branchName,
             ]);
             $chequeId = $objChequeDtl->store($chequeRequest);
-        }
+        }dd($paidDemand);
 
         # update demand and insert collection
         foreach($paidDemand as $paid){            
@@ -321,6 +322,9 @@ class PropertyPaymentBll{
             $propDemand->paid_status = true ;
             if($propDemand->balance_tax<=0){
                 $propDemand->is_full_paid = true;
+            }
+            if($propDemand->balance_tax<0){
+                dd($propDemand,$paid);
             }
             $propDemand->update();
 
