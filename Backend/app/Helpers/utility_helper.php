@@ -346,9 +346,9 @@ if (!function_exists("fromRuleEmplimenteddate")) {
         /* ------------------------------------------------------------
             * Calculation
             * ------------------------------------------------------------
-            * subtract 12 year from current date
+            * subtract 13 year from current date
         */
-        $date =  Carbon::now()->subYear(12)->format("Y");
+        $date =  Carbon::now()->subYear(13)->format("Y");
         return $date . "-04-01";
     }
 }

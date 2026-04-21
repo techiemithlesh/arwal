@@ -20,6 +20,8 @@ function DateWiseCollection() {
         { label: "Date", key: "date" },
         { label: "Property", key: "propertyAmount" },
         { label: "Total Property", key: "totalProperty" },
+        { label: "Saf", key: "safAmount" },
+        { label: "Total Saf", key: "totalSaf" },
         { label: "Water", key: "waterAmount" },
         { label: "Total Water", key: "totalWater" },
         { label: "Trade", key: "tradeAmount" },
@@ -38,6 +40,8 @@ function DateWiseCollection() {
             <td className="px-3 py-2 border">{formatLocalDate(item?.date)}</td>
             <td className="px-3 py-2 border">{item?.propertyAmount}</td>
             <td className="px-3 py-2 border">{item?.totalProperty}</td>
+            <td className="px-3 py-2 border">{item?.safAmount}</td>
+            <td className="px-3 py-2 border">{item?.totalSaf}</td>
             <td className="px-3 py-2 border">{item?.waterAmount}</td>
             <td className="px-3 py-2 border">{item?.totalWater}</td>
             <td className="px-3 py-2 border">{item?.tradeAmount}</td>
@@ -55,6 +59,8 @@ function DateWiseCollection() {
             <td className="px-3 py-2 border">{totals.total}</td>
             <td className="px-3 py-2 border">{totals.propertyAmount}</td>
             <td className="px-3 py-2 border">{totals.totalProperty}</td>
+            <td className="px-3 py-2 border">{totals.safAmount}</td>
+            <td className="px-3 py-2 border">{totals.totalSaf}</td>
             <td className="px-3 py-2 border">{totals.waterAmount}</td>
             <td className="px-3 py-2 border">{totals.totalWater}</td>
             <td className="px-3 py-2 border">{totals.tradeAmount}</td>
@@ -62,6 +68,19 @@ function DateWiseCollection() {
             <td className="px-3 py-2 border">{totals.totalAmount}</td>
         </tr>
     );
+    const footerData = [
+            { content: 'Total' }, 
+            { content: summary?.total },
+            { content: summary?.propertyAmount },
+            { content: summary?.totalProperty },
+            { content: summary?.safAmount },
+            { content: summary?.totalSaf },
+            { content: summary?.waterAmount },
+            { content: summary?.totalWater },
+            { content: summary?.tradeAmount },
+            { content: summary?.totalTrade },
+            { content: summary?.totalAmount },
+        ]; 
 
     const summaryHeader = (
         <div className="flex flex-col items-center justify-center gap-2 text-sm rounded-sm text-center">
@@ -149,6 +168,7 @@ function DateWiseCollection() {
             headers={headers}
             renderRow={renderRow}
             footerRow={renderFooter(summary)}
+            footerData = {footerData}
             data={dataList}
             startingItemsPerPage={10}
             isExport={true}

@@ -68,7 +68,11 @@ const FloorPanel = ({ floor }) => {
         const amount = parseFloat(
           taxItem.fyearTax?.length > 0 ? taxItem?.totalTax ?? 0 : 0
         );
+        const monthlyPenalty = parseFloat(
+          taxItem.fyearTax?.length > 0 ? taxItem?.monthlyPenalty ?? 0 : 0
+        );
         acc["propertyTax"] = (acc["propertyTax"] || 0) + amount;
+        acc["monthlyPenalty"] = (acc["monthlyPenalty"] || 0) + monthlyPenalty;
         return acc;
       }, {})
     : {};
@@ -123,6 +127,7 @@ const FloorPanel = ({ floor }) => {
                 <th className="px-3 py-2 border">Latrine Tax</th>
                 <th className="px-3 py-2 border">RWH</th>
                 <th className="px-3 py-2 border">Total Tax</th>
+                <th className="px-3 py-2 border">Monthly Penalty</th>
                 <th className="px-3 py-2 border">Applicable</th>
               </tr>
             </thead>
@@ -175,6 +180,9 @@ const FloorPanel = ({ floor }) => {
                     <td className="px-3 py-2 border font-semibold text-right">
                       {tax?.totalTax}
                     </td>
+                    <td className="px-3 py-2 border font-semibold text-right">
+                      {tax?.monthlyPenalty}
+                    </td>
                     <td className="px-3 py-2 border text-center">
                       <span
                         className={`px-2 py-1 rounded text-xs font-medium ${
@@ -202,7 +210,9 @@ const FinancialYearPanel = ({ fy }) => {
   const totalSummary = Array.isArray(fy.quarterly)
     ? fy.quarterly.reduce((acc, taxItem) => {
         const amount = parseFloat(taxItem?.totalTax ?? 0);
+        const monthlyPenalty = parseFloat(taxItem?.monthlyPenalty ?? 0);
         acc["propertyTax"] = (acc["propertyTax"] || 0) + amount;
+        acc["monthlyPenalty"] = (acc["monthlyPenalty"] || 0) + monthlyPenalty;
         return acc;
       }, {})
     : {};
@@ -247,6 +257,7 @@ const FinancialYearPanel = ({ fy }) => {
                   <th className="px-3 py-2 border">Latrine Tax</th>
                   <th className="px-3 py-2 border">RWH</th>
                   <th className="px-3 py-2 border">Total Tax</th>
+                  <th className="px-3 py-2 border">Monthly Penalty</th>
                 </tr>
               </thead>
               <tbody>
@@ -278,6 +289,9 @@ const FinancialYearPanel = ({ fy }) => {
                       </td>
                       <td className="px-3 py-2 border font-semibold text-right">
                         {qtr?.totalTax}
+                      </td>
+                      <td className="px-3 py-2 border font-semibold text-right">
+                        {qtr?.monthlyPenalty}
                       </td>
                     </tr>
                   );
@@ -360,6 +374,7 @@ const RuleSetPanel = ({ ruleSet }) => {
                     <th className="px-3 py-2 border">Health Cess</th>
                     <th className="px-3 py-2 border">Total Tax</th>
                     <th className="px-3 py-2 border">Quarterly Tax</th>
+                    <th className="px-3 py-2 border">Monthly Penalty</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -414,6 +429,9 @@ const RuleSetPanel = ({ ruleSet }) => {
                           </td>
                           <td className="px-3 py-2 border text-right">
                             {floor?.totalTaxQuarterly}
+                          </td>
+                          <td className="px-3 py-2 border text-right">
+                            {floor?.monthlyPenalty}
                           </td>
                         </tr>
                       );

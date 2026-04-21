@@ -7,7 +7,8 @@ export default function CommonTable({
   data = [],
   headers = [],
   renderRow,
-  footerRow=null,
+  footerRow=null,  
+  footerData=[],
   title = "List",
   actionButton,
   itemsPerPage = 10,
@@ -100,6 +101,44 @@ export default function CommonTable({
       ];
 
       const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+      // FIX: Check if footerData exists and has content
+      if (footerData && footerData.length > 0) {
+        // 1. Normalize footerData to be a 2D array (array of rows)
+        const footerRows = Array.isArray(footerData[0]) ? footerData : [footerData];
+        
+        const startRow = worksheetData.length; 
+        const merges = [];
+        
+        // Process each row in the footer (usually just one)
+        footerRows.forEach((row, rowIndex) => {
+          const footerRowValues = [];
+          let currentCol = 0;
+
+          row.forEach((cell) => {
+            footerRowValues.push(cell.content ?? "");
+            
+            const span = cell.colSpan || 1; // Default to 1 if no colSpan provided
+
+            if (span > 1) {
+              merges.push({
+                s: { r: startRow + rowIndex, c: currentCol }, 
+                e: { r: startRow + rowIndex, c: currentCol + span - 1 }
+              });
+              // Fill empty slots for merged cells
+              for (let i = 1; i < span; i++) {
+                footerRowValues.push("");
+              }
+            }
+            currentCol += span; // Increment by the span amount
+          });
+
+          // Add this specific footer row to the sheet
+          XLSX.utils.sheet_add_aoa(worksheet, [footerRowValues], { origin: -1 });
+        });
+
+        // Apply merges to the worksheet
+        worksheet["!merges"] = merges;
+      }
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
       XLSX.writeFile(workbook, `${title.replace(/\s+/g, "_")}.xlsx`);
@@ -116,12 +155,20 @@ export default function CommonTable({
       const allData = fetchAllData ? await fetchAllData() : data;
       const doc = new jsPDF();
       doc.text(title, 14, 10);
+      let finalFoot = undefined;
+    
+      if (footerData && footerData.length > 0) {
+        // If footerData is [ {content...} ], wrap it to become [ [ {content...} ] ]
+        // If it's already [ [ {content...} ] ], leave it as is.
+        finalFoot = Array.isArray(footerData[0]) ? footerData : [footerData];
+      }
       autoTable(doc, {
         startY: 20,
         head: [headers.map((h) => h.label)],
         body: allData.map((item, idx) =>
           headers.map((h) => (h.key === "serial" ? idx + 1 : item[h.key] ?? ""))
         ),
+        foot: finalFoot,
         styles: { fontSize: 8 },
       });
       doc.save(`${title.replace(/\s+/g, "_")}.pdf`);

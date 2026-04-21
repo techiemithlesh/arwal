@@ -346,9 +346,11 @@ class BiharTaxCalculator
             if($fromFyear==$uptoFYear){
                 $uptoQtr = $RuleSetTax["uptoQtr"];
             }
-            while($qtr<=$uptoQtr){                
+            while($qtr<=$uptoQtr){ 
+                $dueDate = FyearQutUptoDate($fromFyear,$qtr);              
                 $fyearTax["quarterly"][] = [
                     "qtr"=>$qtr,
+                    "dueDate" => $dueDate,
                     "fyear"=>$fromFyear,
                     "ARV" => ($RuleSetTax["ARV"]??0)/4,
                     "propertyTax" => ($RuleSetTax["propertyTax"]??0)/4,
@@ -371,6 +373,11 @@ class BiharTaxCalculator
             }
             $qtr = 1;
             // $this->_FYearWiseTax[]=$fyearTax;
+            $fyearTax["quarterly"] = array_map(function($item){
+                $item = $this->getOnePercentPenalty($item);
+                return $item;
+            },$fyearTax["quarterly"]);
+            $fyearTax["monthlyPenalty"] = round(collect($fyearTax["quarterly"])->sum("monthlyPenalty"),2);
             $AllfyearTax[]= $fyearTax;
             list($fromYear,$uptoYear) = explode("-",$fromFyear);
             $fromFyear = $uptoYear."-".($uptoYear+1);
@@ -531,6 +538,7 @@ class BiharTaxCalculator
         
         $floorTax=array_merge($floorTax,$tax);
         $floorTax["fyearTax"] = $this->GenerateRuleSetFyearTax($floorTax);
+        $floorTax["monthlyPenalty"] = round(collect($floorTax["fyearTax"])->sum("monthlyPenalty"),2);
         return $floorTax;
     }
 
@@ -726,12 +734,12 @@ class BiharTaxCalculator
                 $quarterly = [];
                 $cFromQtr = $fromQtr;
                 while($cFromQtr <= $uptoQtr){
-                    $qTaxes = $allQuarterlyTax->where("qtr",$cFromQtr);
-                    
+                    $qTaxes = $allQuarterlyTax->where("qtr",$cFromQtr);                    
                     if($qTaxes->count()>0){
                         $qt = [
                             "floorCount"=>$qTaxes->count(),
                             "qtr" => $cFromQtr,
+                            "dueDate" => $qTaxes->max("dueDate"),
 							"fyear" => $year,
 							"propertyTax" => roundFigure($qTaxes->sum("propertyTax")),
 							"HoldingTax" => roundFigure($qTaxes->sum("HoldingTax")),
@@ -741,6 +749,8 @@ class BiharTaxCalculator
 							"EducationCessTax" => roundFigure($qTaxes->sum("EducationCessTax")),
 							"RWH" => roundFigure($qTaxes->sum("RWH")),
 							"TotalTax" => roundFigure($qTaxes->sum("TotalTax")),
+                            "monthDiff" => roundFigure($qTaxes->sum("monthDiff")),
+                            "monthlyPenalty" => roundFigure($qTaxes->sum("monthlyPenalty")),
                         ];
                         $quarterly[]=$qt;
                     }
@@ -767,12 +777,36 @@ class BiharTaxCalculator
                     "EducationCessTaxQuarterly" => roundFigure($currentTax->sum("EducationCessTaxQuarterly")),
                     "RWH" => roundFigure($currentTax->sum("RWH")),
                     "TotalTax" => roundFigure($currentTax->sum("TotalTax")),
-                    "TotalTaxQuarterly" => roundFigure($currentTax->sum("TotalTaxQuarterly")),    
+                    "TotalTaxQuarterly" => roundFigure($currentTax->sum("TotalTaxQuarterly")),
+                    "monthlyPenalty" => roundFigure($currentTax->sum("monthlyPenalty")),    
                 ];
                 $this->_GRID["FyearWiseTax"][] = $RuleSetTax;
             }            
 
         } 
+    }
+
+    public function getOnePercentPenalty($demandList){
+        $penalty = 0 ;
+        $monthDiff = 0;
+        $currentDate = Carbon::now();
+        if(getFY($demandList["dueDate"])<getFY())
+        {
+            $monthDiff = floor(Carbon::parse($demandList["dueDate"])->diffInMonths($currentDate));
+            $penalty = roundFigure(($demandList["TotalTax"] * $monthDiff * 1.5)/100);
+        }
+        if(getFY($demandList["dueDate"])==getFY()  && $currentDate->copy()->format("Y-m-d")>=FyearQutFromDate(getFY(),3) ){
+            $monthDiff = floor(Carbon::parse(FyearQutUptoDate(getFY(),2))->diffInMonths($currentDate));
+            $penalty = roundFigure(($demandList["TotalTax"] * $monthDiff * 1.5)/100);
+        }
+
+        if(in_array(getFY(),["2025-2026"])){
+            $penalty = 0 ;
+            $monthDiff = 0;
+        }
+        $demandList["monthDiff"] = $monthDiff;
+        $demandList["monthlyPenalty"] = $penalty;
+        return $demandList;
     }
 
     public function RuleSetTaxCalculator(){
@@ -819,21 +853,21 @@ class BiharTaxCalculator
                         while($cFromQtr <= $uptoQtr){
                             $qTaxes = $allQuarterlyTax->where("qtr",$cFromQtr);
                             list($FYear,$UYear) =explode("-",$year); 
-                            $dueDate = $FYear."-06-30";
-                            if($cFromQtr==2){
-                                $dueDate = $FYear."-09-30";
-                            }
-                            if($cFromQtr==3){
-                                $dueDate = $FYear."-12-31";
-                            }
-                            if($cFromQtr==4){
-                                $dueDate = $UYear."-03-31";
-                            }
+                            // $dueDate = $FYear."-06-30";
+                            // if($cFromQtr==2){
+                            //     $dueDate = $FYear."-09-30";
+                            // }
+                            // if($cFromQtr==3){
+                            //     $dueDate = $FYear."-12-31";
+                            // }
+                            // if($cFromQtr==4){
+                            //     $dueDate = $UYear."-03-31";
+                            // }
                             if($qTaxes->count()>0){
                                 $qt = [
                                     "floorCount"=>$qTaxes->count(),
                                     "qtr" => $cFromQtr,
-                                    "dueDate"=>$dueDate,
+                                    "dueDate" => $qTaxes->max("dueDate"),
                                     "fyear" => $year,
                                     "propertyTax" => roundFigure($qTaxes->sum("propertyTax")),
                                     "HoldingTax" => roundFigure($qTaxes->sum("HoldingTax")),
@@ -843,6 +877,7 @@ class BiharTaxCalculator
                                     "EducationCessTax" => roundFigure($qTaxes->sum("EducationCessTax")),
                                     "RWH" => roundFigure($qTaxes->sum("RWH")),
                                     "TotalTax" => roundFigure($qTaxes->sum("TotalTax")),
+                                    "monthlyPenalty"=> roundFigure($qTaxes->sum("monthlyPenalty")),
                                 ];
                                 $quarterly[]=$qt;
                             }
@@ -871,7 +906,8 @@ class BiharTaxCalculator
                             "EducationCessTaxQuarterly" => roundFigure($currentTax->sum("EducationCessTaxQuarterly")),
                             "RWH" => roundFigure($currentTax->sum("RWH")),
                             "TotalTax" => roundFigure($currentTax->sum("TotalTax")),
-                            "TotalTaxQuarterly" => roundFigure($currentTax->sum("TotalTaxQuarterly")),    
+                            "TotalTaxQuarterly" => roundFigure($currentTax->sum("TotalTaxQuarterly")), 
+                            "monthlyPenalty"=> roundFigure($currentTax->sum("monthlyPenalty")),   
                         ];
                         $Fyearlytax[] = $Tax;
                     }            
@@ -905,6 +941,7 @@ class BiharTaxCalculator
                     "RWHQuarterly"=>roundFigure($tax->sum("Quarterly")),
                     "TotalTax"=>roundFigure($tax->sum("TotalTax")),
                     "TotalTaxQuarterly"=>roundFigure($tax->sum("TotalTaxQuarterly")),
+                    "monthlyPenalty"=> roundFigure($tax->sum("monthlyPenalty")),
                     "Fyearlytax"=>$Fyearlytax,
                     "DTL"=>collect($tax)->values()
                 ];

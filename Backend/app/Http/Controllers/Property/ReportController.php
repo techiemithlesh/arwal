@@ -121,7 +121,7 @@ class ReportController extends Controller
                 ),
             ];
 
-            $activeSafTran = $this->_PropTransaction->select(array_merge($commonSelect, [DB::raw("null as holding_no"), "active_saf_details.saf_no"]))
+            $activeSafTran = $this->_PropTransaction->select(array_merge($commonSelect, [DB::raw("null as holding_no"), "active_saf_details.saf_no",DB::raw("TRUE AS saf_tran")]))
                     ->leftJoin("cheque_details","cheque_details.transaction_id","prop_transactions.id")
                     ->leftJoin("users",function($join){
                         $join->on("users.id","prop_transactions.user_id")
@@ -140,7 +140,7 @@ class ReportController extends Controller
                     ->leftJoin("ulb_ward_masters","ulb_ward_masters.id","prop_transactions.ward_mstr_id")
                     ->where("prop_transactions.lock_status",false)
                     ->whereIn("prop_transactions.payment_status",[1,2]);
-            $safTran = $this->_PropTransaction->select(array_merge($commonSelect, [DB::raw("null as holding_no"), "saf_details.saf_no"]))
+            $safTran = $this->_PropTransaction->select(array_merge($commonSelect, [DB::raw("null as holding_no"), "saf_details.saf_no",DB::raw("TRUE AS saf_tran")]))
                     ->leftJoin("cheque_details","cheque_details.transaction_id","prop_transactions.id")
                     ->leftJoin("users",function($join){
                         $join->on("users.id","prop_transactions.user_id")
@@ -160,7 +160,7 @@ class ReportController extends Controller
                     ->where("prop_transactions.lock_status",false)
                     ->whereIn("prop_transactions.payment_status",[1,2]);
 
-            $rejectedSafTran = $this->_PropTransaction->select(array_merge($commonSelect, [DB::raw("null as holding_no"), "rejected_saf_details.saf_no"]))
+            $rejectedSafTran = $this->_PropTransaction->select(array_merge($commonSelect, [DB::raw("null as holding_no"), "rejected_saf_details.saf_no",DB::raw("TRUE AS saf_tran")]))
                     ->leftJoin("cheque_details","cheque_details.transaction_id","prop_transactions.id")
                     ->leftJoin("users",function($join){
                         $join->on("users.id","prop_transactions.user_id")
@@ -180,11 +180,18 @@ class ReportController extends Controller
                     ->where("prop_transactions.lock_status",false)
                     ->whereIn("prop_transactions.payment_status",[1,2]);
 
-            $propertyTran = $this->_PropTransaction->select(array_merge($commonSelect, [DB::raw("CASE WHEN property_details.new_holding_no IS NULL THEN property_details.holding_no ELSE property_details.new_holding_no END as holding_no"), DB::raw("null as saf_no")]))                    ->leftJoin("cheque_details","cheque_details.transaction_id","prop_transactions.id")
+            $propertyTran = $this->_PropTransaction->select(array_merge($commonSelect, [DB::raw("CASE WHEN property_details.new_holding_no IS NULL THEN property_details.holding_no ELSE property_details.new_holding_no END as holding_no"), DB::raw("null as saf_no"),DB::raw("CASE WHEN first_tran.min_id IS NOT NUll AND property_details.assessment_type='New Assessment' THEN TRUE ELSE FALSE END AS saf_tran")]))
+                    ->leftJoin("cheque_details","cheque_details.transaction_id","prop_transactions.id")
                     ->leftJoin("users",function($join){
                         $join->on("users.id","prop_transactions.user_id")
                         ->where("prop_transactions.user_type","<>","ONLINE");
                     })
+                    ->leftJoin(DB::raw("(
+                            SELECT MIN(id) AS min_id 
+                            FROM prop_transactions 
+                            WHERE lock_status = false 
+                            GROUP BY property_detail_id 
+                        ) AS first_tran"),"first_tran.min_id","prop_transactions.id")
                     ->join("property_details","property_details.id","prop_transactions.property_detail_id")
                     ->leftJoin(DB::raw("(
                                         select property_detail_id,

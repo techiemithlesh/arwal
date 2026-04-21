@@ -1147,18 +1147,21 @@ class AccountController extends Controller
 
             while($fromDate->lte($uptoDate)){
                 $date = $fromDate->clone()->format("Y-m-d");
-                $prop = $propTran->where("tranDate",$date);
+                $prop = $propTran->where("tranDate",$date)->where("safTran",FALSE);
+                $saf = $propTran->where("tranDate",$date)->where("safTran",TRUE);
                 $trade = $tradeTran->where("tranDate",$date);
                 $water = $waterTran->where("tranDate",$date);
                 $response->push([
                     "date"=> $fromDate->clone()->format("Y-m-d"),
                     "propertyAmount"=>roundFigure($prop->sum("payableAmt")),
                     "totalProperty"=>$prop->count("id"),
+                    "safAmount"=>roundFigure($saf->sum("payableAmt")),
+                    "totalSaf"=>$saf->count("id"),
                     "waterAmount"=>roundFigure($water->sum("payableAmt")),
                     "totalWater"=>$water->count("id"),
                     "tradeAmount"=>roundFigure($trade->sum("payableAmt")),
                     "totalTrade"=>$trade->count("id"),
-                    "totalAmount"=>roundFigure($prop->sum("payableAmt") + $water->sum("payableAmt") +$trade->sum("payableAmt") ),
+                    "totalAmount"=>roundFigure($prop->sum("payableAmt") + $saf->sum("payableAmt") + $water->sum("payableAmt") +$trade->sum("payableAmt") ),
                 ]);
                 $fromDate = $fromDate->addDay();
             }
@@ -1172,6 +1175,8 @@ class AccountController extends Controller
                     "totalAmount"=>roundFigure($response->sum("totalAmount")),
                     "propertyAmount"=>roundFigure($response->sum("propertyAmount")),
                     "totalProperty"=>$response->sum("totalProperty"),
+                    "totalSaf"=>$response->sum("totalSaf"),
+                    "safAmount"=>roundFigure($response->sum("safAmount")),
                     "waterAmount"=>roundFigure($response->sum("waterAmount")),
                     "totalWater"=>$response->sum("totalWater"),
                     "tradeAmount"=>roundFigure($response->sum("tradeAmount")),
