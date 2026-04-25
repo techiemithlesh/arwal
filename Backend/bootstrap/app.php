@@ -55,6 +55,7 @@ return Application::configure(basePath: dirname(__DIR__))
             "corsSite", // ✅ Apply CORS to web routes
         ]);
         $middleware->api(append: [
+            "atomic.lock",
             "logResponse", // <-- ADDED HERE to apply to all API routes
         ])->prepend([
             // Use prepend for middleware that must run very early in the API request cycle
@@ -67,6 +68,7 @@ return Application::configure(basePath: dirname(__DIR__))
             "setUlb"=>\App\Http\Middleware\SetUlbDatabaseConnections::class,
             "logResponse"=>\App\Http\Middleware\LogApiResponse::class,
             "corsSite"=>\App\Http\Middleware\CorsMiddleware::class,
+            'atomic.lock' => \App\Http\Middleware\PreventConcurrentRequests::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
