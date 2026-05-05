@@ -214,6 +214,24 @@ function PropertyWiseDcb() {
     </tr>
   );
 
+  const footerData = [
+      { content: 'Total', colSpan:7 }, 
+      { content: summary?.totalProperty,  },
+      { content: summary?.totalArrearTax,  },
+      { content: summary?.totalCurrentTax,  },
+      { content: summary?.totalTax,  },
+      { content: summary?.totalArrearCollection,  },
+      { content: summary?.totalCurrentCollection,  },
+      { content: summary?.totalCollection,  },
+      { content: summary?.totalArrearOutstanding,  },
+      { content: summary?.totalCurrentOutstanding,  },
+      { content: summary?.grandTotalOutstanding,  },
+      { content: summary?.totalAdvanceForThis,  },
+      { content: summary?.grandTotalCurrentAdvance,  },
+      { content: summary?.grandTotalCurrentAdjust,  },
+      { content: summary?.totalGrandOutstandingAdvance,  },
+  ];
+
   const filterComponent = (
     <div className="gap-4 grid grid-cols-1 md:grid-cols-4">
       <div>
@@ -259,6 +277,7 @@ function PropertyWiseDcb() {
         headers={headers}
         renderRow={renderRow}
         footerRow={renderFooter(summary)}
+        footerData={footerData}
         title="Holding Wise DCB"
         totalPages={totalPage}
         currentPage={page}

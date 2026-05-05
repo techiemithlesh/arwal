@@ -211,6 +211,26 @@ function WardWiseDcb() {
     </tr>
   );
 
+  const footerData = [
+      { content: 'Total', colSpan:2 }, 
+      { content: summary?.totalProperty,  },
+      { content: summary?.arrearTax,  },
+      { content: summary?.currentTax,  },
+      { content: summary?.totalTax,  },
+      { content: summary?.arrearCollection,  },
+      { content: summary?.currentCollection,  },
+      { content: summary?.totalCollection,  },
+      { content: summary?.totalPenalty,  },
+      { content: summary?.totalRebate,  },
+      { content: summary?.arrearOutstanding,  },
+      { content: summary?.currentOutstanding,  },
+      { content: summary?.totalOutstanding,  },
+      { content: summary?.advanceForThis,  },
+      { content: summary?.totalCurrentAdvance,  },
+      { content: summary?.totalCurrentAdjust,  },
+      { content: summary?.totalOutstandingAdvance,  },
+  ];
+
   const filterComponent = (
     <div className="gap-4 grid grid-cols-1 md:grid-cols-4">
       <div>
@@ -256,6 +276,7 @@ function WardWiseDcb() {
         headers={headers}
         renderRow={renderRow}
         footerRow={renderFooter(summary)}
+        footerData={footerData}
         title="Ward Wise DCB"
         totalPages={totalPage}
         currentPage={page}

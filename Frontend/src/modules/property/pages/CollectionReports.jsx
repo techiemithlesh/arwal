@@ -248,6 +248,12 @@ function CollectionReports() {
     </tr>
   );
 
+  const footerData = [
+      { content: 'Total' }, 
+      { content: summary?.totalCount, colSpan:8 },
+      { content: summary?.totalAmount, colSpan:7 },
+  ];
+
   const filterComponent = (
     <div className="gap-4 grid grid-cols-1 md:grid-cols-4">
       <div>
@@ -334,6 +340,7 @@ function CollectionReports() {
         headers={headers}
         renderRow={renderRow}
         footerRow={renderFooter(summary)}
+        footerData={footerData}
         title="Collection Report"
         totalPages={totalPage}
         currentPage={page}
