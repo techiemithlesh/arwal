@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { getToken, getUserDetails } from "../../../utils/auth";
 import axios from "axios";
-import { dbListApi, executeQueryApi, tableListApi } from "../../../api/endpoints";
+import { bdBackupApi, dbListApi, executeQueryApi, tableListApi } from "../../../api/endpoints";
 import DataTableFullData from "../../../components/common/DataTableFullData";
 import { Spinner } from "@nextui-org/react";
 import { useNavigate } from "react-router-dom";
@@ -138,55 +138,12 @@ export default function QueryEditorUI() {
     setHint(true);
     setTimeout(() => setHint(false), 800);
   };
-
-  const handleDownloadBackup1 = async () => {
-    setIsDownloading(true);
-    try {
-      const response = await axios.post(
-        "http://127.0.0.1:8091/api/editor/backup-download",
-        { conn: selectedDb },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          responseType: "blob", 
-        }
-      );
-
-      if (!response?.data?.status) {
-        setError("");
-        // Create a local blob URL representing the downloaded zip file
-        const blob = new Blob([response.data], { type: "application/zip" });
-        const downloadUrl = window.URL.createObjectURL(blob);
-        
-        // Create a temporary <a> tag and click it programmatically
-        const link = document.createElement("a");
-        link.href = downloadUrl;
-        link.setAttribute("download", `${selectedDb}_backup_${Date.now()}.zip`);
-        document.body.appendChild(link);
-        link.click();
-        
-        // Cleanup
-        link.remove();
-        window.URL.revokeObjectURL(downloadUrl);
-        
-        toastMsg("Backup downloaded successfully!", "success");
-      } else {
-        setError(response?.data?.message);
-      }
-
-      
-    } catch (error) {
-      console.error("Backup download error:", error);
-      toastMsg("Failed to generate or download backup.", "error");
-    } finally {
-      setIsDownloading(false);
-    }
-  };
-
+  
   const handleDownloadBackup = async () => {
     setIsDownloading(true);
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8091/api/editor/backup-download",
+        bdBackupApi,
         { conn: selectedDb },
         { headers: { Authorization: `Bearer ${token}` } } // Standard JSON processing
       );
