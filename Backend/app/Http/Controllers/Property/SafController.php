@@ -401,7 +401,7 @@ class SafController extends Controller
                     throw new CustomException("Previous Holding Not Found!!!");
                 }
                 $testPendingSaf = $this->_ActiveSafDetail->where("previous_holding_id",$request->previousHoldingId)->first();
-                if($testPendingSaf){
+                if($testPendingSaf && in_array($request->assessmentType,["Reassessment"])){
                     throw new CustomException("You Have Already Apply A Saf (".$testPendingSaf->saf_no.") That Is Not Approve. Please Wait For Approval...");
                 }
                 $isCurrentSafPending = $this->_ActiveSafDetail->find($property->saf_detail_id);

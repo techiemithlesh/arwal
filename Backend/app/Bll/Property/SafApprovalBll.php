@@ -179,7 +179,7 @@ class SafApprovalBll
     }
 
     public function createNewProperty(){
-        if(in_array($this->_SAF->assessment_type,["New Assessment"])){ 
+        if(in_array($this->_SAF->assessment_type,["New Assessment","Mutation"])){ 
             $property = $this->_ReplicateSaf->replicate();
             $property->setTable($this->_PropertyDetail->getTable());
             $property->new_holding_no = $this->_HoldingNo;
@@ -205,7 +205,7 @@ class SafApprovalBll
 
     public function FinalUpdateProperty(){
         $property = $this->_PropertyDetail->find($this->_SAF->prop_dtl_id??$this->_SAF->previous_holding_id);
-        if(!$property){
+        if((!$property) || ($this->_SAF->assessment_type=="Mutation" && (!$this->_SAF->prop_dtl_id))){
            $this->createNewProperty(); 
            $property = $this->_PropertyDetail->find($this->_PropId);
         }        
