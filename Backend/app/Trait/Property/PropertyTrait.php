@@ -542,7 +542,7 @@ trait PropertyTrait{
                 $serial_no_pad = str_pad($serial_no, 4, "0", STR_PAD_LEFT);
                 $generated_holding_no = $ward_no . $road_type . $serial_no_pad . $sub_holding_no . $usage_type_code . $const_type_code;                
         }
-        return $property && $property->new_holding_no ? $property->new_holding_no : $generated_holding_no ;
+        return $property && $property->new_holding_no && (!in_array($saf->assessment_type ,["New Assessment","Mutation"])) ? $property->new_holding_no : $generated_holding_no ;
     }
 
     public function adjustSWMConsumer($consumer){
