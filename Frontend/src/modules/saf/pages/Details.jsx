@@ -39,6 +39,7 @@ import PaymentReceiptModal from "../components/PaymentReceiptModal";
 import RemarksModal from "../components/RemarksModal";
 import SAFHeaderCard from "../components/SAFHeader";
 import SAMModal from "../components/SAMModal";
+import { includes } from "lodash";
 
 const Details = () => {
   const { safDtlId } = useParams();
@@ -240,7 +241,7 @@ const Details = () => {
   };
 
   const fields = [
-    { label: "Application No", value: safDetails?.safNo },
+    { label: "SAF No", value: safDetails?.safNo },
     { label: "Apply Date", value: safDetails?.applyDate },
     { label: "Ward No", value: safDetails?.wardNo },
     { label: "Assessment Type", value: safDetails?.assessmentType },
@@ -255,12 +256,31 @@ const Details = () => {
       value: safDetails?.rainWaterHarvesting ? "Yes" : "No",
     },
     { label: "Address", value: safDetails?.propAddress },
+    {label: "Road Type", value: safDetails?.roadType },
     { label: "Circle", value: safDetails?.zone },
     // Only add these fields if propertyType matches
     ...(safDetails?.propTypeMstrId === 1
       ? [
           { label: "Apartment Name", value: safDetails?.apartmentName },
           { label: "Flat Registry Date", value: safDetails?.flatRegistryDate },
+        ]
+      : []),
+
+      ...(([3,4].includes(safDetails?.propTypeMstrId))
+      ? [
+          { label: "Date of Possession / Purchase / Acquisition", value: safDetails?.landOccupationDate },
+        ]
+      : []),
+
+      ...(safDetails?.previousHoldingId != ""
+      ? [
+          { label: "Old Holding No", 
+            value: (
+              <a href={`/saf/details/${safDetails?.previousHoldingId}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+                {safDetails?.holdingNo}
+              </a>
+            )
+           },
         ]
       : []),
   ];
