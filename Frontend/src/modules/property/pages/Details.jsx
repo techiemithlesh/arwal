@@ -75,30 +75,35 @@ const Details = () => {
       onClick: () => setModal((m) => ({ ...m, demandView: true })),
       icon: <FaEye />,
       show: true,
+      disabled:propDetails?.lockStatus,
     },
     {
       label: "Proceed Payment",
       onClick: () => setModal((m) => ({ ...m, demandPay: true })),
       icon: <FaCommentDollar />,
       show: propDetails?.userPermission?.canTakePayment ?? false,
+      disabled:propDetails?.lockStatus,
     },
     {
       label: "Basic Edit",
       onClick: () => setModal((m) => ({ ...m, basicEdit: true })),
       icon: <FaEye />,
       show: propDetails?.userPermission?.canAppEdit ?? false,
+      disabled:propDetails?.lockStatus,
     },
     {
       label: "Owner Detail Edit",
       onClick: () => setModal((m) => ({ ...m, ownerDetailEdit: true })),
       icon: <FaEye />,
       show: propDetails?.userPermission?.canAppEdit ?? false,
+      disabled:propDetails?.lockStatus,
     },
     {
       label: "Deactivate Holding",
       onClick: () => setModal((m) => ({ ...m, deactivateHolding: true })),
       icon: <FaEye />,
       show: propDetails?.userPermission?.canAppLock ?? false,
+      disabled:propDetails?.lockStatus,
     },
     {
       label: "View Saf",
@@ -112,12 +117,14 @@ const Details = () => {
       onClick: () => navigate(`/property/details/${propId}/Reassessment`),
       icon: <FaEye />,
       show: propDetails?.userPermission?.canAdd ?? false,
+      disabled:propDetails?.lockStatus,
     },
     {
       label: "Mutation",
       onClick: () => navigate(`/property/details/${propId}/Mutation`),
       icon: <FaEye />,
       show: propDetails?.userPermission?.canAdd ?? false,
+      disabled:propDetails?.lockStatus,
     },
     
     {
@@ -125,6 +132,7 @@ const Details = () => {
       onClick: () => setModal((m) => ({ ...m, noticeGenerate: true })),
       icon: <FaEye />,
       show: propDetails?.userPermission?.canGenerateNotice?? false,
+      disabled:propDetails?.lockStatus,
     },
   ];
 
@@ -624,6 +632,7 @@ const Details = () => {
             {modal.deactivateHolding && (
               <DeactivateHoldingModal
                 propDetails={propDetails}
+                onSuccess={fetchDetails}
                 onCloseModal={() =>
                   setModal((m) => ({ ...m, deactivateHolding: false }))
                 }
