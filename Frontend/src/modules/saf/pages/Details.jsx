@@ -75,6 +75,7 @@ const Details = () => {
       },
       icon: <FaEye />,
       show: safDetails?.paymentStatus == 0,
+      disabled:safDetails?.lockStatus,
     },
     {
       label: "Proceed Payment",
@@ -85,6 +86,7 @@ const Details = () => {
       show:
         safDetails?.paymentStatus == 0 &&
         (wfPermissions?.canTakePayment || wfPermissions?.hasFullPermission),
+      disabled:safDetails?.lockStatus,
     },
     {
       label: "Upload Document",
@@ -98,6 +100,7 @@ const Details = () => {
         (!safDetails?.isDocUpload ||
           safDetails?.isBtc ||
           safDetails?.currentRoleId == safDetails?.initiatorRoleId),
+      disabled:safDetails?.lockStatus,
     },
     {
       label: "View Document",
@@ -118,6 +121,7 @@ const Details = () => {
         !safDetails?.isApproved &&
         (safDetails?.isBtc ||
           safDetails?.currentRoleId == safDetails?.initiatorRoleId),
+      disabled:safDetails?.lockStatus,
     },
     {
       label: "Edit",
@@ -129,6 +133,7 @@ const Details = () => {
         (!safDetails?.isDocUpload ||
           safDetails?.isBtc ||
           safDetails?.currentRoleId == safDetails?.initiatorRoleId),
+      disabled:safDetails?.lockStatus,
     },
   ];
 
