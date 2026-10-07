@@ -182,7 +182,7 @@ class PropDemandBll{
             
         }
         # 5% first quarter rebate
-        if($firstQuarterStartDate >= $currentDate && $currentDate <= $firstQuarterLastDate){
+        if($currentDate >= $firstQuarterStartDate && $currentDate <= $firstQuarterLastDate){
             $this->_firstQtrRebate = ($this->_currentDemandAmount * 0.05);
         }
         $this->_quarterlyRebate = roundFigure($this->_firstQtrRebate + $this->_jskRebate + $this->_onlineRebate);
