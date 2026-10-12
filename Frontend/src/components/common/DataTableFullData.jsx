@@ -2,6 +2,7 @@ import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { useState, useMemo } from "react";
+import { REPORT_EXPORTS_ENABLED } from "../../utils/exportConfig";
 
 const DataTableFullData = ({
   color,
@@ -85,6 +86,8 @@ const DataTableFullData = ({
 
 
   const exportToExcel = async () => {
+      if (!REPORT_EXPORTS_ENABLED) return;
+
       setIsExcelExporting(true);
       try {
         const allData = data;
@@ -146,6 +149,8 @@ const DataTableFullData = ({
     };
   
   const exportToPDF = async () => {
+    if (!REPORT_EXPORTS_ENABLED) return;
+
     setIsPDFExporting(true);
     try {
       const allData = data;
@@ -213,7 +218,7 @@ const DataTableFullData = ({
           </select>
         </div>
         {/* Right side: Export Buttons (UPDATED) */}
-        {isExport &&(
+        {isExport && REPORT_EXPORTS_ENABLED &&(
           <div className="flex gap-3">
             <button
               onClick={exportToPDF}

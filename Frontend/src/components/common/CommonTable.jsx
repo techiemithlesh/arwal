@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { REPORT_EXPORTS_ENABLED } from "../../utils/exportConfig";
 
 export default function CommonTable({
   data = [],
@@ -89,6 +90,8 @@ export default function CommonTable({
   };
 
   const exportToExcel = async () => {
+    if (!REPORT_EXPORTS_ENABLED) return;
+
     setIsExcelExporting(true);
     try {
       const allData = fetchAllData ? await fetchAllData() : data;
@@ -150,6 +153,8 @@ export default function CommonTable({
   };
 
   const exportToPDF = async () => {
+    if (!REPORT_EXPORTS_ENABLED) return;
+
     setIsPDFExporting(true);
     try {
       const allData = fetchAllData ? await fetchAllData() : data;
@@ -191,29 +196,31 @@ export default function CommonTable({
 
       {/* Search & Export */}
       <div className="flex justify-between items-center mb-3">
-        <div className="flex items-center gap-2">
-          <button
-            className="flex items-center gap-2 bg-green-500 px-3 py-1 rounded text-white"
-            onClick={exportToExcel}
-            disabled={isExcelExporting}
-          >
-            {isExcelExporting && (
-              <span className="border-2 border-white border-t-transparent rounded-full w-4 h-4 animate-spin"></span>
-            )}
-            Excel
-          </button>
+        {REPORT_EXPORTS_ENABLED && (
+          <div className="flex items-center gap-2">
+            <button
+              className="flex items-center gap-2 bg-green-500 px-3 py-1 rounded text-white"
+              onClick={exportToExcel}
+              disabled={isExcelExporting}
+            >
+              {isExcelExporting && (
+                <span className="border-2 border-white border-t-transparent rounded-full w-4 h-4 animate-spin"></span>
+              )}
+              Excel
+            </button>
 
-          <button
-            className="flex items-center gap-2 bg-red-500 px-3 py-1 rounded text-white"
-            onClick={exportToPDF}
-            disabled={isPDFExporting}
-          >
-            {isPDFExporting && (
-              <span className="border-2 border-white border-t-transparent rounded-full w-4 h-4 animate-spin"></span>
-            )}
-            PDF
-          </button>
-        </div>
+            <button
+              className="flex items-center gap-2 bg-red-500 px-3 py-1 rounded text-white"
+              onClick={exportToPDF}
+              disabled={isPDFExporting}
+            >
+              {isPDFExporting && (
+                <span className="border-2 border-white border-t-transparent rounded-full w-4 h-4 animate-spin"></span>
+              )}
+              PDF
+            </button>
+          </div>
+        )}
 
         <div className="flex justify-end items-center gap-2 ml-auto w-full md:w-1/3">
           {isSearchInput && (

@@ -2,6 +2,7 @@
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { REPORT_EXPORTS_ENABLED } from "./exportConfig";
 
 /**
  * Exports multiple sheets to Excel file.
@@ -9,6 +10,8 @@ import html2canvas from "html2canvas";
  * @param {Array} sheets - Array of sheets: { title, columns, data }
  */
 export const exportToExcel = (filename, sheets = []) => {
+  if (!REPORT_EXPORTS_ENABLED) return;
+
   const wb = XLSX.utils.book_new();
 
   sheets.forEach(({ title, columns, data }) => {
@@ -28,6 +31,8 @@ export const exportToExcel = (filename, sheets = []) => {
  * @param {string} filename - Output file name
  */
 export const exportToPdf = async (ref, filename = "download") => {
+  if (!REPORT_EXPORTS_ENABLED) return;
+
   if (!ref?.current) return;
 
   try {

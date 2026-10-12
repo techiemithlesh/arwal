@@ -1,6 +1,7 @@
 
 import { exportPDF } from '../utils/exportPdf';
-import { exportExcel } from '../utils/exportExcel';
+import { exportToExcel as exportExcel } from '../utils/exportExcel';
+import { REPORT_EXPORTS_ENABLED } from '../../utils/exportConfig';
 
 const ExportButtons = ({ columns, data }) => {
   const handlePdfExport = () => {
@@ -12,10 +13,12 @@ const ExportButtons = ({ columns, data }) => {
   };
 
   return (
-    <div className="flex space-x-4">
-      <button onClick={handlePdfExport} className="btn-custom">Export to PDF</button>
-      <button onClick={handleExcelExport} className="btn-custom">Export to Excel</button>
-    </div>
+    REPORT_EXPORTS_ENABLED && (
+      <div className="flex space-x-4">
+        <button onClick={handlePdfExport} className="btn-custom">Export to PDF</button>
+        <button onClick={handleExcelExport} className="btn-custom">Export to Excel</button>
+      </div>
+    )
   );
 };
 
